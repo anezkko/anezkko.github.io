@@ -667,6 +667,71 @@ body:has(.game.playing) .ticker{display:none}
 @keyframes tk{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @media (max-width:560px){.tk-chip{padding:0 11px;font-size:.9rem}.ticker-set{font-size:.74rem}.tk-item b{font-size:.9rem}}
 @media (prefers-reduced-motion:reduce){.ticker-track{animation-duration:150s}}
+/* ===== Bihać, the chill ride (bihac/): it covers the game frame while it runs, with its own corner buttons and cards.
+   The cards use the game's .ov look; these are only the ride's own parts. ===== */
+.ride{position:absolute;inset:0;z-index:4;background:#0E0F12}
+.ride[hidden]{display:none}
+.ride > canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:manipulation;cursor:pointer}
+.game.playing .ride > canvas{touch-action:none}
+.ride-btns{position:absolute;right:12px;top:12px;display:flex;gap:8px;align-items:center;z-index:3}
+/* a phone on its side: the frame is taller than the screen and sits in its middle, so the buttons come down to where
+   the screen starts */
+@media (max-height:520px){.ride-btns{top:max(12px,calc(50% - 50vh + 10px));top:max(12px,calc(50% - 50dvh + 10px))}}
+/* in the game, the Spray pad has nothing to do on the ride */
+.game-wrap:has(.ride:not([hidden])) #pad-spray{opacity:.35;pointer-events:none}
+.ride .music-btn{appearance:none;border:1px solid rgba(244,240,230,.6);background:rgba(14,15,18,.55);color:#F4F0E6;width:34px;height:34px;padding:0;border-radius:999px;display:grid;place-items:center;cursor:pointer;pointer-events:auto}
+.ride .music-btn .mico{width:17px;height:17px;display:block}
+.ride .music-btn .m-off{display:none}
+.ride .music-btn[aria-pressed="false"] .m-off{display:inline}
+.ride .music-btn[aria-pressed="false"] .m-note{opacity:.6}
+.ride .stop-btn{appearance:none;display:inline-flex;align-items:center;gap:9px;border:1px solid rgba(244,240,230,.7);background:rgba(14,15,18,.62);color:#F4F0E6;font:600 12px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;padding:10px 15px 10px 12px;border-radius:999px;cursor:pointer}
+.ride .stop-btn i{width:11px;height:11px;border-radius:2px;background:#FF4DC4;display:block}
+.ride .stop-btn:hover{background:rgba(14,15,18,.85);border-color:#FF4DC4}
+.ride .stop-btn[hidden]{display:none}
+
+/* the cards over a lighter veil, so Bihać shows through */
+.ride .ov{z-index:2;background:radial-gradient(ellipse at 50% 55%,rgba(10,9,13,.82) 0,rgba(10,9,13,.62) 48%,rgba(10,9,13,.38) 100%)}
+.ride .ov-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px 26px;margin:2px 0 4px}
+.ride .ov-stats div{display:grid;gap:3px}
+.ride .ov-stats b{font-family:var(--f-display);font-size:clamp(22px,3.6vw,38px);font-weight:800;font-variant-numeric:tabular-nums;color:#B4F53A;letter-spacing:-.03em}
+.ride .ov-stats b small{font-size:.5em;color:#F4F0E6;margin-left:.2em;letter-spacing:0}
+
+/* a wall's story: the card the ride stops for. Its colour (--cat) is the story's: red for the war, blue for history,
+   gold for talent, the same as the tag sprayed on the wall. */
+.ride .ov.memo{--cat:#F4C84A;background:radial-gradient(ellipse at 50% 50%,rgba(10,9,13,.86) 0,rgba(10,9,13,.72) 55%,rgba(10,9,13,.52) 100%);text-align:left}
+.ride .memo-card{position:relative;margin:auto;width:min(100%,640px);background:rgba(17,16,21,.95);border:1px solid rgba(244,240,230,.16);border-radius:14px;padding:clamp(14px,2.4vw,26px) clamp(16px,2.8vw,30px);display:grid;gap:clamp(8px,1.4vw,14px);box-shadow:0 30px 70px -30px rgba(0,0,0,.85);animation:memo-in .22s ease-out}
+@keyframes memo-in{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:none}}
+.ride .memo-head{display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(12px,2vw,20px);align-items:center;padding-right:clamp(64px,9vw,96px)}
+.ride .memo-ico{width:clamp(56px,8vw,80px);height:auto;aspect-ratio:1;image-rendering:pixelated;display:block}
+.ride .ov .memo-cat{font-family:var(--f-tag);color:var(--cat);font-size:clamp(18px,2.6vw,26px);line-height:1;margin:0 0 .2em;transform:rotate(-3deg);transform-origin:left center;max-width:none}
+.ride .ov .memo-card h3{font-size:clamp(24px,4vw,42px);line-height:.98;letter-spacing:-.035em;text-wrap:balance}
+.ride .ov .memo-when{font-family:var(--f-mono);font-size:clamp(10px,1.2vw,12px);letter-spacing:.03em;color:var(--text-soft);margin-top:.55em;max-width:none}
+.ride .ov .memo-text{font-size:clamp(13px,1.55vw,16px);line-height:1.55;max-width:62ch;color:#ECEAF2}
+.ride .memo-foot{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-top:2px}
+.ride .memo-foot .ov-btn{font-size:clamp(14px,1.9vw,19px)}
+.ride .memo-src{font-family:var(--f-mono);font-size:clamp(10px,1.15vw,12px);color:#F4F0E6;text-decoration:underline;text-decoration-color:var(--cat);text-decoration-thickness:2px;text-underline-offset:4px}
+.ride .memo-src:hover{color:var(--cat)}
+.ride .memo-count{position:absolute;top:clamp(12px,2vw,20px);right:clamp(14px,2.4vw,24px);font-family:var(--f-mono);font-size:clamp(10px,1.1vw,12px);letter-spacing:.03em;color:var(--text-soft)}
+.ride .memo-lang{margin-left:auto}
+@media (max-height:520px){
+  .ride .memo-card{width:min(100%,760px);padding:12px 18px;gap:8px}
+  .ride .memo-ico{width:52px}
+  .ride .ov .memo-card h3{font-size:26px}
+  .ride .ov .memo-text{max-width:none;font-size:13px;line-height:1.45}
+}
+/* on a phone the game frame is small: the story gets the whole screen */
+@media (max-width:699px),(max-height:520px){
+  .ride .ov.memo{position:fixed;inset:0;z-index:70;padding:16px}
+}
+@media (max-width:699px){
+  .ride .ov .memo-card h3{font-size:28px}
+  .ride-btns{right:8px;top:8px}
+  .ride .stop-btn{padding:8px 12px 8px 10px;font-size:11px}
+  .ride .music-btn{width:30px;height:30px}
+  .ride .ov-stats{gap:2px 14px}
+  .ride .ov-stats b{font-size:20px}
+}
+@media (prefers-reduced-motion:reduce){.ride .memo-card{animation:none}}
 </style>
 </head>
 <body>
@@ -802,7 +867,7 @@ body:has(.game.playing) .ticker{display:none}
           <p class="bs-only">Trči od Bosanskog Novog do Starog mosta. Spreji beton, ne diraj staro, i na kraju skoči.</p>
           <p class="en">Run to the Old Bridge. Paint concrete, leave heritage alone, then dive.</p>
           <p class="beat" id="s-beat" hidden></p>
-          <div class="ov-btns"><button class="ov-btn" id="btn-start" type="button" data-en="Start">Kreni</button></div>
+          <div class="ov-btns"><button class="ov-btn" id="btn-start" type="button" data-en="Start">Kreni</button><button class="ov-btn alt" id="btn-ride" type="button" data-en="Chill ride: Bihać">Mirna vožnja: Bihać</button></div>
           <p class="k" data-en="Space / ↑ to jump · hold the mouse on a wall or F to spray">Space / ↑ skok · drži miš na zidu ili F za sprej</p>
         </div>
       </div>
@@ -875,6 +940,46 @@ body:has(.game.playing) .ticker{display:none}
           </form>
           <p class="sb-msg" id="sb-msg" role="status" hidden></p>
           <div class="ov-btns"><button class="ov-btn" id="btn-again" type="button" data-en="Play again">Igraj opet</button><button class="ov-btn share-btn" id="btn-share" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 12.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span data-en="Challenge">Izazovi</span><span class="sh-x" data-en="a friend">raju</span></button><a class="ov-btn kahva-btn" data-tip href="#" target="_blank" rel="noopener" aria-label="Častiš kahvu? Buy me a coffee (opens in a new tab)" data-en-aria="Buy me a coffee (opens in a new tab)"><svg viewBox="0 0 40 44" aria-hidden="true"><path d="M8 40 L12 15 H26 L30 40 Z" fill="#B8632B" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M26 19 L38 13" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/><path d="M15 11 q-3 -4 0 -8 M21 11 q-3 -4 0 -8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-en="Buy me a coffee">Častiš kahvu?</span></a></div>
+        </div>
+      </div>
+      <!-- Bihać, the chill ride (bihac/): its canvas, its corner buttons and its cards, over the game frame -->
+      <div class="ride" id="ride" hidden>
+        <canvas id="ride-canvas" role="img" aria-label="Bihać: medo trči uz Unu, ispod tvrđave" data-en-aria="Bihać: the bear runs along the Una, under the fortress"></canvas>
+        <div class="ride-btns">
+          <button class="music-btn" id="ride-music" type="button" aria-pressed="true" aria-label="Muzika" data-en-aria="Music" title="Muzika · Music (M)"><svg class="mico" viewBox="0 0 24 24" aria-hidden="true"><g class="m-note" fill="currentColor"><ellipse cx="6.9" cy="17.4" rx="3" ry="2.3" transform="rotate(-20 6.9 17.4)"/><ellipse cx="16.9" cy="15.2" rx="3" ry="2.3" transform="rotate(-20 16.9 15.2)"/><path d="M8.7 17V6.3l10.2-2.4v11.2h-1.7V8L10.4 9.6V17z"/></g><g class="m-off" fill="none" stroke-linecap="round"><path d="M4.5 4.5l15 15" stroke="#0E0F12" stroke-width="4.2"/><path d="M4.5 4.5l15 15" stroke="currentColor" stroke-width="2"/></g></svg></button>
+          <button class="stop-btn" id="ride-stop" type="button" hidden><i aria-hidden="true"></i><span data-en="Stop">Stop</span></button>
+        </div>
+        <div class="ov memo" id="ride-memo" hidden role="dialog" aria-modal="true" aria-labelledby="ride-m-title" aria-describedby="ride-m-text">
+          <article class="memo-card">
+            <span class="memo-count" id="ride-m-count"></span>
+            <header class="memo-head">
+              <img class="memo-ico" id="ride-m-ico" alt="" width="48" height="48">
+              <div>
+                <p class="memo-cat" id="ride-m-cat"></p>
+                <h3 id="ride-m-title"></h3>
+                <p class="memo-when" id="ride-m-when"></p>
+              </div>
+            </header>
+            <p class="memo-text" id="ride-m-text"></p>
+            <div class="memo-foot">
+              <button class="ov-btn" id="ride-memo-go" type="button" data-en="Keep riding">Nastavi vožnju</button>
+              <a class="memo-src" id="ride-m-src" href="https://zidbosna.com/" target="_blank" rel="noopener"></a>
+              <div class="seg memo-lang" role="group" aria-label="Jezik · language"><button type="button" data-gl-btn="bs" aria-pressed="false" lang="bs">BS</button><button type="button" data-gl-btn="en" aria-pressed="false" lang="en">EN</button></div>
+            </div>
+          </article>
+        </div>
+
+        <div class="ov ride-end" id="ride-end" hidden>
+          <div class="ov-in">
+            <p class="tag" id="ride-e-line">Polahko, medo.</p>
+            <h3 data-en="The ride is over">Vožnja je gotova</h3>
+            <div class="ov-stats">
+              <div><span data-en="Along the Una">Uz Unu</span><b><span id="ride-e-km">0</span><small id="ride-e-unit">m</small></b></div>
+              <div><span data-en="Knocked over">Srušeno</span><b id="ride-e-knock">0</b></div>
+              <div><span data-en="Walls read">Zidovi</span><b><span id="ride-e-walls">0</span><small id="ride-e-walls-of">/20</small></b></div>
+            </div>
+            <div class="ov-btns"><button class="ov-btn" id="ride-again" type="button" data-en="Ride on">Vozi dalje</button><button class="ov-btn alt" id="ride-back" type="button" data-en="Back">Nazad</button></div>
+          </div>
         </div>
       </div>
     </div>
@@ -1498,15 +1603,30 @@ const PIXOBS = {"bear":{"w":105,"h":66,"ox":51.58,"oy":65.96,"pal":["#52392D","#
   /* ===== Grafiter's victory poses (gem/win/build_win.py, from Gemini's pictures in gem/win/src) =====
      winKolo 4 frames, winKahva 3, winMedo 2 (the rider; seat is where he sits from the bear's anchor), winFlag 4. */
   Object.assign(PIXOBS, {"winKolo":{"w":51,"h":88,"ox":21.35,"oy":86.72,"pal":["#953362","#E7E0C9","#81786D","#4B433F","#CC829D","#75695E","#A49680","#BDB097","#1A1C25","#5E2D42","#3E3735","#D8CFB5","#E2E1E3","#A74372","#968775","#DB5B9C","#262A35","#C24D85","#C8BCA1","#F5F4F3","#743852","#2A1F22","#47272F","#614338","#91654C","#CD5790","#655C54","#2B303C","#503934","#AC5B7D","#924465","#1F222E","#DFD8BF","#D975A8","#BE648D","#D1CFD3","#E8B3CA","#E9E3CD","#724E3F","#D0C6AD","#B0A38E","#D26899","#8D8A8A","#15161D","#574D48","#0F0C10","#A57454","#805846","#B5B2B4","#9B6D51","#DE97B8","#352B2A"],"frames":["................dkkdd...........................................dkchhhhhoRR.......................................RAlGLLbbbGNNAd....................................dOlbbbbbbbLLbLGcfS................................AsbbbbbbbbLLLLLbGlgd..............................SObLbbbbbbbbLLLlNGllsk.......cQQQc.................fsbbbbbbbbbbblNlGhooghA.....ctttttc...............SoGbbbbbbbbbbllbGfiTTToA.....WtmmttmQ..............ksGbbbbbbbbbNGbgkvZZRTkA....SJJQQJmtmQ............ifllbbbbbbbbNGboZxMVVxTkS....SWSMMcmmttJJWA........ZolGbbbbbbbNlbcwxVXXXMvkS....SdMyVctmmtttQ.........ShlGbbbbbbllGowMXXXXXXwZS....SMXVkWttmJmmA.........ShllbbbbbblLhZxXyxxxVXMvA....SMXyxQJtttmJWQ........SOllbbbbblGbowVXZRTvxXxT.....SCXXXxcJmtttmA........SOsblbbbbsLsZMyUyMvNXUxT.....AwxyXyZAWJttJA........ShsNlbbblGLfZVUUUVTCXUMT.....dsfCxCk.ccQQf.........dOhslbbbNGLSwVUUUyMVyCwTS....fbbsgd................kohslGbbNbLkwwxxxxMMuIHDv...ZlbbGNA................vcOhNNGbNLbCuEDIIIIHHHpnv...AbbbGsS................vSohsNlGNLLCuarPrzpHYpHDv..ZhbbbNhv.................voghNNGsGLfuaDHzzpHYppj...AGbLbNgk.................dAggshNGsbOunnrzHKpppnZ..vNbbblsd...................kfgghsGNGNjnrnrpYppHjdZkhLLLbsgk....................vfgghslNLounnHpppHDvdfLLLbLNsA......................ZfggONNlhwunPrzzrwkWbbbLbGsOd.......................ZCfoghhlgvurrKKEkLbLLLLGshd.......................ZkSdkSfohlAwarHPuWLLLLblsscv.....................kdghNNfvkCossSjnpaSLLLLLNshcZ.....................kcsNGLLlSocAgNOvjnwOLLblsshAv....................ZSOsGbLLLLogbNoOcfTvkANNsssgCS....................koslbLLLbLLogLbGscofdOShsshdZk...................dCOsbLLLLLLLbfgLLLbgoNfOfhOAZ.....................kShNGLLLLLLLbcSlbLLbhfLOookZk......................ShlbLbLLLLbNAfsGbbbLNcLNfOZ.......................khNLLLLbLLGfdollGbbLLGcLGfOZ......................kAsbLLLllOASdhhllGLLLLlfbbfOk......................dANbLLLlAvWJdhhllGLLLLbLLLLgk.......................SslbLLLGffJdhhllGLLLLLLLLLok.......................vcsGLLLLbASShslllGLLLLLLLLck........................ZgsbLLLLGSShsllllGLLLLLLLOd.........................dONbLLLLskghlNllGGLLLLLLsd..........................dOsGLLLGACxcNlGGllGllGGsd...........................kOslbLgxXXxolGlolbbbbbGf............................kohNgMXUUMCsGlcGLLLLLLO.............................ddfxUUUUXCOlOOLLLLLLLlk..............................ZMUUUUUxoholLLLLLLLlk.ddddd.........................CyUUUVxOoOlLLWhQSAkRiRRRiiFiq......................SwVUVCggogcZBiiRFFFqBBBBBBBqiR......................SZCCogAiiiFqBBBBBBBBBBBBBBBBFT......................dogokiFBBBBBBBBBBBBBBBBBBBBBFq......................SSviBBBBBBBBBBBBBBBqqqqBBBBBR......................qRiFBBBBBBBqqqqFFFFFiiFFBBBBR......................viFFFFqqFFFFFFFFFFFiRiFFqBBBR......................kRFFFFFFFFFFFFFFFFFRiFFFBBBiq.......................RiFFFFFFFFFFFFFiiRiFFFqBBqF........................RRRiFFFFFFFiRRTBkRFFFFBBBik........................iFiRRRRRRRBB....RFFFFqBBqF.........................RFFFFiiiii.....qiFFFFBBBik.........................RFFFFFqBqi.....RFFFFqBBqi..........................RFFFFqBBFi....FiFFFFBBBFB..........................RFFFFqBBFF...FiFFFFBBBqi...........................RFFFFBBBFF...RFFFFqBBBiB...........................RFFFFBBBFF...RFFFFBBBqR............................RFFFFqBBFF..CZvFFqBBBik............................RFFFFBBBFF.CEIDwvBBBFF.............................RFFFFBBBFF.jrzHPuZBqR..............................RFFFFBBBiF.jeezpHDjZk..............................iFFFFBBBi..dclezzHHEwf.............................iFFFFBBqR...kCgKezPHIjd............................iFFFqBBBR....SvAlYzzpPu............................RFFFqBBBF......kvcKezznj...........................iFFFqBBFi........ZdNYIuS..........................iFFFFqBBFi.........SCjwd...........................RFFFFBBBFi.........................................RFFFFBBBFF.........................................FFFFFBBBq..........................................iFFFqBBBq..........................................iFFFqBBqq..........................................iFFFqBBqF..........................................RFFFqBqFF..........................................iFFFqBBFF..........................................ivvvqqqvd.........................................SwuuuuuuuuuwC......................................wEDDDDDDDDDnuk.....................................wnDnnnnnnnnnEk.....................................duNhhhhhhhsDjS......................................SkZZZZZkkkwS.........................................kkZZZZZk............................","..........................................................................................................................................................................................................................kAQQQQQfkZ.......................................ZdhlLLLLLlhOdv....................................kfNbLLbLLLLLbbGfA.................................SOGLbLbbLLLLLLLLbNfZ..............................SoGLbbbLLLLLLLLGllNNOk.............................fsbbbbLLLLbbLbNNllNNNhS...........................kgGLbbLLbbbbLlNGlgZTTvgA.......ccccc...............dsGbbLLbbbLbNGbhSvvvTTkA......Qttttmc.............kfslbLLLbbbLNlbOZwxMxCTZA.....AmtmmttJf............dglGbbbbbbbNlbOCxMyXyMvZS.....fmOcQJmtJf...........SOlGbbbbbLllbhZxyXXXXXCZS.....cOdVCWJmtJJJQ........ShlNbbLLbGNblkxyXXXXXXxZS.....kCyyCWtmtttmc........ShllbbbLLlGbfwVUZTTTCXxT......ZyyMSJttJmmJA........ShsGGbbLbsbsZxyXMZvfVUxT......ZyXMCWmttmJmQ........ShNllbbblNbfZVXUUMvfyoxT......kMXXVwWJttttWf.......SOsNlbbbNlbZCyXXUVvxXVxT......kCMyyxZQJmttW........SOhsllbbNLLvCMXXXXUMwuEuZ....ZcsAwCZd.cQJfA........ZoOOssGbNLLvwjuuuuuDHHPnv....vlLGgcv...............ZfoghllGNLLZuaIzpppHHpYDq....cLLLlsv...............ZZoghNlGNbLCjaePrzpKKpPjk...vNbLLlsv................kfgONNGlNbfunnrzpHpHprv....AbLLGsck.................ZoOhssGNbhjnrrpYKpppuq...ZNLLLlsk...................kogOsNNGGSnrnzpppHev...kcLLbbNhv....................ZogOsNsLowaPHzzppjSdZSOLLLLGsck.....................ZAcghsNNdwarrHzavdcsbbbbLbshZ.....................dkCCScoOlOvjnrYeuSLbbbbLbbNsfk....................koNGlAvCoOlcvarzEfLLLLLLLGNsgk....................kONbLLGkACcslAwazjOLLLLblNsshk....................ZgNbLLLLdNhffsgZvjvoGGlNssssgk....................koNbbbbLbdbLGNhfcZZoSssssssOSZ.....................AsbLbLbbcdLLLLlchOAsAsshhcdZ......................ZhlLLLLLldhbLLLbOoGAsAfdkvR.......................ZoNLLLLLLOANbLLLbhcbhccv...........................SsGLLLLLsdsNbbLLbNoLNcf...........................SosbLLLLNdONlbLLLbNoLlcf...........................ksGLbLbNdoNNlbLLLLNOLGgf...........................khGLLLbcCsNNlbLLLLLLLLLf...........................ZhlLLLLlScsNNGLLLLLLLLLA...........................ZgsbLLLbNSoNNGGLLLLLLLLA............................dhNLLLbbNCOlGGGLLLLLLLo.............................ShsbLLLLhCNlGGGLLLLLLg.............................SdsNGLLLGAZwolhNNNNNNgZ.............................kSsNGLGcMUXCocLLLLLLGA..............................SdhsNcMUUUxxoLLLLLLLg................................dffMUUUUXCNLLLLLLLhT................................ZZVUUUUUxNLLLLLLLhR................................dSCyUUUMxNGGGbGGGoR.................................cMxyXMwohsssssNhZv.................................SgAwwCfogggggggov..................................dggooggogggggggZd...................................SZZkkkkdddkZkZZ.....................................iFFFFFBBBBqRi......................................qFFFFFqBBBBFB......................................BRFFFFFqBBBqik.....................................kRFFFFFFBBBBqi.....................................kRRFFFFFFBBBBFq....................................kiiRFFFFFFBBBqR....................................kiFRRFFFFFqBBBqi...................................kiFFRiFFFFFqBBBFk..................................BiFFFRiFFFFFBBBqR..................................qiFFFFRFFFFFFBBBFF.................................TiFFFqFRFFFFFqBBBiF................................RFFFFBBFRFFFFFqBBqR...............................iiFFFqBBqRRFFFFFBBBiq.............................BiFFFFqBBqiqiFFFFqBBFq............................SiFFFFFBBBFB.FiFFFqBBqF............................iFFFFFBBBqi...iFFFFBBBFq..........................qiFFFFqBBBFB...iFFFFqBBqi.........................kRFFFFqBBBFR....qiFFFqBBqR.........................RFFFFFBBBqR......iFFFFBBBik.......................FFFFFFBBBqik......FFFFFqBBqF......................kiFFFFqBBBFq.......kiFFFqBBBR......................RiFFFFBBqFi.........RFFFFBBBiq....................kwZFFFBBBqR..........iFFFFqBBqq...................wEnEwFqBBqik..........qiFFFFBBqi...................CEnnEwqBqFF............iFFFFBBBivCuuS..............xOEEnEjZFi.............qiFFFqBwjEIPIuS.............dfgEEnnjvd..............iFFvwuDPPPzrEZ..............ZdgDaEnuwS.............vvjEIPpzzPYKj................kZooEEnEjS............djPPzzrPYlgAS.................kZcOEEnEw............SErrIeKsAZk.....................kAgoEEw.............uDYsgSvZ........................dkSCwZ.............ACSZRv................................................k.................","................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................dAfAAAS..........................................kAgGLbbbsccdZ.....................................kANLLLbbbbbbsOdk..................................SOlLLLbbbbbLLLLbOdk...............................kgGbLLLLLbbbbbbGNssok..............................SsbbbLLLLbLLblNlbbGGgk......QWWWQ.................dgGLbbbbLbbLGNlbNcvvkgf.....ctttttQ................ZhlbbLLbbbbbNGlgZTTTTdA....SWtmmmtmc..............SfslbbLLLbbGNblAZCxxvTZA....dJWAAJJttQddd..........kglbbbLLLbGNblSwxVyyxTvA....dOwVMQmmttmmW..........SOlGLbLLLbNGlSwMXXXXywZA....ZwyXMQtmmttmc..........AhllbbLLLNGbAwMXXXXXXMZS....ZMXMZWttmJJJf..........AhlGbbbLLNLOvMXMZvZxXMRd....ZVXVCcJtttmmWc.........AhNGGbbbNGGSCyUCZTAxUMT.....SCyyyCQJttttmA.........AhsllbbGsGhRMXUUVROyUxT.....dkCVyVZAWJtmW..........AOsslbbGNbcwVXXUVTCXUMT.....SlcdxZS..cQfA..........SgOsNGbNbLkCMXXXXXyMwCwv...kgLLNOA.................vcOhNlblbLkwwCCCCCuEeHDi...SGbLGsf.................vfoONlbNbLduDPPHHHHPzHDv..dobLLGsA.................ddoghNlNGbSuaIHrppYYpPuZ..dlbLLNov..................vcgONslNbfunnzpppHHpzv..vgLLLGsAk...................ZogOhlsbsjnnrzHKpppnv.SSGLLLNsd....................SkogsNlGGAarnrpppHYwZAolbbbGsgv.....................dkoghlsLowaIHzppzjdlLLLLbbshd.......................dwfghNNskjarrHPnZWLLLLLbNhfZ.....................kScfwCcgOlOvjnzKHudLLLLLbNshZ.....................ZgsGGNCvCohbcvanznfLLLblNsshdd....................kgNbbbbofACcsldwazjOlNNssssgZ.....................kcsbLLbboglOfcsgZwuvosssssgSZ.....................SShGLLLLbcgLbGOoAfTkcAshgcSZk......................kOlbLLbLLSNbLLLsfsofhZZdZZ........................ZcsbLLLLboAGLLLLGcshcsk............................SslbbbLLGdOlLLLLGgOGoOA...........................ZoNbLLbbGAglGLLLLbgOLgOA...........................dsGbLLLGAfNlGLLLLbghLOOS..........................vcNbLLLNcfhNllLLLLLhlLNhS..........................vcNbLLLlSfhlllbLLLLLLLLNd..........................kfsGLLLLhColNlGLLLLLLLLsk...........................vhsLLLLLsCOllGGbLLLLLLNA............................SsNbLLLbOkslGlGLLLLLLlf............................SAsNLLLLGcAhslGGGGlGGlc.............................dfsNbLLGoCxCghhGGGGGGov.............................kfsNGboVUUVCghLLLLLLNZ..............................ddOsgMUUUyCfGLLLLLLlS................................ZdxUUUUUyfLLLLLLLGS.................................ZCyUUUUVfbbGbbGGGS.................................CxxXUUVxhNNlNNllhvS................................SoSxyMwfOOhhOhOOfRik...............................ScgAxSoccoooooofviqRB...............................SfffffffcccfffSiBBqii..............................BFFiFqBBBBBqFRiqBBBBFi.............................BRFFFFqBBBBBBqiiBBBBBFF.............................iFFFFFFqBBBBBBFiBBBBBFF............................qiFFFFFFFqBBBBBiRqBBBBR.............................kRFFFFFFFqBBBBqRiqBBBFF..............................TRFFFFFFFqBBBiiFFBBBR................................iRiFFFFqBBBFiFFqBBT..................................iFFFFqBBBFiFFqBBT.................................iFFFFFBBBBiiFFqBiR...............................kiFFFFFqBBBFRFqBBqR...............................BRFFFFFqBBBFRiqBBBik..............................dRFFFFFqBBBqRiqBBBiF...............................RFFFFFqBBBBiiBBBBFi...............................iFFFFFqBBBqiiBBBBqi...............................kiFFFFqBBBBiRqBBBqF...............................CjjvFFFBBBqiRqBBBFi...............................dnrPjvFBBBqiiqBBqiF................................wIrPPjZBBqijIjZqiq.................................kNezPPjqqiCDPPjvq...................................ClerPIwvvlerPPjd...................................kSNerPIwvSNezPPjS...................................kdlezPIwvdlezzzuS...................................kAGezPDCkClerzIj....................................dSGIrzj.ddlerrw.....................................kAlIrj..ASonjS......................................kCujd....ddS........................................Sk...............................",".........................................................................................................................................................................A................................................dcggggQfZR.......................................ZSsGLLbbbNsgkd....................................dolbbbLbbbbbbblSd.................................ShGbbbbbbbbbbbLLGOfv..............................SgGLbbbbbbbbbbblsNNsgd.............................AhbLbbbbbbbbblNllNssNoA...........................dolbbbbbbbbbblNbNgZTRkOS.......QQQQA...............kOlbbbbbbbbbNGbOdvvvTTSS......WttttJf.............ZfslbbbbbbbbNlbovCMVMwTdS.....ctmmmttJA............koGlbbbbbbbNGLoZCVXUXMvdd.....QtQAQJmtWAdd.........dhlGLbbbbbllbOwMyXXXXywdd.....QcxyCJmttmJJc........ChlGbbbbbGNbhvxyUXXXXXCkS.....kxXXxmtJtttJc........dOllGbbbbNbbAwVXZTTTxXCT......wUXxfmtmJmmW.........dOslNbbbGNbskxyXxwZoyUCT......ZXyxCWmttmmJc........dgsslbbbGlbAwVXXXxRfXUCT......kVyyMSJmttttQ........kghNNGbbNbLkxyXXXMZMyMCT......dxxyXxSQJmmmQ........ZohsllbbNLbTxVXXXXXMZEDuq....kgsAxCk..fWWA.........ZfOhsNGbNbbvwjuuuuuDYHzaF....dGLGOck...............dkoghNlGNbGvuaIzPPHHHpHEv...doLLLlOk................vAghNNGsbbCuaHPrzpKKpzw....kNLLLlOk.................kogshNlNLfunnrpPHpppnZ...ScbLLGNdd.................kdgghsGNbhwrrrpHYppzwd...klbbLlsZ...................ZSogsNGlLfarDzpppHDv..SZgbbbGsgZ....................kCgOslNbowaIzrzpzwfZSclLLbbNsd......................SkfoOhslSwarrYHakhhGLLLLLGsov.....................ZdffCAogsOZjnzHIfOLLLLLLLGssZ....................ZkoNllcvCAglgZunzucLLLLLbblssfv...................kcssGbblkcdxhlAvarjlLLLLGlssscZ...................koslbbbbLcglgohokvwZQlNNsssshSZ..................kSsNGbbLbLLogLLlsfoddOkhssssOfZ...................dANlbLLLLLLbdhbLLbcNOfsAhgoAdkS...................ZAslLLLLLLbbAoGbbbbOoGogcdZkd.....................kSslLLLLLLLNSclGbbbLhQLsco.........................dslLLLLLLGgCollGbbLLNoLNcc........................vcNbLLblbOdkOsllGLLLLNoblcc........................voNLLLLlfZldOhllGLbLLGsLbsc........................vosGbLLLbSOdOhllGLLLLLLLLLf.........................ZONbLLLLldkOhlllGLLLLLLLbA.........................SdslLLLLbNkchllGGGLLLLLLLo..........................SSslbLLLbskOlllGGGLLLLLLh...........................AShNGLLLbfCxfNGGsNlllllhZ...........................ddsNGLLsxUXxfGGolLLLLLbc............................SdOsNhMXUUVCNNgGLLLLLbgA.............................dAgMUUUUUxcOgLLLLLLLNZ..............................dZxUUUUUMAoGLLLLLLLNZ...............................cCyUUUyCfhlGGGGlllov................................SxVUXCfcOhhssssshZk.................................vwxwfOfogggggggov..................................dcfcgggoggggoogZk...................................kZZZZkkkkkkkZZiiq..................................FiFFFqBBBBBBBBBqFiRF................................iFFFFFqqBBBBBBBBBqFRq..............................iFFFFFFFFFqBBBBBBBBBFi.............................BRFFFFFFFFFFFqqBBBBBBqi.............................FRFFFFFFFFFFFFFqqBBBBFi.............................RRRiFFFFFFFFFFFFFqBBqR.............................iFFRRRRiFFFFFFFFFFBBBFS............................FFFFFqFiRRRRFFFFFFBBBFS............................BFFFFqBqqSWqiFFFFqBBBi.............................qFFFFqBqqkSiFFFFFBBBFi.............................diFFFqqqFRiFFFFFBBBBR..............................diFFFqqFRiFFFFFBBBBFk..............................iiFFFFqRiFFFFFBBBBiq..............................FiFFFFFiiFFFFFBBBBFi..............................BiFFFFFqvvFFFFBBBBqi..............................dRFFFFFZjujvFFqBBBqRS..............................RFFFFFqjDPPjvqBBBFF...............................iFFFFFqqjeIPPjZBBFF...............................qiFFFFqqqkNerPPjZFi...............................iiFFFFFBqqFCNezPPjv...............................FRFFFFFBBBqRZCNezPPjd.............................SiFFFFFqBBqid.kClerPPuS...........................kjwZFFFqBBqiq...dCsezPPj..........................CuEnjZFqBBqiq.....SdNYrru..........................CEEEnjZBBqii........CNIDw..........................dogEnEjZqFi.........AkwwA...........................kODEnEwvF..........................................ACODEnEwk...........................................SCODEnEw............................................SCODEnEw............................................dShDEEj.............................................SSOEEw..............................................dwjwd....................................................................................."]},"winKahva":{"w":52,"h":78,"ox":18.3,"oy":76.79,"pal":["#78695D","#E9E3CD","#15161D","#A9977E","#DE78A7","#B34A79","#5F3935","#C7BC9F","#5B5148","#7F7670","#282021","#983E66","#D58760","#1B202C","#D75C98","#3D262B","#E0D9C0","#D9D1B7","#29303F","#C0B499","#413A3A","#9D6D50","#392F35","#C18599","#685C52","#4C2F34","#554854","#AC7283","#B76B54","#D1C9AE","#A79F97","#B7AB95","#B1A387","#6B5560","#67374B","#8C7863","#8D5F49","#925E6F","#4C4344","#F5F5F4","#30292E","#7F3356","#CBC0A8","#834F42","#593042","#9A8E84","#232733","#DDC2CD","#E6E0C7","#978772","#D695B0","#71483C"],"frames":["............wwwwwwwO..........................................wiTttFttFdwkc.....................................kMEQqbbbbbWqEETkk.................................kOXDWbbbbbbbbbbbbDFMu..............................OaDWbbbbbbbbbbbbbbbbbhMk............................iQWbbbbbbbbbbbbbbbbrDDhXO..........................MtqbbbbbbbbbbbbbbWqDqbbbbFu.........................aDbbbbbbbbbbbbbbrrrWrEjjjtEy.......................uXrbbbbbbbbbbbbbrDWWGakcccwGi.......................itqbbbbbbbbbbbbDDbrywpppkccyM......................wahqbbbbbbbbbbWDrWFikgZZZgkcai......................uGDqbbbbbbbbbbDDWQMzZRvvvRzcai.....................MatrDbbbbbbbbbWDqQigRKvvvvvRcai.....................uXQDqbbbbbbbbbDbrMpZvvvvvvvKcii.....................uXhDqrbbbbbbbqrbdkgZpkkkgvRpcOi.....................uXtqrqbbbbbbbrqqjpZRpkcORvRcck......................uXGhrqbbbbbbWrbEkZRvvZctvvvpAA......................uJFtDDDWbbbbqrWyzZvvvZcwKvvzkk......................wJdGQrqqbbbbDbqMgRvvvKzgvvRpcc......................wJdddDrrrbbbDbrkgRKvvvvvKpzBBAO.....................uyXdGtDrqqWWDbrppzzSSSSSHeeeoPc.....................uMXXddtrrqqbDbDpPfoeeeeeeeooYIk......................kyJdddhrrqqDWDzPllVooooeboooSO......................kiJXGttDrrrDrrIPlfxooooeVoolc........................uyXXGGFQqrrrbTPflffoeVooooPu........................cuaXXJXGhqDDWFzloffoeVooYfp..........................kMyJXadtrrDqqJIffxeooooeSk...........................kzyaXadtrQhWFpPfeeoooolc.............................kuyJXaJGhhDbXpPfooeYopO...............................MuuMiyJGGrripPffYYlO.................................cMyyMuuXGWhMplfooS.................................uyGhQtGMOaFqtkSfolw................................kMXGtFQrtXiyFWTkSPpk................................kywiiMuTrWhTGdaykkuu................................yuGQDrEuaFbWDFyEaMXjk...............................uXhDWWWrWbbbbraDDGahk...............................uFhDWWWqWbbbbqGaWhaFO...............................ihhDWWWrjbbbbWtaWrXEi....kXFFFtu....................yhhDWWWqMQbbbbQaWbXFiMOzZkKmmmmz....................khhhqWWWatbbbbDabbEjwcgKpkpiVVVu....................kGhhrWWWXabbbbFjqjuiuZvRZKvpQbDu....................OXhhDWWWhiWbbWQjOiFWMvvvvvvgTQH.....................kihhhWWWrOWbFMwjDWWWMKvvvvvzuMu.....................OOthhrWWWMjOuTrWbbbWMRvvvvKk........................MOGhhDWbbXiFrWWWWWWrjpKvvKzp.......................uuyXhhQWWWrWWWWWWqDQhhipZZpgK........................wJihhhqWWWWWWWqDhhhhhdkkkgR.........................uGkFhhDWWWWWqDhhhhhFMkzzgCC.........................wdiahhQWWqrQhhhhhGiMXXIzZCmv....aThQ................OXXwhhhDDhhhhhhTiwTWqXggRCmCaIRHLFxr................uXFuThhhhhhhhTMuTDWFTRgzRCmCIHTHLEBD................wXFaMthhhhtjuiFqqqQBLSzggRCRpHXHIBLxH................yGGiwXTTykiEqqqrDFHSzzzzgZZgZRRRvCCLBj..............uTGGJMiiMJFFttttFdwzzzgggZRvvvvKvBBYxj..............OXGGGGGGXJJJyaaaayMMAAAAAHAHaLxxxBBLH...............OXGGGGGGGGJiknnnnnwwwwwwwAAHHaHHHHH.................OuTEMOOwuunsssssssssssUnOwwssssc....................OuNNnncnnnnsssssssssssssUwwssssUw...................OwbQcncnnnnnUUUUUUUUUsssUuuUssssn...................pzggcncnnnnnnnnnnnnnnUssUAMnssssn..................AppzgkccnnnnnnnnnnnnnnUssUAAnssssn...................wzpppcccnnnnnnnnnnnnnUssUAAnssssn...................OOMwpkcccnnnnnnnnnnnnUssUAAnssssn...................OO..wOOHnccccccccnnnnUssUAAnssssn..................MOw..wwwNuOjVbVcnnnnnnUssUAAnssssn..................Mww..MwzNuOQNNVcnnnnnnUssUAAnssssn..................uOw...wzEwwHjAucncnnnnnssUAAnssssU..................OwM...OzuzzzwAucncnnnnnssUAAnnsssU..................OwA...OzHwu....cncnnnnnssUAAnnnnUn..................OO....uzAOu....cnncnnnnssUAAnnnnnn..................Ow....uzwOM....kpOkpppppOUAAOpSSSO..................Ow....uzww.....pPIplLxxBzOAAPlEYYIM.................wu....wzww....AIlIPfBxYYLIzSffBxYYBIA...............ww....wzww....pIlSPfffxYVeLSlffBxYYeBS..............Ou....wzww....wSBaSffffeeeefzlfffeeeeP.............Mw.....wwpu.....MiypHLBBxYYexzTEVVVVVVj.............AM.....AMMA......AwcjjEEEEEEEknkOOOOOwO..................................wuuuuuuu.................","...........wwwwwwwO..........................................OwTttFFFFdikc.....................................kkTtWbbbbbbqFEEkk.................................ukaQWbbbbbbbbbbbbDtiw..............................uuhqbbbbbbbbbbbbbbbbbDyOA...........................OGqbbbbbbbbbbbbbbbbrDDhTw..........................wdrbbbbbbbbbbbbbbWqDrWbbbDM.........................ihqbbbbbbbbbbbbbrrrbrFjjjGFy.......................OarbbbbbbbbbbbbbrDbWFaOcccOdi.......................uGrWbbbbbbbbbbbDDWrJukppkccii......................OytrbbbbbbbbbbbrrWDykgZZZgpcii......................OdQrWbbbbbbbbbrDbDizZRKvvKgcii......................yFrDqbbbbbbbbbDWryzZKvvvvvRkii......................aQDrbbbbbbbbbrWqikggZZKvvKgcMM......................aQDqrbbbbbbbqrWFkzkpZgZvvRgkOi......................atrrqbbbbbbbrqWXpggvvvvvvvvKc.......................aGtrrbbbbbbbDbQOZKvKKKvvvvvKc.......................yFtQDrqbbbbWDbjzZvZkkkgvvKpkc.......................ydGhrqqbbbbDbbygRvZKvKZvvZzgc.......................adddtrrrbbbDbbwgZKvvvvvKppBBHk......................zXddGDrqWbbDbbuSzzSSSSSHYeeolc......................OJdddFrqqqbDbbzlfoeeeeeeeooYIM......................kiJdddtrrqrDWbSPllVooooeVeoADhpkpO..................kyJXGtthrrrrDbaPlfxoooooYoIQtvXwRZO..................wyJXGdGDDrqDbFPffffoeVeoIhmvqNTpKgu.................kwyJJJXGFWrQWDzlfffoeVoIwykpQNrOZvk..................OOZaXaXFrqrrqXIffoeooPppzKgwEFwgvz...................cOiyXaXtDrhrtzPloeffpKpKvRzuazZvz....................kwiaJaJGhhQWEzPlffxkKRvvKRkkZRRkw......................MuuiyJdGQqjpPloxkvvvvvRkgZgkjO......................OOiiiuwaGrrapPlSpKvvvvZkwwuTFO.....................uudtQttiwyGqrMpzTuzKvvRpatttttw....................OkXGhDDDQTiaGqXOiWrupZgpOhttttFO....................kyuiMMuTQqDGdGyODWWDyuuwOtttttFO....................HuXhrrQuwEWqQtuTqWWqQhdkktttttFO....................MihDWWWriyqWWEMqWWWQhhyaptttttFO....................uXhDWWWWqyyqruhWWWrhhdptyhttttFO....................wXhQqWWWWqiyyaqWWWQhhMatttttttFO....................uXhhQrWWWWrMwqWWWrhhduFtttttttXu.....................uthhhrWWWWEEWWWqhhhiutttttttQy......................cjhhhhDWWWWWWWWDhhdpMttttttttw......................uwahhhhDWWWWWWrhhhuXwkiXFttFyw......................iGwyhhhhDWWWWWhhhTMru..wOMyMk.......................iFFuuthhhDWWWDhhhOEDM..............................waFFQyuGhhhhqrhhhajWXijajHHii.......................waFFQQjkXhhhhhhhdwrWvKzSRRCmv.......................MiFFQQQFwMhhhhhFkEWWDZgzzgKZ.........................iFFQQQQtaOaGGTOjqqWWQigzZCC.........................uFFhQQQQQFayiyTDDQhhQXggRCmJ.....TQt................uFGhQQQQQQQFGrqqqWWbQRggRCmKHgKRBFtQ................wGGhQQQQQFGdrqWWWWbEXgzgRCmKAHFIjTFQ................wFFhQQQQQXXqqqqqWWGdLSzggRCRzHdzZBBBH...............uaGFtFFFFatDqrrrqDXHSzzzzgZggZKKRvCCBB...............uddddGGGaXGthtthtJwzSzggggRKvCCvvvLxxA..............OddddGGGJaJJJJJJJyMMAAAAAAHHaLBBxxBHA...............OddddGGGdJuuknnnUUwwwwwwuAHHHaHHHHH.................OuTTMwwuuunUssssssssssUnOwwssssU....................OuNNcncnnnnssssssssssssUOwwssssnn...................OwNtcncnnnnnUUUUUUUUUsssOMuUssssO...................pggzcncnnnnnnnnnnnnnnsssUMMnssssU...................ppzgkccnnnnnnnnnnnnnnUssUAMUssssU...................wwwpkcccnnnnnnnnnnnnnUssUAMUssssU...................OwMwpkcccnnnnnnnnnnnnUssUAAUssssU...................OO..uOOHcccccccccnnnnUssUAAUssssU..................wOu..MOONwOjVbDcncnnnnUssUAMUssssn..................OOA..ApzNwOQNNDcncnnnnUssUAMUssssU..................OOM..MpzEwwHjAMcncnnnnUssUAMnssssU..................OOA..MwgwzzzzwOcncnnnnnssOAMnnUssU..................OwA..uwgHwM....cncnnnnnssOAAnnnnUn..................Ow....wgAOM....cnccnnnnssUAAnnnnnU..................Ow....OzwOM....cwkkkOpppOOAAOpIISO..................Ow....OzwO.....pPIzlLxxBzOAMIlxYYIu.................Ow....uzwO....zPlSPfBBxYLzzzLfBxYYTSI...............OO....Mzww....pPlSlffBxxYxfzlffBxYYefS..............wu....Mzwu....MSBaIffffxeeefzffffeeeeI.............AOM....MpwM.....ziypLLBBxYYexMTEDVVVVVa.............MMA....AMMA......wkkjjTEEEEEEkOOOOOOOwU................................MMMMuuuuMM.................","............uuuuwwww.........................................kuyEQQQhhtEMwu....................................OuXDqbbbbbbbqTXjOu.................................OXtqbbbbbbbbbbbbWhEcc..............................wFrbbbbbbbbbbbbbbbbbWGi............................kXrbbbbbbbbbbbbbbbbbrDDGyu..........................ihWbbbbbbbbbbbbbbWrDrqqqQi.........................cJrbbbbbbbbbbbbbbrQDbqFEEFQa........................itrbbbbbbbbbbbbWDqWWdyccckJT.......................kaQbbbbbbbbbbbbqhqbQikppkcccj.......................udrrbbbbbbbbbbqQqqdOzgZZZzccj......................kJQDqbbbbbbbbbWDWqXkzZKvvKZkcj......................wdhDqWbbbbbbbWDqbdkgRvvvvvKpcj......................wdQrqWbbbbbbbrrWdkggZZKvvvZpci......................uGhrrWbbbbbbbrWQuzkkZggvvKgpcM......................udtQrWbbbbbbqrbEpgpKvvvvvvKKkO......................uGthrrqbbbbbQqWizRvKKKvvvvvKkO......................wXGtrqqWbbbWDqGkgKKkkkgvvvzkcO......................wdddhDrqWWWrqbXpgKRZvvgvvKgZkO......................uJdddDqrWWWrqbyzZKvvvvvvgpLLLc......................kaXXdtrDWWWrqbySpzzzzzSSxYYofc......................OMadGXQrrrWrqbHlfooeeeeeeeoYBc......................wMJJGhhDrrrQqbHPllYoooooVeoefk.......................OyXdGGFrqrrQWXIlfeoooooVeoop........................wuaJXJdFQqDQbQSlffooeVeooofk.........................wuyJdJGtrqhrqiPoffoeVeoooSO..........................kMaXXJFhrrQWGPlfoeooooeBw............................kuyJXadFQDrDuSfxefooooz...............................uiaaJXdhhWTwPffooeoPk................................OOwuiyXGQrypPfoYVfz.................................kadGTMwidrDiplfooIO................................OydQDhhTiMGqhuIfofkc...............................ukuuuOyDrtXiFbTkIfSwOkk.............................kdhQqDikTWqQGFTykpkHyrjk...........................kThQWWWqDhbbbrtadaMytzDqyk..........................ihhrWWWWbbbbbbWjFrFyrihWtO..........................ihhrWWbWqqbbbbWdabDJEadWbM..........................ihhDbbbbTjWbbbWhybqFyQiqbj..........................whhhqbbWQkWbbbbQybWtyDirbEw.........................OThhDWWWWitbbbbDaWbQaDirbbu..........................ahhhWWbbEabbbbhybbtariQWWu..........................OhhhqbbbriWbbbbbbbbbDMhqWEk.........................kXhhDbWWWiDbbbbbbbbbDMtDbhO..........................MhhhqWWWTjbbbbbbbbbDMhDWbO..........................kFhhDWWWDMWbbbbbbbbqXytFaAHHH.......................kihhhWbbWyaTTDbbbbbbQZKzgZKCCJ......................OOthhqbbWQjjaOwiaaaatyzgzzZCgw......................AkjhhQWWWWWWWWWhttFakkwkpzRmvXOO....................AkkFhhrWWWWWWWWbWWhkZKKKzpKmmGhXuwHdQ...............HOyihhhDqqWWbWWWWWuZvvvvvgzCmJgZaHBxrQ..............AOawXhhhhQDDDDDrrruRvvvvvvpKmgSBTHTEVQ...............OuXOThhhhhhQQhhhhugKvvvvvZpCgSLBILBxLa..............OkXJOiThhhQQhhhhhJpgZZRRRZkZggRKRRvCBBj.............OkaGdJuuwuwwiXXXXXkkkkkkkkgRKvvCvKvLBxj.............OwcGGGGTjMcnUnnnnnwMAAMMMAHHHLLLBxxBLHA.............OOAiJaukcnUsssssssssswwwwwMAHHaHHHAMH...............OOVQAcccnUsssssssssssssUcOwwsssssssn................OOVNHnccnnUsssssssssssssUnOOsssssssUn...............OOQWOncnnnnnnnUUssssssssscwMssssssssnO..............wzzzcccnnnnnnnnnnUssssssscuHnUsssssssO..............wpzgpcncnnnnnnnnnnsssssssnuHUnsssssssc..............wwppzcccnnnnnnnncnsssssssnOHUnnssssssn..............OOwuwOcccnnnnnnncnUssssssUOHUnnssssssn..............OO..wOOAOccccccccnUssssssUwHnnnUsssnUUU.............Ow..wOOQHOAVVNcncnUssssssUwHcnnnsssUnnO............uOO..MwzQHOjNNNcncnUsssssUnOHcnnnsssssUn............uOO...wgTuOAjHAcncnUssUnnnnUHnnnnssssssnk...........MOM...wzzzzzzwwcncnUsUnnnUsnAnnnnnsssssnO...........uwM...OzjOO....cncnUsUUUssscAnnnnnnUUUUnO...........MwM...MzHOO....nccnnUssssUUcAnnnnnnnnnnc............Mw....AzzOw....kkcnnnnkkkknnAnnnncckSSSp............ww....AwzOM....pIknnckIBBScUHUcccpSlBYYLI...........ww....AwzwA...MSlkckzlxYVxzpMMpIPPffBxYYTIS.........Ow.....www....wSlkkIlffxYYYLSwIPlfffffBYYeoS........Ow.....wzO.....pLHzPlfffBeeeeIHTPllffffoeeeLO.......wM.....wzw.....ApMHTHllLBYYYYLwuATEEEFVVVVVEO......AMH.....MAA.......wUujjjjEEEEEH..OOOUOOOOOOOO...........................MuuuuuuuuuM..............."]},"winMedo":{"w":73,"h":94,"ox":36.32,"oy":63.29,"pal":["#C85290","#E9E2CD","#1D2230","#BFB39B","#292E3A","#4C453C","#595047","#988D7C","#181213","#361929","#675D53","#D3CBAF","#413A33","#DC89B9","#756A5E","#A6795C","#923469","#0A0707","#817768","#936A51","#D9D1B8","#B14380","#3B2D26","#4C332B","#B2A791","#C9BEA1","#7E5944","#C26891","#715140","#A89984","#E8BFC9","#8B4E6B","#DF72B4","#CCC2A7","#B45E87","#2D201B","#E0D8BF","#DD60A7","#E6DFC6","#181923","#634639","#6A2B4D","#8D8171","#D26A9F","#EDA5D2","#553D32","#9E7053","#88614A"],"frames":[".............................................................................J.sfg...............................................mw.ff...............mAwsCO..............................................fAwJOw..............kwOTJOOm.............................................xAJTVmg............gCxwCwwAm..mm....................................wJ..fCTJCTwTm...........kTVwCAwAOgkOT........gk................f.........wCw.mAwTCwCOg...........wJOAxtOAtffVT.......modMbbbbbbbbbbbbbbKyQgk......xVxmOtTCxTCJmm..........TCwAOCUppTOtx......gozbbbbbbbbbbbbbbbbbKzhof.....wVVwtUUCxtxTOm..........fACxCUppACtVw......gdMbbbbbbbbbbbbbbbuHlllHk.....gCpVCUppVTTCf............gCCtUUVCVUVm.....okHMbbbbbbbbbbbbbKluKldydHQ....gCppAVUppAOw..............mAUVAAAUUCm.....myMbbbbbbbbbbbbMHubMDfrrroDf....TUpVAAtptT................xUppUVUtxm....gQdlbbbbbbbbbbbMlKMzsJiirrisf...mwAtVVUUtAm................gCpppptTmkJ...ghuuMbbbbbbbbbMlMMymwTOOJrrof..gfgwAtUUtOm..................fCUUVTgzug...kdluMbbbbbbbbMlKMhxxOAttOJrof..flKhwOAATw....................gxxxQuMMzm.modHHbbbbbbbbbuKKhwOVtUUUtfrog.mhMbMdgwww......................modHMbbMkfmQdzlbbbbbbbbKlMywOVpUUUUUCrof.mlMMMlHhm.......................fdHHubMMlmfhdllMbbbbbbbuKugTAUUUtUUUArksmDMMMKzzHk.......................fQHHHMMMMsgDdHzMbbbbbbMlbhiOUVrrrrTUVrgyfuMMMlzzyf........................mHzzuMbbHghzzzlMbbbbbuMbkTAUAOwchVUVrffzMMMKzzzk.........................gQzzHbbbbsszzzzMbbbbbubyJOtUUUTcyUpVirsMMMMlzzyw..........................gzzHKMMMlTdHzzKbbbbuubhxOtUUUOrxUpViNlbMMKzzzgk..........................fhHHHMMMMQkHzzlbbbMlMMkxCtUUUUpVCjPPwdMMMlzHQf............................fzzHuMMMufdzzHKbbMlMMgwwxTTxTTFFIGaPoMMKHHHf.............................fszzHMMMMDszzzHMMMlbbkPqIIIIIIRGGGRPoMMlzHhf..............................wdzzlMbbKfyzzzuMbubboqqvBvLLLGnLRGxoMuzzHf...............................kszzHMbbbymdzzHMbuubQPqqSvaLLnELLvglMHzzsg................................fdHzlMMMMsgHzHKbKlbDPvqvRLGGLGLLPkbuzzyw.................................ggzzzuMMMKgQzzHMMlKlTqvvaLSSLLLajmKzzHgk..................................mQzzzKbbblfyzzuMluMoPvavLLLLLSPfmuzzhf....................................mdzzHMbbbhTyzzKKHbdTqvnRaaLGqjsgHzzf.....................................moHzHlMMMufkhdzKuuKojqIaaaLRPfkQzzQm......................................fDHHzKMMMHmohDdlHKumxqvvSRqJymzzym........................................fzzzHMMMMdwggQhyyuyjPqaRaFQfsddfk........................................fszzzlMMMMQmoTwkDHKhJPvavxhfdzkm..........................................myzzzKMMMufQDsfghuukjqaPofQdhm............................................fdzzHKMMMdwHldQkhHdfjPjwgzdf.............................................gkHzzHMMMMsfbbKHDhgsfJkfQzsm..............................................myzzzuMMKQfbbbMuzQydQQsQym................................................gzzzzluzQmbbbbbKhyMDohofg................................................fQzzzzzdgkbbbbbMdkbzshJm..................................................mDzzzzhJHbbbbbblkbMshJ...................................................gfsDhowDMbbbbbbusbMQhJ.....................................................wxxgylKbbbbbbuQbbhhw.....................................................gyHllllKbbbbbKDbbdyw.....................................................gyHulllKKbbbbbbbbbHw.....................................................gdHlllluKKbbbbbbbbHk.....................................................gdzllllluKMbbbbbbbus.....................................................kddllllllKKKbbbbbbbh.....................................................kddlllllluKKbbbbbbbD.....................................................kddllllllKuuzlllllldkg...................................................gddlllllluKlhbbbbbbMDm...................................................kddHllllluKddbbbbbbbum...................................................kddHllllllHhbbbbbbbbKm...................................................gddHllllldhybbbbbbbbKf...................................................gydHlllllDDuMbbbMMMMum....................................................oyyyyyyyodluuluullld.....................................................fDDDDDDDooDyyyyyyyD......................................................fDDDDDDDQkossQQs.........................................................ssQQQQQQhhQQhhhQoQ........................................................mNNccccceeeeeecNii........................................................icccccccceeeeeecNii......................................................iccccccccceeeeeeecNii.....................................................NcccccccccceeeeeeecNii....................................................iNcccccccccceeeeeeeNi.....................................................iriNccccccccceeeeeeNi.......................................................iiNccccccccceeeecN.........................................................iiNcccccccceeecN...........................................................iiNcccccceeecN............................................................JiNccccceeeci..............................................................icccceeeeci..............................................................NcccceeecNi.............................................................JNcccceeecNi.............................................................iccccceeecNi.............................................................iccccceeecNi.............................................................iccccceeecNJ.............................................................icccceeeeci..............................................................Nccceeeeeci.............................................................iNccceeeeccN.............................................................icccccceeecN.............................................................icceeeecceci.............................................................iceeeeeeccci.............................................................iNcceeeeecNi.............................................................JjNNNeeeeeci.............................................................jIBBxNNeeec..............................................................xnBaRBPjceNi.............................................................JsEBaRRFjii..............................................................JJhEBBRRFjJ...............................................................JwDEIaRRF.................................................................JJhEBaRRB..................................................................JyEBaRR...................................................................JhEBaRI...................................................................JDEBI...........................................................................................................................................................................","............................................................................................................................................................................................................................................................................................................................................................................................................mk...............ym.....................................................mQHMbbbbbbbbbbbbbbKyhm..................................................goHbbbbbbbbbbbbbbbMKudys.................................................gdMbbbbbbbbbbbbbbKlHluulg...............................................gQHbbbbbbbbbbbbbbuuKKHyyydk..............................................kdubbbbbbbbbbbbKlKMlhwrrroDf............................................khzHbbbbbbbbbbbKlKKhmJiirriQm............................................gDHubbbbbbbbbbKlMKhxxOOOwrrQm............................................kdllMbbbbbbbbMlMuQxOAAVVCirQm...........................................gsdHHMbbbbbbbbHKKkwCttUUUtxrQm...........................................fhzzlMbbbbbbbKuKQJOVUUUUUUCrsm...........................................gDzlHKbMbbbbbuKzmTAUtCtUUUCro.........wwm................................gDzlzKMMMMbbKKboxAtUAiJCUUCre........fVVxTk..............................gyzzzHMbMMMblKHgCVUUUVwiJVCre........TUACtTxk............................fDzHzzMbMMMblbQJCUUUUUTJmTCrm.......mJxxVVAUwm...........................fQzlzzuMMMMlMKkxAUUUUUTiAVCrm......wCUtVxCtACO...........................fQyzzzHMbbbubuwOAtUUUUUCTxPjm......wtAVVOOtOVO...........................wsDdzzzKbbblbuTwwxxxxxTFFnnvj......mAATxwxTOtT...........................JoQyzzzHMbMlbHPPvIIIIIInnGGaj......kxtVOCCxTxm...........................ffQQyzzzuMMlbHPqvvRaLLLGGLGaj.......mxAVUUUAx............................ffQQQzzzHMMlKuFqqInaaLLSSLaPm......foQgJCAAxg.............................woQQDzzzKbKuboPqqaLLnnGGLajm......gzMKHskxw..............................mmQQQDzzlbbubhPqvvLLSSGGGvN.......mMbMMHHzm...............................mkQQQDzzuMuuzgqavaLLLLnnP........hMMbuHzhm................................msQQQDddluHMoPqvSaaLLLqj.......fdMMMlzHo..................................wQQQQDyzKHKdwPvvvvaLaxm.......fKMMKzzHf...................................mwwmgsDdHHKQJPqvRSaPe.......fhMMMuzzhw...................................mJJwswwshyHlgjqvRGvj........flbbMlzzo...................................mfDDHyysgfQdKywPvaaPj......fffMbbMHzzf...................................whyzzdzdyswszMhjqavTQQsssooohHbbbKHzym..................................mQzDfmfmwQHDsDzyfjPPgbbbbMMMMMMMMMHzHo..................................kgdDwQzHuyfhMudkQsJigdbbbbbbMMbMMKlzzdm..................................fhlfszzMMMHmyblozDgooMbbbbbbMMMMuHzzzkg.................................gfzlmdzzMMMMDmlHsddgDkMMMMMMbbMllzzzzdm..................................mhldfHzzlMMMMhfysHHshsHzzzzzzzHHzzzzdgm..................................kylzmzHzzlMMMMQfkbusQwzzzzzzzzzzHzHDff..................................wQzlHmyHzzzuMMMKkgblskgHzHHHHzzDyQkfm....................................fyHllsfdHHHHuMMMugQdQwwmmmmmmfffmfk......................................oyHlllsgdHHHHKMMMlgghw..................................................fhdlllllQkzzzHHKMMMlmgm..................................................fddlllllKkozzHHHKMMMzmk..................................................kddlllllulfQHHzHlMMMMym.................................................gQdzllllluuKgszHHHlMMMMym................................................fQdHlllllKuKKghHHHHlMMMKQm...............................................mydHllllluudzdfyHHzHlMMMKkf..............................................fydHlllllulQbbHfyHHHHuMMMugf.............................................gddHlllluuyybbbzmyHHHHuMMMKQf............................................kddllllllzhKbbbbyfzHHHHuMMMMym...........................................fydllllldhybbbbbbhgzHHHHuMMMKymg.........................................fDDyyddzhDlKMbbbbMokzHHHHlMMMKHkf........................................fDDDDDDDsDzHluKuKKuogzHHHHlKMMMKhm.......................................fDDDDDDDksDyddzHllldfgdHHzzHKMMMKhm.......................................yoohDDDQkssQDDyyyyswOTDHzHHHuMMMKdm.......................................cNNcemgkosso...kgmxVOwszHHHHlKKdomwgk....................................fNcccccceeeeeeecNiJCVVToHHHHHHQJTCCTww....................................NcccccccceeeeeeecNixVtOgdHzzhwAUUUUtOm...................................NcccccccccceeeeeeecNiTtOxyzdwCUUUUtOOw....................................iNcccccccccceeeeeeccNJAAxhDwtUUUUUVxw.....................................iNNcccccccccceeeeeecNJAAxTwttUU..UVwk.....................................riiNcccccccccceeeeeciTAAxwVt................................................iiNcccccccccceeeeNi...J....................................................iiNccccccccceeeci...xw.....................................................iiNcccccceeeeci....xx......................................................iiNcccceeecNJ.....www.....................................................iNcccceeecNi.............................................................iNcccceeecii.............................................................iNcccceeeci..............................................................icccceeeeci.............................................................iicccceeeeci.............................................................iNcccceeeeci.............................................................iNcccceeeeNi.............................................................iNccceeeecN..............................................................icccceeeecNi.............................................................icccccceecNi.............................................................NccceecceeNi............................................................iNceeeeecccci.............................................................iNeeeeeeecNi.............................................................JjNNceeeeeNi.............................................................PIIFjNceeeN.............................................................JFBBRBFjNccN.............................................................woEBaRRIxNN...............................................................JsEBaRRIxi...............................................................JJkbBIRRB.................................................................JJkunIaRB..................................................................JwdnIaRB..................................................................JwdEBaB....................................................................fuEII.....................................................................xg.................................................................................................."],"seat":[3.7,-57.6]},"winFlag":{"w":39,"h":108,"ox":19.35,"oy":106.97,"pal":["#151928","#E2D8B9","#2A303F","#C1447A","#63574D","#080609","#AF9F85","#AA7257","#342F2C","#FBFAF7","#CABEA1","#776653","#947257","#7D4E5F","#CF6991","#762D4F","#E8E1C7","#A39377","#483A31","#371F1D","#552135","#BD5C83","#282221","#A13B69","#5C3E31","#BBAD92","#E5A2B3","#B6868F","#9E694A","#845E46","#8E857A","#6E503D","#363D48","#857562","#99856E","#D9C68A","#2A1814","#402B1F","#181113","#D6CBAE","#1F2432","#0C0F1C","#A75874","#D4BF7B","#D888A3","#D8D8D9","#564C43","#6D6563"],"frames":["...............................................................rrr....................................JRH....................................UmH....................................sml....................................iml....................................wml....................................alF....................................VlD....................................zIme....................................Hml....................................Eml....................................bDF....................................TFD....................................TDD....................................jHme...................................jHme...................................jrDF....................................zDF....................................kDD....................................TFme...................................jlme...................................jIme...................................jzmD...................................jNDD..................................wEjFml................g.............kEErleLml............sekbqqTkTTTTTkTTTqqqNkzIyhl............sEbqqqqqqqqqqqqqbqbkkkkklmF...........GUkqqqqqqqqqqqqqbbNNbNgEEUDF...........wzqqqbbbbbqqqqqbkNbqgwffffFDe.........wezbqqbbbbbbbqqbNNqqrwfffffsme.........weNbqqbbbbbbbbbNNqNEfKyyytftmU........eMgNNbbbbbbbbbbzNqbUKyDCCCFMMmH........UszzNbbbbbbbbbNkqbVKuDhhChCUfmF........wIzzNbbbbbbbbbzbNVMyChhhhhhFfDF........irkNNNbbbbbbbNNqEfsmmyFFFDhmfFD........iggkkbbbbbbbbzbNsKFhFffffLhmfyme.......iIrkNNbbbbbbkbbUfLDhDDKegDhmfLmU.......iIggzNkbbbbbzbNiKFCCCCtimhhmfKhl.......wmrrkNNbbbbNzbkwyDhCCCsKDhmFwMmF.......wIrmINNNbbbNkqEMsyCCCCmmFyupptDm.......MemImzNNbbbNNqgtttuuuuuunooovuDmwV.....weHIrrkNNNbbNqgupxvvooooSoddpfyItfU....ifslImgkbbNNkqguppxoxdddSSvpKKymFtMU....MsUIgzzNbNNkbkuppxvddddooxtKDyCFlMi....wwsHgIrkkbNkNNpxxpxxdoSddpKtDFCDlKw....UMwUlmDIzNNkNqEuxdxxdooddKHKyFDmyMi.....eMiUlHFIgbbkqqHpdxvddddusglKFyFKMU......eMsUlFFgzbNNqVtpdoddddtIgrsKKKtte.......UMwilHUIgNkbNVupxddSnygretsLLDDLV.........wiiiUlggzqNstxdvSsrzltyLyDhDLe.........GfisULUllzqzwpxvnLzzsyDFDCDyLw.........ieEEEVewsEbTVtpusgggLyCCCCCDDt........iLsssLsEzVUEqNwMlzzHtKLDCCCCCLM.......VKrNbqkewebNErswIzgHLerFLDCCCCFt.......wUkbbbbkrLigHtUgglKKUkbkFLDCCCDt.......UINbbbbbqkILLIgglsgkggkbkFLFDFLe.......UINbbbbbbbNUtrrsLzqbbkrzNzFttte........UHkNbbbbbbNrLstsgbbbbbkHrzHKsll........segNbbbbbNzIHsszNkbbbbbklIesFml........eLIzbbbbbkIkbHlbNzbbbbbNIts.lml.........KeIgkbNkgkqkUIqzgbNNbbbgs..mml.........ULlrrrrgkqNHyNqggbbbbbNEs..IIl.........lltHzNbbbqIHybbrgkNNNkIse..rml.........lrssIzkNbbHllbkIzgIrrHse....Fml........HkrssHrzkbllkbzrNzrIeLe.....lml........HbkretHIgNrrbbggNgrsLKe.....EHH........lNbzryLHIgzNbkrzgIsylwe......g.........lzbbkrUteIgkkzrrHLlNHwU................egkbbNkrysyHIIIlKEqblf.................szzNbbbbkglsssstEbbNefi................UkgkbbbbNbbzeErkbbbqkiM................UNkzNbbbbbbkHbqqqqqqqEw................skbNzNbbNNNHgqqqqqqqqgMw...............szzNNkNbbkreNqqqqqqqqzfM...............UzggzkNbbgFrbqqqqqqqqzfM...............elggzkkkklzNNNbNNNNNkeff................srrrrIIrlIzkkkkkkkkrwwi................srrrrrrrHFIrgzzzzzgHMf.................VggggggggIlIIrrgrrlfwfi................MUeeUUUessUeeeleUesMewG................POGGcOOaPPPaPPfffffweiG................POGGcOOaaaaaaafafPPwUU.................POGGcOOOccOaaaPPfPPwtV.................POGGcOOOOGccaPPPPOPMV..................POGGcOOOGGGcPPPPaOaf...................aOGGcOOcGGGGPPPaOGcG....................POcaacGGGGcPPaacGcU....................faOPacGGGGaPPaOcGOG....................faOPacGGGGafaOcGGcG....................PacaacGGGGafaOcGGcU....................PacPacGGGcPfPOccOG.....................PacaacGGGOPPPaccaa.....................PaaaccGGcffPaOOcaa....................aPOfacGGGafPPaaccaa....................MPGaOcGGcPfPPaOOOaO....................MPcacOaaPPfPaOOaaPO....................GaGaaPaOOffPPaPPOca....................iPaaccGGGOfPPaaOOOO....................wOaccOaaaPfPPOaPPffM..................iPGaOOMsHVsMPfMMMnnns..................GPaPwupnSSBnKMuuppQBSpy.................awunQQQQQvvQptupppQooxyG...............ienpxxvoSSSABMuupnQSAAnM...............UEBIBBBbqqqqkMnHIBzNqqVM...............iwiwiiisssiiwfwwwiiiiwMG.............................................."],"pole":[5.0,-104.5,2.06,22.63],"flag":[34.4]}});
+  /* ===== Bihać, the chill ride, in the Gemini style (bihac/build_bihac.py from bihac/src) =====
+     Sprites join PIXOBS (one art pixel a game unit); the panorama (two units a pixel), the path, the grass bank,
+     the trees and the walls of memory join PIXSCN (see pix/scn.js). */
+  Object.assign(PIXOBS, {"bench":{"w":105,"h":58,"ox":42.0,"oy":58,"pal":["#171619","#915935","#663823","#4B2A20","#4B4941","#353531","#875232","#2C1C1A","#6D3E27","#787565","#3E3D38","#443127","#7E4B2F","#5C3524","#62432D","#121315","#744229","#9A6037","#2E2D2B","#A77243","#45261D","#3A201B","#8E8873","#552E20","#272626","#202021","#1C1B1D","#6C6558","#613421","#5B564C"],"frames":["...........................sfsz.....................................................................seky...........................fwjyAp...................................................................kwwffA..........................jwyhoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooohBwDzys.........................pjDhibDbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbBqmheDfyys.........................yDkhmmqbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbimqyeDAzfz.........................fDfhxxxnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnCnnnCnnnCCnnnnnnnnnnnnnnnnnnnnnxxxxxseDazyp........................AkByhvvvuuuxdddxxxdddddddddddddddxxxxxnnnnnxxxxxxxddnnxunnnnnnnnnnnuuuuuuheeByzp.........................AkDambgbbbbbbgggbbbbbbrbbrrbbbbbbbbbbbbrrrrrrrrqqmqiiiqmggbbbbbbbbbbggggqheBsfA..........................zeDhqBoqmmmciiiqmgggggggggggggggggggqccccqgggggqqgqqqiicCCCiiiiiimgmiCBonAeBafA..........................yBevqoxggggmmggggmmmmmmgggggggggmmgimgmmmggggggggggggggggmqqccCxdnciinlxdzeBas...........................fBexgimmcCCnnCnqgggggggbgbbbbbggmmggggggggggggggbgigggggggggggggmqqmmmimufDDzy...........................fDshuuuuvvvvvvvuuuuuuuuuuuduuuuuuuuuuuuuuuuuuuuuuvvuuuuuuuuuuuuuvvvvvvvuhfDezz...........................fDzhvuuuuuuddddddduuuunCnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnxddduuuuzeDkzy...........................kDvggggggggggggggggggggggggggggggggggggggggmmgmmmmmmmmmmmgggggggmmmmmmmmheDssz..........................ayehcicccqqqqqqqqqqqqqqiiCCqqqqqqqqqqqqqCCccccCxxxxxxxxxxiqqqqqiCxxxxnnxdheDzfa.........................lgqhxcDxCciiqqqqqqqiiCCCCCcqqqqqqqqqqqqqqiiiiciqqqqqqqqqqqiiqqcCxxxxxxnexdzfDAs.........................urtqvnixCCCxxciqqicxxCiqqqqqqqqqqiCCCCCCCCCCcqqqqqqqqqqqqqqqqqCxxxxxxxxxudvllkyA............xnnnoonh....otrqxhoqqmminnnccccnnnnccccccccxxxxxxxnnnnnnnCcCCCCCCCCCnCCnnxuvvvvvunnnncvotbAfA.........lmbrmiccccxnimgrmCxuahhhvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvhahdmgggqiuvvhhvqrgxAf.........lrtbcxxxxxxxxxxxxxvhAxccciimmmggmmmmmmmmmmmmmmmmmmqqmmmmmmmmmmmggmgmqqqqqqnnbttrgggmmmmmgrtbxdzk........ortbxxdvhhhAvuuudvapsyciiiiiiiicciiiiqiiqqqiiiiiiiiiiiiiiiiiiicccciccCxxxdhgttbcxxdddxxxCccCxuhzf........tttCuh........pppp.zkhxooCcciiiCCCcCCciiiiimmmqqqiciiiiiiiiiicCCCCCCCcciivmttbxxxvApphhvxxxxuAsyz.......ottiCv..............sDvidniiqcxCciiiiciiiiiCccqgmmmmiiiiiiiiiiiiiiiiiiiiicqttrCxdhnnnnnuhhhhhAkyyy.......ogrxx...............fedccccCCCxxxCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCubttqxuAdCCCCCCCnxxuyefsy.......nmrCxp.yy......Aeefykeuddddddddddddddddduudddddddddddddddddddddddddddddddvmrbxxhaddddddddnduhyeffz.......vqgCuppkfy.....fkAfyDkaa..................................................ommCup.pAa....sees.yBsfa........vnuAsafaf.....kzazeDAAa..................................................dqmxuyAkDf....kjkkyeByfp...........sDsass......szaszaaa.................................................padinvfzBssa...eeAfzBDff.............kBeka....aaAAyllenxxdddddxxxnnnnnnnnnnnnnciiiiiiiiiiqqiiiicccnnnnnxxxlhhasBkfzfznxheezaeBzkA..............AyaaayyzllnnoqooqmmmmmmmmqggbbbbbbbbbbbbbbbbbbbbbbbggbbbbgmccqmmmmmmmmmxhkDfkfhqnhseykByzfa...........yyyypzysklvvvvvuxddddduuuuudxuudccccccqqqqqqqqqqqcciqqqqqqqqqqccnddddnCCooxvpzfAppaazyeDDyykA..........ykeDyydnncmqggggmggggbbbggggbbggbbbbbbbbrrrrrrrrrrrbbbrrbbbbrbbbbrbggggqqqqDhfkekkkkkekssyysskA.........DjBahoDxCciiiiiqqcxxnciiqqqiiqqqqqqqqqqqqqqqqqqqqqqqqmmmqqqqqiiqqqqqqqiooinhseBDDzzzzzzzsssfyAkA........BwBaomolqmmgbrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrgmmmmmmbrrrrrrrrrronrlejjfzzzysffkkkszApAkA.......kjwhmrbbgbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbmbbbggggbggggggggggbbbbbggggggggxewweysfffffffyaakffzkA.......seDvccCCCCCCCCcccccccccccccccccCCCccccccccccCccCCCcccccCCccCCCCCCCCCCCCCCCnpDwBzkzp.pyyp.aAespzykA.......yeeAuuuduuuuuuuuddddduuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuakeesyp...zsy..ska.AykA........zfyaaaaaappaaaaaaappaaaapppppppppppppppppppppppppppppppppppppppppppppppppppfkfsy.....zkaaDy..AykA...........pfsAA...yaayAka..pAzA...................................................asyasAp..zafyfDa..aykA............affAp..AfzyzzzAAsyza.....................................................afyAp.pfzffkfyppfykA.............skzA...zyzaaAzyzAAa......................................................skAa..fkDzsfesffzkA..............ksA..pzyyyyszAzaAa......................................................yefA...aAysyzfkzyka..............ekzpzfkszppysyAaAA......................................................aekA..AseekfesAayka..............ekAzksa......AsAAA......................................................aeDAaAkDkyaazkkazez..............ekAfya........zyAA......................................................zDDAzefA.....afkzez..............ekzza.........pfzza.....................................................sDezesa.......zkykA..............Dkyz..........pfyAp.....................................................sDkffp.........zfzs.............yDfA............zkyAa....................................................DBffa..........AkzkA............keAa............affzap..................................................sjDyy............ssky...........sBeAp............asfAaap.................................................kjfsy............yefsp..........kjzA.............pyfAzAa................................................aejyza............aksyp.........zBkza..............papaap................................................sjeyyp............pffzfp........kfzAa...............pppp................................................aejffzp............pfkfkp......ejjyAAp..................................................................pADBysp.............pysffpp....pfeezzzp.................................................................pzeDfafp..............pppp.......aaaaaaa.................................................................aBjDAskp.................................................................................................aysyzyzp..................................................................................................ppppp........................."]},"duckSwim":{"w":40,"h":18,"ox":20.0,"oy":18,"pal":["#4A2F29","#AB8748","#95958C","#534736","#312D2A","#295D47","#61392E","#7A6346","#77736A","#484C47","#C3C3B4","#6D4C3A","#A4A49D","#233E39","#60615B","#377C50","#383836","#2F694C","#222B28","#87867D","#9D9E95","#5D544B","#2A4D42","#44844E"],"frames":[".............................nfff...................................wrppprs................................wrffnjpf...............................sfrpprwfwe..............................nfprpxxrdbd.............................nfrfrrfwhbbhd...........................nwrfnnnsdlhbbd...............qjvvvdq....swfrwn......d...es....ssjoitcummmmctivd.sorrfn.........essedvicucccummmmmmmmmcidqimkkuj.......qqeeseqttihhhhtcumucccumuiggggggge......jkmtjeeqoihllddviiiivvoitttllggggg.......qtkkuveeqdaaajvvjdddviiuuutllgggge........qotmiqomuoitcummmmmmmmuucglgggge.........seeeokmutttmmmmmmmmmmmuclggggae..........sqoucuciittummmmmmmmuctlaaaaas............joiiioiiittcccccctttigaaaae..................sjjjjjjjjjjjjjjqeeee........"]}});
+  Object.assign(PIXSCN, {"grad_bih":{"png":"img/29.png","w":642,"h":288,"unit":2,"water":[[205,318,324],[206,310,315,317,325,327,332],[207,296,346],[208,296,346],[209,296,346],[210,296,311,331,346],[211,296,307,335,346],[213,299,303,339,343],[214,296,303,339,346],[215,144,153,165,192,296,300,342,346,450,477,489,498],[216,140,192,450,502],[217,138,179,181,192,450,461,463,504],[218,113,142,143,152,153,177,181,188,454,461,465,489,490,499,500,529],[219,112,142,150,160,167,171,172,177,178,188,454,464,465,470,471,475,482,492,500,530],[220,100,130,132,142,147,161,178,188,454,464,481,495,500,510,512,542],[221,97,130,132,138,147,161,168,187,455,474,481,495,504,510,512,545],[222,88,95,96,126,134,139,150,161,168,186,456,474,481,492,503,508,516,546,547,554],[223,69,87,88,92,96,123,134,140,156,161,174,185,457,468,481,486,502,508,519,546,550,554,555,573],[224,67,88,94,122,134,140,156,168,176,183,459,466,474,486,502,508,520,548,554,575],[225,61,125,132,142,160,168,175,181,461,467,474,482,500,510,517,581],[226,61,77,87,118,120,125,126,142,158,167,175,181,461,467,475,484,500,516,517,522,524,555,565,581],[227,69,77,79,86,93,144,158,181,461,484,498,549,556,563,565,573],[228,79,86,93,122,123,147,150,181,461,492,495,519,520,549,556,563],[229,79,85,87,92,93,104,109,119,121,147,149,162,165,180,462,477,480,493,495,521,523,533,538,549,550,555,557,563],[230,79,120,121,129,130,137,138,180,462,504,505,512,513,521,522,563],[231,82,97,104,120,121,125,131,171,471,511,517,521,522,538,545,560],[232,84,98,104,123,130,167,475,512,519,538,544,558],[233,85,101,104,125,126,162,480,516,517,538,541,557],[234,85,119,121,125,126,146,147,162,480,495,496,516,517,521,523,557],[235,85,119,127,143,499,515,523,557],[236,84,121,122,143,499,520,521,558],[237,80,121,122,127,131,142,500,511,515,520,521,562],[238,76,118,134,141,501,508,524,566],[239,76,116,136,140,502,506,526,566],[240,56,109,533,586],[241,53,96,104,109,110,115,527,532,533,538,546,589],[242,40,67,72,115,527,570,575,602],[243,36,54,59,64,72,114,528,570,578,583,588,606],[244,32,44,57,63,72,115,527,570,579,585,598,610],[245,20,44,57,62,69,115,527,573,580,585,598,622],[246,18,40,65,115,174,179,463,468,527,577,602,624],[247,13,35,36,51,58,114,167,179,463,475,528,584,591,606,607,629],[248,0,30,32,51,57,113,167,178,464,475,529,585,591,610,612,642],[249,0,26,31,111,171,180,462,471,531,611,616,642],[250,4,24,29,104,167,180,462,475,538,613,618,638],[251,0,103,167,178,464,475,539,642],[252,0,94,99,105,168,180,462,474,537,543,548,642],[253,0,105,168,181,461,474,537,642],[254,0,104,168,181,461,474,538,642],[255,0,103,168,182,460,474,539,642],[256,0,25,30,34,39,101,168,176,178,182,460,464,466,474,541,603,608,612,617,642],[257,0,20,23,27,29,99,168,174,180,184,458,462,468,474,543,613,615,619,622,642],[258,0,17,23,27,29,49,50,100,542,592,593,613,615,619,625,642],[259,0,20,29,40,41,100,542,601,602,613,622,642],[260,0,20,29,41,42,100,542,600,601,613,622,642],[261,0,18,29,41,42,98,544,600,601,613,624,642],[262,0,10,11,16,28,37,42,98,544,600,605,614,626,631,632,642],[263,0,17,48,98,544,594,625,642],[264,0,17,48,53,64,98,544,578,589,594,625,642],[265,0,17,45,57,63,98,544,579,585,597,625,642],[266,0,17,42,98,544,600,625,642],[267,8,15,42,88,554,600,627,634],[268,8,12,20,29,41,88,554,601,613,622,630,634],[269,20,62,63,85,89,94,548,553,557,579,580,622],[270,19,58,70,75,89,98,544,553,567,572,584,623],[271,19,38,40,98,544,602,604,623],[272,18,36,40,98,544,602,606,624],[273,16,31,40,98,544,602,611,626],[274,0,11,15,30,40,73,76,98,544,566,569,602,612,627,631,642],[275,0,30,40,98,544,602,612,642],[276,0,18,23,27,40,98,544,602,615,619,624,642],[277,0,5,9,13,19,28,40,98,544,602,614,623,629,633,637,642],[278,0,29,40,98,544,602,613,642],[279,0,29,40,98,544,602,613,642],[280,0,10,11,30,32,37,40,99,543,602,605,610,612,631,632,642],[281,4,9,12,99,543,630,633,638],[282,0,99,543,642],[283,0,98,544,642],[284,0,31,32,37,41,98,544,601,605,610,611,642],[285,0,30,40,98,544,602,612,642],[286,0,29,40,98,544,602,613,642],[287,0,29,40,98,544,602,613,642]],"ducks":[[50,262],[98,238],[503,232],[554,262],[626,256]],"lazy":1},"put_bih":{"png":"img/30.png","w":187,"h":88,"lazy":1},"tree_willow":{"png":"img/31.png","w":138,"h":214,"ox":68.5,"oy":214,"lazy":1},"tree_oak":{"png":"img/32.png","w":164,"h":176,"ox":83.0,"oy":176,"lazy":1},"tree_poplar":{"png":"img/33.png","w":87,"h":250,"ox":42.0,"oy":250,"lazy":1},"memo_slab0":{"png":"img/34.png","w":113,"h":150,"ox":52.0,"oy":150,"icon":[52,27],"lazy":1},"memo_slab1":{"png":"img/35.png","w":121,"h":142,"ox":56.0,"oy":142,"icon":[56,22],"lazy":1},"memo_slab2":{"png":"img/36.png","w":100,"h":156,"ox":46.0,"oy":156,"icon":[46,23],"lazy":1},"memo_fethija":{"png":"img/37.png","w":48,"h":48,"lazy":1},"memo_odbojka":{"png":"img/38.png","w":48,"h":48,"lazy":1},"memo_bihac":{"png":"img/39.png","w":48,"h":48,"lazy":1},"memo_stecci":{"png":"img/40.png","w":48,"h":48,"lazy":1},"memo_tanovic":{"png":"img/41.png","w":48,"h":48,"lazy":1},"memo_sarajevo":{"png":"img/42.png","w":48,"h":48,"lazy":1},"memo_starimost":{"png":"img/43.png","w":48,"h":48,"lazy":1},"memo_sff":{"png":"img/44.png","w":48,"h":48,"lazy":1},"memo_tunel":{"png":"img/45.png","w":48,"h":48,"lazy":1},"memo_kulin":{"png":"img/46.png","w":48,"h":48,"lazy":1},"memo_andric":{"png":"img/47.png","w":48,"h":48,"lazy":1},"memo_srebrenica":{"png":"img/48.png","w":48,"h":48,"lazy":1},"memo_hagada":{"png":"img/49.png","w":48,"h":48,"lazy":1},"memo_fudbal":{"png":"img/50.png","w":48,"h":48,"lazy":1},"memo_vijecnica":{"png":"img/51.png","w":48,"h":48,"lazy":1},"memo_zoi84":{"png":"img/52.png","w":48,"h":48,"lazy":1},"memo_sevdah":{"png":"img/53.png","w":48,"h":48,"lazy":1},"memo_prijedor":{"png":"img/54.png","w":48,"h":48,"lazy":1},"memo_prelog":{"png":"img/55.png","w":48,"h":48,"lazy":1},"memo_zbanic":{"png":"img/56.png","w":48,"h":48,"lazy":1},"verge_bih":{"png":"img/57.png","w":512,"h":40,"lazy":1}});
   /* ===== the Gemini scenery pictures (pix/novi.js, pix/levels.js): decoded once at start, drawn with square pixels =====
      scnReady() is true once every picture has loaded; until then the old drawings stand in. */
   const SCN = {};
-  for (const k in PIXSCN) { const im = new Image(); im.src = PIXSCN[k].png; SCN[k] = im; }
+  function scnLoad(k) { if (SCN[k]) return; const im = new Image(); im.src = PIXSCN[k].png; SCN[k] = im; }
+  for (const k in PIXSCN) if (!PIXSCN[k].lazy) scnLoad(k);
   let scnOk = false;
   function scnReady() {
     if (scnOk) return true;
-    for (const k in SCN) if (!SCN[k].complete || !SCN[k].naturalWidth) return false;
+    for (const k in SCN) if (!PIXSCN[k].lazy && (!SCN[k].complete || !SCN[k].naturalWidth)) return false;
     return (scnOk = true);
+  }
+  /* pictures marked lazy (the Bihać ride's) load only when this is first called, so the game never waits for them;
+     true once they have all arrived */
+  let scnLazyOk = false;
+  function scnLazy() {
+    if (scnLazyOk) return true;
+    let ok = true;
+    for (const k in PIXSCN) if (PIXSCN[k].lazy) { scnLoad(k); if (!SCN[k].complete || !SCN[k].naturalWidth) ok = false; }
+    return (scnLazyOk = ok);
   }
   /* draw a picture, or part of it, so its pixels stay square: blown up by a whole number with no smoothing, then
      scaled smoothly to the size asked for. Source rectangle in art pixels, destination in the context's units.
@@ -2020,6 +2140,33 @@ const Music = (() => {
     }
   }
 
+  /* ---------- 5 · Bihać Slow (very chill: slow pads, a soft flute, almost no drums; for the Una ride) ---------- */
+  const BH = {
+    CHORDS: [[57, 60, 64, 67], [53, 57, 60, 64], [50, 53, 57, 60], [52, 56, 59, 62]], // Am9, Fmaj7, Dm7, E
+    ROOTS: [45, 41, 38, 40],
+    MEL: [
+      [[0, 69, 6], [8, 72, 4], [12, 76, 4]],
+      [[0, 76, 4], [6, 74, 2], [8, 72, 6]],
+      [[0, 72, 4], [6, 76, 4], [12, 74, 4]],
+      [[0, 74, 8], [10, 72, 4]],
+    ],
+  };
+  function bihac(s, p, t) {
+    const n = p.name, ci = p.pos % 4;
+    if (s === 0) widePad(t, BH.CHORDS[ci], 16 * S, n === 'break' ? 0.035 : 0.03, 900);
+    if (n !== 'intro' && s % 4 === 0) subBass(t, BH.ROOTS[ci], S * 3.5, 0.14);
+    if (n === 'groove' || n === 'melody' || n === 'melody2') {
+      if (s % 4 === 2) shaker(t, 0.025);
+      if (s === 8) rim(t, 0.1);
+    }
+    if (n === 'melody' || n === 'melody2' || n === 'break') {
+      for (const [at, m, len] of BH.MEL[p.i % 4]) if (at === s) {
+        flute(t, m, len * S, n === 'break' ? 0.06 : 0.075);
+        if (n === 'melody2') flute(t, m + 12, len * S, 0.025);
+      }
+    }
+  }
+
   /* ---------- the stations ---------- */
   const STATIONS = [
     { id: 'polahko', name: 'Polahko House', desc: 'Balkan house · 122 BPM', s16: 60 / 122 / 4, steps: 16, swing: 0.07, echo: 3, level: 1,
@@ -2030,6 +2177,8 @@ const Music = (() => {
       arr: [['intro', 2], ['a', 8], ['b', 4], ['a2', 8], ['break', 2]], play: cocek },
     { id: 'sevdah', name: 'Sevdah Deep', desc: 'Deep house · 118 BPM', s16: 60 / 118 / 4, steps: 16, swing: 0.11, echo: 3, echoLvl: 0.22, verb: 0.4, level: 1.06,
       arr: [['intro', 4], ['groove', 8], ['melody', 8], ['break', 4], ['melody2', 8]], play: deep },
+    { id: 'bihac', name: 'Bihać Slow', desc: 'Very chill Balkan synth · 72 BPM', s16: 60 / 72 / 4, steps: 16, swing: 0.06, echo: 3, echoLvl: 0.25, verb: 0.6, level: 0.9,
+      arr: [['intro', 4], ['groove', 8], ['melody', 8], ['break', 4], ['melody2', 8]], play: bihac },
   ];
   const byId = (id) => STATIONS.find((x) => x.id === id) || STATIONS[0];
   st = byId(Store.get('station', 'polahko'));
@@ -2180,6 +2329,1077 @@ const L = (bs, en) => (Lang.en ? en : bs);
 /* ranks are stored and sent to the scoreboard in Bosnian; English players see them translated */
 const RANK_EN = { 'Kralj zida': 'King of the Wall', 'Legenda čaršije': 'Street legend', 'Majstor': 'Master', 'Grafiter': 'Writer', 'Šegrt': 'Apprentice' };
 const rankName = (r) => (Lang.en && RANK_EN[r]) || r || '';
+/* ===== Zidovi sjećanja, the walls of memory: twenty short stories from Bosnia and Herzegovina =====
+   War and pain, history, and talent. Each wall along the Una carries a stencil (memo_<id> in bihac-art.js) and a
+   tag; tap it and the ride waits while you read. In the order they come along the bank: history, talent, war, and
+   again. Facts checked against the linked sources in October 2026. [Bosnian, English] in every pair. */
+const MEMO_CAT = {
+  war: { name: ['Rat', 'War'], col: '#FF6B5B' },
+  his: { name: ['Historija', 'History'], col: '#6FD6E3' },
+  tal: { name: ['Talenat', 'Talent'], col: '#F4C84A' },
+};
+const MEMOS = [
+  { id: 'fethija', cat: 'his', tag: '1266',
+    title: ['Fethija', 'The Fethija'],
+    when: ['Bihać, od 1266.', 'Bihać, since 1266'],
+    text: ['Najstarija gotička građevina u Bosni i Hercegovini stoji upravo ovdje, u Bihaću, uz Unu. Sagrađena je 1266. kao crkva svetog Antuna Padovanskog. Nakon što su Osmanlije 1592. zauzele grad, pretvorena je u džamiju Fethiju. Ista zgrada, dvije vjere, više od sedam stoljeća.',
+      'The oldest Gothic building in Bosnia and Herzegovina stands right here in Bihać, by the Una. It was built in 1266 as the church of St Anthony of Padua. After the Ottomans took the town in 1592 it became the Fethija mosque. One building, two faiths, more than seven centuries.'],
+    src: ['https://en.wikipedia.org/wiki/Fethija_Mosque_(Biha%C4%87)', 'Wikipedia'] },
+
+  { id: 'odbojka', cat: 'tal', tag: '2004',
+    title: ['Sjedeća odbojka', 'Sitting volleyball'],
+    when: ['Atina 2004, London 2012.', 'Athens 2004, London 2012'],
+    text: ['Mnogi igrači ove reprezentacije ranjeni su u ratu. Zajedno su postali jedna od najboljih ekipa na svijetu: paralimpijsko zlato u Atini 2004. i Londonu 2012, svjetske titule 2002, 2006. i 2014, i medalja na svakim Paralimpijskim igrama od Sydneyja 2000. do Pariza 2024.',
+      'Many of this team’s players were wounded in the war. Together they became one of the best sides in the world: Paralympic gold in Athens 2004 and London 2012, world titles in 2002, 2006 and 2014, and a medal at every Paralympics from Sydney 2000 to Paris 2024.'],
+    src: ['https://en.wikipedia.org/wiki/Bosnia_and_Herzegovina_at_the_Paralympics', 'Wikipedia'] },
+
+  { id: 'bihac', cat: 'war', tag: '92–95',
+    title: ['Bihaćki džep', 'The Bihać pocket'],
+    when: ['Bihać, 1992–1995.', 'Bihać, 1992–1995'],
+    text: ['Više od tri godine Bihać je bio opkoljen. Okružili su ga Vojska Republike Srpske, vojska Srba iz Krajine u Hrvatskoj, a od 1993. i odmetnute snage Fikreta Abdića. UN ga je u maju 1993. proglasio zaštićenom zonom. Opsadu je 4. i 5. augusta 1995. slomila operacija Oluja Hrvatske vojske, zajedno s 5. korpusom Armije RBiH pod komandom Atifa Dudakovića. U Bihaću, Cazinu, Bosanskoj Krupi i Velikoj Kladuši ubijeno je ili nestalo 4.856 ljudi.',
+      'For more than three years Bihać was surrounded: by the Bosnian Serb army, by the army of the Serbs of Croatia’s Krajina, and from 1993 by Fikret Abdić’s breakaway forces. The UN declared it a safe area in May 1993. The siege was broken on 4–5 August 1995 by the Croatian Army’s Operation Storm, together with the Bosnian army’s 5th Corps under Atif Dudaković. In Bihać, Cazin, Bosanska Krupa and Velika Kladuša, 4,856 people were killed or went missing.'],
+    src: ['https://en.wikipedia.org/wiki/Siege_of_Biha%C4%87_(1992%E2%80%931995)', 'Wikipedia'] },
+
+  { id: 'stecci', cat: 'his', tag: 'XII–XVI',
+    title: ['Stećci', 'Stećci'],
+    when: ['12.–16. stoljeće', '12th–16th century'],
+    text: ['Srednjovjekovni nadgrobni spomenici, uglavnom od krečnjaka, klesani od 12. do 16. stoljeća i ukrašeni motivima i natpisima. Od 2016. su na UNESCO-voj listi svjetske baštine: 28 nekropola u Bosni i Hercegovini, Hrvatskoj, Srbiji i Crnoj Gori.',
+      'Medieval tombstones, mostly limestone, carved between the 12th and 16th centuries and decorated with motifs and inscriptions. Since 2016 they have been on UNESCO’s World Heritage List: 28 graveyards in Bosnia and Herzegovina, Croatia, Serbia and Montenegro.'],
+    src: ['https://whc.unesco.org/en/list/1504', 'UNESCO'] },
+
+  { id: 'tanovic', cat: 'tal', tag: '2002',
+    title: ['Ničija zemlja', 'No Man’s Land'],
+    when: ['Oscar, 2002.', 'Academy Award, 2002'],
+    text: ['Film Danisa Tanovića o dvojici ranjenih vojnika, Bošnjaku i Srbinu, zarobljenima između dvije linije, na ničijoj zemlji. Osvojio je Oscara za najbolji strani film 2002, Zlatni globus i nagradu za scenarij u Cannesu. To je i danas jedini Oscar Bosne i Hercegovine.',
+      'Danis Tanović’s film about two wounded soldiers, a Bosniak and a Bosnian Serb, caught between the lines in no man’s land. It won the Oscar for Best Foreign Language Film in 2002, a Golden Globe and the screenplay award at Cannes. It is still Bosnia and Herzegovina’s only Oscar.'],
+    src: ['https://en.wikipedia.org/wiki/No_Man%27s_Land_(2001_film)', 'Wikipedia'] },
+
+  { id: 'sarajevo', cat: 'war', tag: '1425',
+    title: ['Opsada Sarajeva', 'The siege of Sarajevo'],
+    when: ['Sarajevo, april 1992. – februar 1996.', 'Sarajevo, April 1992 – February 1996'],
+    text: ['Najduža opsada jednog glavnog grada u modernoj historiji ratovanja: 1.425 dana. Vojska Republike Srpske držala je brda oko grada i granatama i snajperima gađala ulice, pijace i stanove. Ubijeno je 11.541 građana Sarajeva, od toga više od 1.600 djece. Ožiljci od granata na mjestima gdje su ginuli ljudi zaliveni su crvenom smolom: to su sarajevske ruže.',
+      'The longest siege of a capital city in modern warfare: 1,425 days. The Bosnian Serb army held the hills around Sarajevo and shelled and sniped at its streets, markets and homes. 11,541 people of Sarajevo were killed, more than 1,600 of them children. Shell scars where people died were filled with red resin: the Sarajevo roses.'],
+    src: ['https://n1info.ba/english/news/siege-of-sarajevo-began-on-this-day-in-1992-1425-days-of-terror-and-survival', 'N1'] },
+
+  { id: 'starimost', cat: 'his', tag: '1566',
+    title: ['Stari most', 'The Old Bridge'],
+    when: ['Mostar, 1566.', 'Mostar, 1566'],
+    text: ['Kameni luk preko Neretve dovršen je 1566/67, po nacrtu Mimara Hajrudina, učenika Mimara Sinana. Više od četiri stoljeća stajao je nad rijekom, dok ga 9. novembra 1993. nisu srušile granate snaga bosanskih Hrvata. Obnovljen je i ponovo otvoren 23. jula 2004, a od 2005. je na UNESCO-voj listi. Mladići i danas skaču s njega u Neretvu.',
+      'The stone arch over the Neretva was finished in 1566–67, designed by Mimar Hayruddin, a pupil of Mimar Sinan. It stood for more than four centuries, until shelling by Bosnian Croat forces brought it down on 9 November 1993. Rebuilt, it reopened on 23 July 2004, and it has been on UNESCO’s list since 2005. Young men still dive from it into the Neretva.'],
+    src: ['https://en.wikipedia.org/wiki/Stari_Most', 'Wikipedia'] },
+
+  { id: 'sff', cat: 'tal', tag: '1995',
+    title: ['Sarajevo Film Festival', 'Sarajevo Film Festival'],
+    when: ['Sarajevo, od 1995.', 'Sarajevo, since 1995'],
+    text: ['Pokrenut je usred opsade. Prvo izdanje trajalo je od 25. oktobra do 5. novembra 1995, dok rat još nije bio gotov: oko 15.000 ljudi gledalo je 37 filmova iz 15 zemalja. Danas festival posjeti više od 100.000 ljudi, a glavna nagrada zove se Srce Sarajeva.',
+      'It was born in the middle of the siege. The first edition ran from 25 October to 5 November 1995, before the war was over: around 15,000 people watched 37 films from 15 countries. Today more than 100,000 people come, and the top prize is called the Heart of Sarajevo.'],
+    src: ['https://en.wikipedia.org/wiki/Sarajevo_Film_Festival', 'Wikipedia'] },
+
+  { id: 'tunel', cat: 'war', tag: '1993',
+    title: ['Tunel spasa', 'The Tunnel of Hope'],
+    when: ['Dobrinja – Butmir, 1993.', 'Dobrinja – Butmir, 1993'],
+    text: ['Opkoljeno Sarajevo bilo je odsječeno od svijeta. Zato je 1993. oko 300 ljudi, ručno i u tri smjene, prokopalo 800 metara tunela ispod piste aerodroma, od Dobrinje do Butmira. Proboj je bio u noći 30. jula 1993. Kroz prolaz visok oko 1,6 metara išli su civili, ranjenici, humanitarna pomoć i oružje: jedina veza grada sa ostatkom zemlje.',
+      'Besieged Sarajevo was cut off from the world. So in 1993 about 300 people dug 800 metres of tunnel by hand, in three shifts, under the airport runway from Dobrinja to Butmir. They broke through on the night of 30 July 1993. Civilians, the wounded, aid and weapons went through a passage about 1.6 metres high: the city’s only link to the rest of the country.'],
+    src: ['https://n1info.ba/english/news/sarajevo-marks-32-years-since-the-opening-of-the-iconic-tunnel-of-hope/', 'N1'] },
+
+  { id: 'kulin', cat: 'his', tag: '1189',
+    title: ['Povelja Kulina bana', 'The Charter of Ban Kulin'],
+    when: ['29. august 1189.', '29 August 1189'],
+    text: ['Bosanski ban Kulin obećao je 29. augusta 1189. knezu Krvašu i svim Dubrovčanima da mogu slobodno putovati i trgovati njegovom zemljom. Povelja je pisana bosančicom i jedan je od najstarijih državnih dokumenata u regiji. Primjerak koji se smatra originalom čuva se u Sankt Peterburgu.',
+      'On 29 August 1189 Ban Kulin of Bosnia promised Knez Krvaš and all the people of Dubrovnik that they could travel and trade freely across his land. Written in Bosnian Cyrillic, bosančica, the charter is one of the oldest state documents in the region. The copy known as the original is kept in Saint Petersburg.'],
+    src: ['https://en.wikipedia.org/wiki/Charter_of_Ban_Kulin', 'Wikipedia'] },
+
+  { id: 'andric', cat: 'tal', tag: '1961',
+    title: ['Ivo Andrić', 'Ivo Andrić'],
+    when: ['Nobelova nagrada za književnost, 1961.', 'Nobel Prize in Literature, 1961'],
+    text: ['Rođen 1892. u Dolcu kod Travnika, odrastao je u Višegradu, gradu mosta iz romana „Na Drini ćuprija“ (1945). Nobelovu nagradu za književnost dobio je 1961, za epsku snagu kojom je pratio teme i oslikavao ljudske sudbine iz historije svoje zemlje.',
+      'Born in 1892 in Dolac near Travnik, he grew up in Višegrad, the town of the bridge in his novel The Bridge on the Drina (1945). In 1961 he won the Nobel Prize in Literature, “for the epic force with which he has traced themes and depicted human destinies drawn from the history of his country”.'],
+    src: ['https://www.nobelprize.org/prizes/literature/1961/summary/', 'nobelprize.org'] },
+
+  { id: 'srebrenica', cat: 'war', tag: '1995',
+    title: ['Srebrenica', 'Srebrenica'],
+    when: ['Srebrenica, 11. juli 1995.', 'Srebrenica, 11 July 1995'],
+    text: ['Srebrenica je bila zaštićena zona UN-a kad su je 11. jula 1995. zauzele snage bosanskih Srba pod komandom Ratka Mladića. U danima koji su slijedili ubile su više od 8.000 bošnjačkih muškaraca i dječaka. Haški tribunal i Međunarodni sud pravde presudili su da je to genocid. Cvijet s jedanaest bijelih latica podsjeća na 11. juli: bijelo za nevinost žrtava, zeleno za nadu.',
+      'Srebrenica was a UN safe area when Bosnian Serb forces under Ratko Mladić took it on 11 July 1995. In the days that followed they killed more than 8,000 Bosniak men and boys. The Hague tribunal and the International Court of Justice ruled it genocide. The flower with eleven white petals stands for 11 July: white for the victims’ innocence, green for hope.'],
+    src: ['https://www.un.org/en/node/232302', 'United Nations'] },
+
+  { id: 'hagada', cat: 'his', tag: '1350',
+    title: ['Sarajevska hagada', 'The Sarajevo Haggadah'],
+    when: ['Barcelona, oko 1350.', 'Barcelona, around 1350'],
+    text: ['Ilustrovani jevrejski rukopis za praznik Pesah, nastao oko 1350, vjerovatno u Barceloni. U Zemaljskom muzeju je od 1894. U Drugom svjetskom ratu bibliotekar Derviš Korkut iznio ga je iz Sarajeva i sakrio kod hodže u jednom selu na Bjelašnici. Usred opsade 1992. direktor muzeja Enver Imamović spasio ga je uz pomoć policije i sklonio u podzemni trezor Centralne banke. Danas je opet u Zemaljskom muzeju.',
+      'An illuminated Jewish manuscript for Passover, made around 1350, probably in Barcelona, and in Sarajevo’s National Museum since 1894. In the Second World War the librarian Derviš Korkut smuggled it out of the city and hid it with a Muslim cleric in a village on Bjelašnica. In 1992, during the siege, museum director Enver Imamović rescued it with the police and put it in an underground Central Bank vault. Today it is back in the National Museum.'],
+    src: ['https://en.wikipedia.org/wiki/Sarajevo_Haggadah', 'Wikipedia'] },
+
+  { id: 'fudbal', cat: 'tal', tag: '2014',
+    title: ['Zmajevi na Mundijalu', 'The Dragons at the World Cup'],
+    when: ['Brazil 2014, Sjeverna Amerika 2026.', 'Brazil 2014, North America 2026'],
+    text: ['U Kaunasu, 15. oktobra 2013, gol Vedada Ibiševića odveo je Bosnu i Hercegovinu na prvi veliki turnir: Svjetsko prvenstvo u Brazilu 2014. Drugi Mundijal izborili su 31. marta 2026. u Zenici, penalima protiv Italije. Kapiten Edin Džeko, rekorder po golovima i nastupima, imao je šest godina kad je počela opsada Sarajeva.',
+      'In Kaunas on 15 October 2013, Vedad Ibišević’s goal took Bosnia and Herzegovina to its first major tournament, the 2014 World Cup in Brazil. The second came on 31 March 2026 in Zenica, on penalties against Italy. Captain Edin Džeko, the record holder for goals and caps, was six years old when the siege of Sarajevo began.'],
+    src: ['https://www.uefa.com/uefanationsleague/news/02a9-21b6eb6f3033-557eec08df87-1000--uefa-nations-league-edin-dzeko-concludes-bosnia-and-herzegovina-career-against-sweden/', 'UEFA'] },
+
+  { id: 'vijecnica', cat: 'war', tag: '1992',
+    title: ['Vijećnica', 'Vijećnica, the City Hall'],
+    when: ['Sarajevo, 25/26. august 1992.', 'Sarajevo, 25–26 August 1992'],
+    text: ['U noći s 25. na 26. august 1992. zapaljive granate Vojske Republike Srpske s okolnih brda pogodile su Vijećnicu, tada Nacionalnu i univerzitetsku biblioteku. Izgorjelo je oko 80 posto fonda: knjige, rukopisi, časopisi, arhivska građa. Bibliotekari, vatrogasci i Sarajlije pod vatrom su pokušavali spasiti knjige. Obnovljena Vijećnica otvorena je 9. maja 2014.',
+      'On the night of 25–26 August 1992, incendiary shells fired by the Bosnian Serb army from the surrounding hills hit Vijećnica, then the National and University Library. About 80 percent of the collection burned: books, manuscripts, journals, archives. Librarians, firefighters and people of Sarajevo tried to save books under fire. The restored building reopened on 9 May 2014.'],
+    src: ['https://n1info.ba/english/news/thirty-four-years-since-sarajevo-city-hall-fire-destroyed-its-priceless-library-collection/', 'N1'] },
+
+  { id: 'zoi84', cat: 'his', tag: '1984',
+    title: ['Sarajevo ’84', 'Sarajevo ’84'],
+    when: ['Sarajevo, 8–19. februar 1984.', 'Sarajevo, 8–19 February 1984'],
+    text: ['Zimske olimpijske igre u Sarajevu okupile su 1.272 sportista iz 49 zemalja. Bile su to prve zimske igre u jednoj socijalističkoj zemlji. Maskota je bio vuk Vučko, a Jure Franko osvojio je srebro u veleslalomu. Osam godina kasnije rat je teško oštetio grad i olimpijske objekte, a bob-staza na Trebeviću s vremenom je postala zid za grafite.',
+      'The Sarajevo Winter Olympics brought together 1,272 athletes from 49 countries, the first Winter Games ever held in a socialist country. The mascot was Vučko the wolf, and Jure Franko won silver in the giant slalom. Eight years later the war badly damaged the city and its Olympic venues, and the bobsleigh track on Trebević in time became a wall for graffiti.'],
+    src: ['https://en.wikipedia.org/wiki/1984_Winter_Olympics', 'Wikipedia'] },
+
+  { id: 'sevdah', cat: 'tal', tag: 'sevdah',
+    title: ['Sevdalinka', 'Sevdalinka'],
+    when: ['UNESCO, 2024.', 'UNESCO, 2024'],
+    text: ['Tradicionalna gradska pjesma Bosne i Hercegovine, nastala iz južnoslavenske usmene poezije i osmanskih muzičkih uticaja. Pjeva se a cappella ili uz tradicionalne instrumente, a njene pjesme pričaju priče. Od 2024. sevdalinka je na UNESCO-voj Reprezentativnoj listi nematerijalne kulturne baštine čovječanstva.',
+      'The traditional urban song of Bosnia and Herzegovina, grown from South Slavic oral poetry and Ottoman musical influences. It is sung a cappella or with traditional instruments, and its songs tell stories. Since 2024 sevdalinka has been on UNESCO’s Representative List of the Intangible Cultural Heritage of Humanity.'],
+    src: ['https://ich.unesco.org/en/RL/sevdalinka-traditional-urban-folk-song-01872', 'UNESCO'] },
+
+  { id: 'prijedor', cat: 'war', tag: '31.5.',
+    title: ['Bijele trake', 'White armbands'],
+    when: ['Prijedor, 31. maj 1992.', 'Prijedor, 31 May 1992'],
+    text: ['Krizni štab bosanskih Srba u Prijedoru naredio je 31. maja 1992. da nesrbi na kuće izvjese bijele čaršafe i na ruci nose bijele trake. Kroz logore Omarska, Keraterm i Trnopolje prošlo je oko 30.000 ljudi. U Prijedoru i okolini ubijeno je 3.176 ljudi, među njima 102 djeteta. Haški tribunal donio je 21 presudu za zločine u Prijedoru. Svakog 31. maja obilježava se Dan bijelih traka.',
+      'On 31 May 1992 the Bosnian Serb crisis staff in Prijedor ordered non-Serbs to hang white sheets from their homes and to wear white armbands. Some 30,000 people passed through the Omarska, Keraterm and Trnopolje camps. In and around Prijedor 3,176 people were killed, 102 of them children. The Hague tribunal handed down 21 judgments for crimes there. Every 31 May is now White Armband Day.'],
+    src: ['https://n1info.ba/english/news/white-armband-day-commemorates-non-serb-civilians-killed-in-prijedor/', 'N1'] },
+
+  { id: 'prelog', cat: 'tal', tag: '1975',
+    title: ['Vladimir Prelog', 'Vladimir Prelog'],
+    when: ['Nobelova nagrada za hemiju, 1975.', 'Nobel Prize in Chemistry, 1975'],
+    text: ['Rođen je u Sarajevu 23. jula 1906. Kao hemičar proučavao je kako su atomi u molekulama raspoređeni u prostoru i kako to utiče na njihove reakcije. Za to istraživanje stereohemije podijelio je Nobelovu nagradu za hemiju 1975, radeći na ETH-u u Zürichu.',
+      'Born in Sarajevo on 23 July 1906, he became a chemist who studied how the atoms of a molecule are arranged in space, and how that shapes its reactions. For that research into stereochemistry he shared the 1975 Nobel Prize in Chemistry, working at ETH Zurich.'],
+    src: ['https://www.nobelprize.org/prizes/chemistry/1975/prelog/facts/', 'nobelprize.org'] },
+
+  { id: 'zbanic', cat: 'tal', tag: '2006',
+    title: ['Jasmila Žbanić', 'Jasmila Žbanić'],
+    when: ['Zlatni medvjed, Berlin 2006.', 'Golden Bear, Berlin 2006'],
+    text: ['Rediteljica iz Sarajeva. Njen prvi igrani film, „Grbavica“, o ženi koja živi s traumom ratnog silovanja i o njenoj kćerki, osvojio je 2006. Zlatnog medvjeda u Berlinu. „Quo vadis, Aida?“, film o Srebrenici 1995, nominovan je za Oscara i proglašen najboljim evropskim filmom 2021.',
+      'A director from Sarajevo. Her first feature, Grbavica, about a woman living with the trauma of wartime rape and her daughter, won the Golden Bear in Berlin in 2006. Quo Vadis, Aida?, about Srebrenica in 1995, was nominated for an Oscar and named Best European Film of 2021.'],
+    src: ['https://www.berlinale.de/en/2025/topics/grbavica-2006.html', 'Berlinale'] },
+];
+/* ===== Bihać: the chill ride =====
+   A level of its own, made from the game's own parts: the same pixel pictures and the same way of drawing them, the
+   same bear and rider as the victory ride, the same music engine (the Bihać Slow station). It never ends. The panorama
+   loops (from the middle of the keep to its right edge and back, mirrored, so it has no seam), and the trees, the
+   benches, the ducks and the swallows are made as the road goes on. Nothing can be lost: the bear just bowls the
+   benches over. Now and then a wall of memory stands on the bank (bihac-memo.js): tap it and the bear stops while you
+   read its story. Stop, in the corner, ends the ride.
+   It lives in the game frame (bihac/ride.html, bihac/ride.css): the game opens it from its start card with
+   Ride.open(back) and gets its start card back when the ride is closed. On a page of its own (bihac/site) it is open
+   from the start, with a start card of its own. It only runs while it is open. */
+const Ride = (() => {
+  const frame = $('#ride'), cv = $('#ride-canvas');
+  const host = frame.closest('.game') || frame;        /* the game's frame: 'playing' goes on it while the bear runs */
+  const g = cv.getContext('2d');
+  const OV = { start: $('#ride-start'), end: $('#ride-end'), memo: $('#ride-memo') };
+  const btnStop = $('#ride-stop'), btnMusic = $('#ride-music');
+  let active = false, standalone = false, onClose = null;
+
+  const LH = 540, GY = 452, GRAV = 2400, JUMP_V = -900, JUMP2_V = -760, CUT_V = -320;
+  const INK = '#15161A';
+  const TAGF = '"Sedgwick Ave Display", "Marker Felt", cursive';
+  const STENF = '"Archivo", "Helvetica Neue", Arial, sans-serif';
+  let LW = 960, PX = 250, scale = 1, dpr = 1, rf = 1;
+
+  /* how the ride feels: the speed of the game's first levels, the far picture almost still, the bank in between */
+  const SPEED = 380, RAMP = 1.6, BRAKE = 1.25;
+  const PAN_PAR = 0.035, MID_PAR = 0.5;
+  const BEAR_K = 1.4, BEAR_STEP = [0, 1, 2, 4, 3, 5];
+  const MUSIC_RIDE = 0.8, MUSIC_LOW = 0.22;
+  const LOOK = { grade: 'rgba(110,190,150,.05)' };
+
+  /* ---------- state ---------- */
+  let state = 'idle';            // idle: the start card over the living scene · run · read: stopped at a wall, its card open · stop: braking · end: the card
+  let cam = 0, speed = 0, t = 0, phaseT = 0, v0 = 0, looping = false, lastT = 0;
+  const P = { y: GY, vy: 0, onGround: true, jumps: 0, cut: false, buffer: 0, run: 0 };
+  const input = { jumpPressed: false, jumpHeld: false };
+  const parts = [], pops = [];
+  const stats = { knocked: 0, jumped: 0, from: 0 };
+  let rider = 0, riderT = 0;
+
+  /* ---------- small helpers, as in the game ---------- */
+  function cycle(tt, fps, n) { return ((Math.floor(tt * fps) % n) + n) % n; }
+  function layer(w, h, fn, cap) {
+    const r = Math.min(rf, cap || 2);
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.ceil(w * r)); c.height = Math.max(1, Math.ceil(h * r));
+    const x = c.getContext('2d');
+    x.scale(r, r);
+    fn(x, w, h);
+    return c;
+  }
+  const hs = (v) => { const s = Math.sin(v) * 43758.5453; return s - Math.floor(s); };
+  const halos = {};
+  function halo(col) {
+    if (halos[col]) return halos[col];
+    const c = document.createElement('canvas'); c.width = c.height = 96;
+    const x = c.getContext('2d'), gr = x.createRadialGradient(48, 48, 0, 48, 48, 48);
+    gr.addColorStop(0, hexA(col, 0.6)); gr.addColorStop(0.35, hexA(col, 0.22)); gr.addColorStop(1, hexA(col, 0));
+    x.fillStyle = gr; x.fillRect(0, 0, 96, 96);
+    halos[col] = c;
+    return c;
+  }
+  let shadowImg = null;
+  function shadowSprite() {
+    if (shadowImg) return shadowImg;
+    shadowImg = document.createElement('canvas'); shadowImg.width = 128; shadowImg.height = 32;
+    const x = shadowImg.getContext('2d');
+    const gr = x.createRadialGradient(64, 16, 2, 64, 16, 64);
+    gr.addColorStop(0, 'rgba(0,0,0,.55)'); gr.addColorStop(0.6, 'rgba(0,0,0,.22)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    x.setTransform(1, 0, 0, 0.25, 0, 12); x.fillStyle = gr; x.fillRect(0, -48, 128, 128);
+    return shadowImg;
+  }
+  function softShadow(cx, y, w, a) {
+    g.globalAlpha = a;
+    g.drawImage(shadowSprite(), cx - w / 2, y - w * 0.09, w, w * 0.22);
+    g.globalAlpha = 1;
+  }
+  /* a picture blown up a whole number of times with no smoothing, so its pixels stay square when it is drawn in parts */
+  function upOf(key, N) {
+    if (PIXSCN[key]) return scnUp(SCN[key], key, N);
+    return pixObsUp(key, 0, N);
+  }
+  function artOf(key) {
+    const A = PIXSCN[key] || PIXOBS[key];
+    return { w: A.w, h: A.h, ox: A.ox, oy: A.oy };
+  }
+
+  /* ---------- scenery: the pictures, built once they have loaded ---------- */
+  const scen = { ok: false, pano: null, panoW: 0, panoH: 0, verge: null, vergeW: 0, vergeH: 0, ground: null, groundW: 0, amb: [] };
+  let PANO_Y = GY + 28 - 576;
+  /* where the loop starts: the fortress a little right of the middle of the screen */
+  let PAN0 = null;
+  function buildScenery() {
+    if (!scnLazy()) return;
+    const A = PIXSCN.grad_bih, V = PIXSCN.verge_bih, Gd = PIXSCN.put_bih;
+    scen.panoW = A.w * A.unit; scen.panoH = A.h * A.unit;
+    PANO_Y = GY + 28 - scen.panoH;
+    scen.pano = layer(scen.panoW, scen.panoH, (x) => scnBlit(x, SCN.grad_bih, null, 0, 0, A.w, A.h, 0, 0, scen.panoW, scen.panoH), 1.5);
+    scen.vergeW = V.w; scen.vergeH = V.h;
+    scen.verge = layer(V.w, V.h, (x) => scnBlit(x, SCN.verge_bih, null, 0, 0, V.w, V.h, 0, 0, V.w, V.h), 2);
+    scen.groundW = Gd.w;
+    scen.ground = layer(Gd.w, LH - GY, (x, w, h) => {
+      scnBlit(x, SCN.put_bih, null, 0, 0, Gd.w, Gd.h, 0, 0, w, h);
+      const gr = x.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, 'rgba(255,240,200,.05)'); gr.addColorStop(1, 'rgba(30,40,30,.24)');
+      x.fillStyle = gr; x.fillRect(0, 0, w, h);
+    }, 2);
+    if (PAN0 === null) PAN0 = scen.panoW - LW * 0.6;
+    scen.ok = true;
+  }
+  const panX = () => cam * PAN_PAR + (PAN0 || 0);
+
+  /* the far picture, the river's glints and the ducks on it */
+  function drawPano() {
+    const W = scen.panoW, off = ((panX() % W) + W) % W;
+    for (let x = -off; x < LW; x += W) g.drawImage(scen.pano, x, PANO_Y, W, scen.panoH);
+  }
+  function riverGlints() {
+    const A = PIXSCN.grad_bih, Wr = A.water, n = Wr.length, k = A.unit, W = scen.panoW;
+    const off = ((panX() % W) + W) % W;
+    g.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 70; i++) {
+      const life = 1.5 + (i % 7) * 0.32, u = t / life + i * 0.618, c = Math.floor(u), f = u - c;
+      const ri = Math.min(n - 1, Math.floor(Math.sqrt(hs(i * 12.9898 + c * 78.233)) * n)), row = Wr[ri];
+      const runs = (row.length - 1) / 2, j = Math.floor(hs(i * 39.346 + c * 11.135) * runs);
+      const a = row[1 + 2 * j], b = row[2 + 2 * j], len = 2 + Math.floor(hs(i * 7.77 + c * 3.33) * 2 + (ri / n) * 3);
+      if (b - a < len + 2) continue;
+      const xx = a + 1 + Math.floor(hs(i * 5.17 + c * 9.71) * (b - a - len - 2)), y = PANO_Y + row[0] * k;
+      if (y > GY - 4) continue;
+      let sx = xx * k - off; if (sx < -len * k) sx += W;
+      if (sx > LW) continue;
+      g.fillStyle = `rgba(150,220,205,${(Math.sin(Math.PI * f) * 0.42).toFixed(3)})`;
+      g.fillRect(sx, y, len * k, k);
+    }
+    g.globalCompositeOperation = 'source-over';
+  }
+  /* each duck paddles about its own spot on the open water, turning now and then, with a little wake */
+  const ducks = (PIXSCN.grad_bih.ducks || []).map(([x, y], i) => ({ x, y, ph: i * 1.7, r: 8 + (i % 3) * 4 }));
+  function drawDucks() {
+    const A = PIXSCN.grad_bih, k = A.unit, W = scen.panoW, off = ((panX() % W) + W) % W;
+    for (const d of ducks) {
+      const s = Math.sin(t * 0.16 + d.ph), dir = Math.cos(t * 0.16 + d.ph) >= 0 ? 1 : -1;
+      const ax = d.x + s * d.r;
+      let sx = Math.round(ax * k - off); if (sx < -60) sx += W;
+      if (sx > LW + 60) continue;
+      const wl = PANO_Y + d.y * k, bob = Math.round(Math.sin(t * 2.2 + d.ph * 3) * 0.6);
+      if (wl > GY - 6) continue;
+      /* the wake: two light lines spreading behind it */
+      g.fillStyle = 'rgba(214,248,238,.45)';
+      for (let q = 1; q <= 3; q++) {
+        const bx = sx - dir * (16 + q * 7);
+        g.fillRect(bx - 3, wl + 1 + q, 6, 1);
+      }
+      g.fillStyle = 'rgba(30,90,80,.35)'; g.fillRect(sx - 14, wl + 1, 28, 1);
+      pixObsBlit(g, 'duckSwim', 0, sx, wl + 2 + bob, dir < 0);
+    }
+  }
+
+  /* ---------- the bank: trees that sway, now and then a wall of memory ---------- */
+  const MID_SEG = 640;
+  const TREES = [['willow', 0.22], ['tree_willow', 0.24], ['tree_poplar', 0.29], ['tree_oak', 0.25]];
+  const SWAY = { willow: 4.5, tree_willow: 5, tree_poplar: 5, tree_oak: 3 };
+  const segs = new Map();
+  function segment(s) {
+    let list = segs.get(s);
+    if (list) return list;
+    const R = rng(91019 + s * 7919);
+    list = [];
+    let x = s * MID_SEG + 30 + R() * 80;
+    while (x < (s + 1) * MID_SEG) {
+      let r = R(), kind = TREES[0][0];
+      for (const [k, w] of TREES) { r -= w; if (r < 0) { kind = k; break; } }
+      list.push({ kind, x, flip: R() < 0.5, ph: R() * TAU, dy: Math.round(R() * 5), s: 0.92 + R() * 0.1 });
+      x += (kind === 'tree_poplar' ? 120 : 170) + R() * 260;
+    }
+    segs.set(s, list);
+    if (segs.size > 24) { const first = segs.keys().next().value; segs.delete(first); }
+    return list;
+  }
+  /* the wind: slow waves through all the trees, each tree a little behind or ahead of the next */
+  function wind(ph) {
+    const gust = 0.72 + 0.28 * Math.sin(t * 0.21);
+    return gust * (0.55 * Math.sin(t * 1.05 + ph) + 0.3 * Math.sin(t * 0.47 + ph * 1.7) + 0.15 * Math.sin(t * 2.3 + ph * 0.5));
+  }
+  /* a tree bends in the wind: drawn in five bands, each sheared so the bands meet, the foot still and the crown moving
+     most (about as the height to the power 1.6). Five pictures a tree, so a bank full of trees costs next to nothing. */
+  const BANDS = [0, 0.3, 0.52, 0.7, 0.86, 1];
+  function swayTree(o, sx, base) {
+    const A = artOf(o.kind), k = o.s;
+    const tr = g.getTransform(), N = Math.max(1, Math.min(6, Math.ceil(Math.hypot(tr.a, tr.b) * k - 0.05)));
+    const up = upOf(o.kind, N), amp = (SWAY[o.kind] || 0) * k * wind(o.ph + sx * 0.004);
+    const w = A.w * k, top = base - A.oy * k, H = A.h;
+    const ox = o.flip ? w - A.ox * k : A.ox * k;
+    const d = (u) => amp * Math.pow(u, 1.6);              /* the sideways shift at a height u (0 the foot, 1 the top) */
+    for (let i = 0; i < BANDS.length - 1; i++) {
+      const u0 = BANDS[i], u1 = BANDS[i + 1];
+      /* art rows of this band, counted from the picture's top; one row of overlap hides the joins */
+      const r0 = Math.max(0, Math.floor(H * (1 - u1)) - (i < BANDS.length - 2 ? 1 : 0)), r1 = Math.min(H, Math.ceil(H * (1 - u0)));
+      if (r1 <= r0) continue;
+      const y0 = top + r0 * k, hb = (r1 - r0) * k;
+      const yU0 = base - u0 * A.h * k, yU1 = base - u1 * A.h * k;          /* screen heights of the band's ends */
+      const slope = (d(u1) - d(u0)) / Math.max(1e-6, yU0 - yU1);          /* shift per unit going up */
+      g.save();
+      g.imageSmoothingEnabled = true;
+      /* x' = x + shift(y): shift(yU0) = d(u0), growing as y goes up */
+      g.transform(1, 0, -slope, 1, d(u0) + slope * yU0, 0);
+      if (o.flip) { g.translate(sx * 2, 0); g.scale(-1, 1); }
+      g.drawImage(up, 0, r0 * N, A.w * N, (r1 - r0) * N, sx - (o.flip ? w - ox : ox), y0, w, hb);
+      g.restore();
+    }
+  }
+  /* ---------- the walls of memory: a fragment of concrete on the bank now and then, a stencil and a story on each ----------
+     They come in the order of MEMOS, the ones not read yet first, and the place in the list is kept between rides, so a
+     returning rider meets new walls. One every 14 to 20 seconds of riding; no tree grows right next to one. */
+  const MEMO_GAP0 = 2700, MEMO_GAP1 = 3700, MEMO_CLEAR = 78, MEMO_FOOT = 6;
+  let memos = [], nextMemo = null, memoAt = 0, hoverMemo = null;
+  const memoR = rng(5150);
+  const memoRead = new Set();
+  try {
+    memoAt = (Store.get('bihacWallAt', 0) | 0) % MEMOS.length;
+    for (const id of Store.get('bihacRead', []) || []) if (MEMOS.some((M) => M.id === id)) memoRead.add(id);
+  } catch (_) { /* a fresh start */ }
+  function memoPick() {
+    const n = MEMOS.length, near = new Set(memos.map((m) => m.i));
+    for (const fresh of [true, false]) {
+      for (let k = 0; k < n; k++) {
+        const i = (memoAt + k) % n;
+        if (near.has(i) || (fresh && memoRead.has(MEMOS[i].id))) continue;
+        memoAt = (i + 1) % n; Store.set('bihacWallAt', memoAt);
+        return i;
+      }
+    }
+    return memoAt;
+  }
+  function spawnMemos() {
+    const mx = cam * MID_PAR;
+    if (nextMemo === null) nextMemo = mx + LW + 260;
+    while (nextMemo < mx + LW + 420) {
+      const i = memoPick();
+      memos.push({ i, x: nextMemo, v: (i * 7 + memos.length) % 3 });
+      nextMemo += MEMO_GAP0 + memoR() * (MEMO_GAP1 - MEMO_GAP0);
+    }
+    while (memos.length && memos[0].x - mx < -300) memos.shift();
+  }
+  const nearMemo = (x) => memos.some((m) => Math.abs(m.x - x) < MEMO_CLEAR);
+  /* a wall with its stencil and its tag, drawn once for each size of the canvas (and again when the tag font arrives) */
+  const memoArt = new Map();
+  let memoFont = 0;
+  if (document.fonts) {
+    const again = () => { memoFont++; memoArt.clear(); };
+    try { document.fonts.addEventListener('loadingdone', again); document.fonts.ready.then(again); } catch (_) { /* optional */ }
+  }
+  function memoImage(m) {
+    const key = m.i + '|' + m.v + '|' + rf + '|' + memoFont;
+    let c = memoArt.get(key);
+    if (c) return c;
+    const M = MEMOS[m.i], sk = 'memo_slab' + m.v, ik = 'memo_' + M.id, S = PIXSCN[sk], I = PIXSCN[ik];
+    c = layer(S.w, S.h, (x) => {
+      scnBlit(x, SCN[sk], sk, 0, 0, S.w, S.h, 0, 0, S.w, S.h);
+      const [ix, iy] = S.icon;
+      scnBlit(x, SCN[ik], ik, 0, 0, I.w, I.h, ix - I.w / 2, iy, I.w, I.h);
+      /* the tag under it, sprayed in the story's colour */
+      x.save();
+      x.translate(ix, iy + I.h + 15); x.rotate(-0.07);
+      x.font = `${M.tag.length > 5 ? 20 : 25}px ${TAGF}`; x.textAlign = 'center'; x.textBaseline = 'middle';
+      x.lineJoin = 'round'; x.lineWidth = 3; x.strokeStyle = 'rgba(21,22,26,.5)'; x.strokeText(M.tag, 0, 0);
+      x.fillStyle = MEMO_CAT[M.cat].col; x.fillText(M.tag, 0, 0);
+      x.restore();
+    }, 2);
+    if (memoArt.size > 10) memoArt.delete(memoArt.keys().next().value);
+    memoArt.set(key, c);
+    return c;
+  }
+  /* where a wall stands on the screen, in game units */
+  function memoBox(m) {
+    const S = PIXSCN['memo_slab' + m.v], sx = Math.round(m.x - cam * MID_PAR);
+    return { x0: sx - S.ox, y0: GY - MEMO_FOOT - S.oy, w: S.w, h: S.h, cx: sx };
+  }
+  function drawMemos() {
+    for (const m of memos) {
+      const b = memoBox(m);
+      if (b.x0 > LW + 20 || b.x0 + b.w < -20) continue;
+      if (m === hoverMemo) {
+        g.globalAlpha = 0.5 + 0.15 * Math.sin(t * 5);
+        g.drawImage(halo(MEMO_CAT[MEMOS[m.i].cat].col), b.x0 - b.w * 0.45, b.y0 - 26, b.w * 1.9, b.h + 40);
+        g.globalAlpha = 1;
+      }
+      g.drawImage(memoImage(m), b.x0, b.y0, b.w, b.h);
+    }
+  }
+  /* over each wall not yet read, a little arrow bobbing in its colour; until the first one is read, a word too */
+  function drawMemoMarks() {
+    const first = memoRead.size === 0, coarse = document.documentElement.classList.contains('coarse');
+    for (const m of memos) {
+      const M = MEMOS[m.i], b = memoBox(m);
+      if (b.x0 > LW || b.x0 + b.w < 0) continue;
+      const read = memoRead.has(M.id);
+      if (read && m !== hoverMemo) continue;
+      const col = MEMO_CAT[M.cat].col, bob = Math.round(Math.sin(t * 3.2 + m.i) * 3), x = Math.round(b.cx), y = b.y0 - 6 + bob;
+      g.globalAlpha = 0.55 + 0.25 * Math.sin(t * 3.2 + m.i);
+      g.drawImage(halo(col), x - 22, y - 26, 44, 44);
+      g.globalAlpha = 1;
+      /* the arrow: a chevron of square pixels with a dark rim */
+      g.fillStyle = INK;
+      g.beginPath(); g.moveTo(x - 11, y - 15); g.lineTo(x, y - 3); g.lineTo(x + 11, y - 15); g.lineTo(x + 11, y - 22); g.lineTo(x, y - 10); g.lineTo(x - 11, y - 22); g.closePath(); g.fill();
+      g.fillStyle = col;
+      g.beginPath(); g.moveTo(x - 9, y - 16); g.lineTo(x, y - 6); g.lineTo(x + 9, y - 16); g.lineTo(x + 9, y - 20); g.lineTo(x, y - 11); g.lineTo(x - 9, y - 20); g.closePath(); g.fill();
+      if (first && state === 'run') {
+        const word = coarse ? L('dodirni zid', 'tap the wall') : L('klikni na zid', 'click the wall');
+        g.font = `700 13px ${STENF}`; g.textAlign = 'center'; g.textBaseline = 'alphabetic'; g.lineJoin = 'round';
+        g.lineWidth = 4; g.strokeStyle = INK; g.strokeText(word, x, y - 29);
+        g.fillStyle = '#F4F0E6'; g.fillText(word, x, y - 29);
+        g.textAlign = 'left';
+      }
+    }
+  }
+  /* the wall under a point of the screen, if any. The bear and his rider are in front: a tap on them is a jump. */
+  function memoUnder(gx, gy, pad) {
+    const bx = PX - PIXOBS.winMedo.seat[0] * BEAR_K;
+    if (gx > bx - 76 && gx < bx + 78 && gy > GY - 175) return null;
+    for (const m of memos) {
+      const b = memoBox(m);
+      if (gx >= b.x0 - pad && gx <= b.x0 + b.w + pad && gy >= b.y0 - 30 - pad && gy <= GY - MEMO_FOOT) return m;
+    }
+    return null;
+  }
+  function drawBank() {
+    const mx = cam * MID_PAR, base = GY - 12;
+    const s0 = Math.floor((mx - 200) / MID_SEG), s1 = Math.floor((mx + LW + 200) / MID_SEG);
+    for (let s = s0; s <= s1; s++) {
+      for (const o of segment(s)) {
+        const sx = o.x - mx;
+        if (sx < -200 || sx > LW + 200 || nearMemo(o.x)) continue;
+        swayTree(o, Math.round(sx), base + o.dy);
+      }
+    }
+    drawMemos();
+    /* the grass along the bank, in front of the trees' feet and the walls' */
+    const W = scen.vergeW, off = ((mx % W) + W) % W, y = GY + 2 - scen.vergeH;
+    for (let x = -off; x < LW; x += W) g.drawImage(scen.verge, x, y, W, scen.vergeH);
+    drawMemoMarks();
+  }
+  let ao = null;
+  function drawGround() {
+    const W = scen.groundW || 187, off = ((cam % W) + W) % W;
+    for (let x = -off; x < LW; x += W) g.drawImage(scen.ground, x, GY, W, LH - GY);
+    if (!ao) { ao = g.createLinearGradient(0, GY - 14, 0, GY + 6); ao.addColorStop(0, 'rgba(0,0,0,0)'); ao.addColorStop(1, 'rgba(0,0,0,.25)'); }
+    g.fillStyle = ao; g.fillRect(0, GY - 14, LW, 20);
+  }
+
+  /* ---------- the road: benches, rocks, a stump, a café table ---------- */
+  const OBS = { bench: { sp: 'bench', w: 96 }, rock: { sp: 'rock', w: 56 }, stump: { sp: 'stump', w: 48 }, cafe: { sp: 'cafe', w: 68 } };
+  const OBS_PICK = [['bench', 0.52], ['rock', 0.2], ['stump', 0.1], ['cafe', 0.18]];
+  let obs = [], nextObs = 0, obsR = rng(77);
+  function resetRoad() {
+    obs = []; nextObs = cam + LW + 420; obsR = rng(77 + Math.floor(cam));
+  }
+  function spawnRoad() {
+    while (nextObs < cam + LW + 500) {
+      let r = obsR(), type = 'bench';
+      for (const [k, w] of OBS_PICK) { r -= w; if (r < 0) { type = k; break; } }
+      obs.push({ type, x: nextObs, w: OBS[type].w, v: (obsR() * 3) | 0, knock: 0, kx: 0, ky: 0, kvx: 0, kvy: 0, rot: 0, rv: 0, hops: 0 });
+      nextObs += SPEED * (2.1 + obsR() * 2.3);
+    }
+    while (obs.length && obs[0].x + obs[0].kx - cam < -400 && (!obs[0].knock || obs[0].knock > KNOCK_LIFE)) obs.shift();
+  }
+  function knockDown(o) {
+    o.knock = 0.0001;
+    /* bowled ahead, faster than the bear, up into the air and turning over */
+    o.kvx = speed * 1.12 + 160 + Math.random() * 60; o.kvy = -(330 + Math.random() * 90);
+    o.rv = 6 + Math.random() * 3; o.rot = 0; o.kx = 0; o.ky = 0; o.hops = 0;
+    stats.knocked++;
+    const cx = o.x - cam + o.w / 2;
+    thud(o.type);
+    for (let i = 0; i < 12; i++) parts.push({ x: cx + rand(-10, 10), y: GY - 6, vx: rand(-60, 160), vy: rand(-150, -40), g: 300, t: 0, life: rand(0.35, 0.6), s: rand(2, 4), col: 'rgba(240,230,210,.75)' });
+    if (o.type === 'bench') for (let i = 0; i < 4; i++) parts.push({ x: cx + rand(-20, 20), y: GY - 30, vx: rand(20, 180), vy: rand(-220, -90), g: 600, t: 0, life: rand(0.5, 0.8), s: rand(2, 3.5), col: '#8A5530' });
+    const W = [['BUM!', 'thump!'], ['TRES!', 'crash!'], ['BAM!', 'bam!']][(Math.random() * 3) | 0];
+    pop(cx, GY - 96, W[0], '#EBC343', 'tag', W[1]);
+  }
+  function hitTest() {
+    if (state !== 'run' && state !== 'stop' && state !== 'read') return;
+    const seat = PIXOBS.winMedo.seat, bx = PX - seat[0] * BEAR_K, foot = P.y;
+    const l = bx + 8, r = bx + 72;
+    for (const o of obs) {
+      if (o.knock || o.cleared) continue;
+      const sx = o.x - cam;
+      if (sx > r + 20) break;
+      /* gone under the bear without a knock: jumped clean */
+      if (sx + o.w < bx - 40) {
+        o.cleared = true; stats.jumped++;
+        pop(PX + 40, GY - 150, 'HOP!', '#B4F53A', 'tag', 'clean jump');
+        try { Sound.sfx.pick(); } catch (_) { /* optional */ }
+        continue;
+      }
+      const A = PIXOBS[OBS[o.type].sp], top = GY - A.h + 14;          /* a little forgiving: the top edge of a bench can be grazed */
+      if (sx + o.w - 6 > l && sx + 6 < r && foot > top) knockDown(o);
+    }
+  }
+  /* a knocked thing flies on with a little physics of its own: one bounce, then it slides, settles and fades */
+  const KNOCK_LIFE = 1.9;
+  function stepKnock(o, dt) {
+    o.knock += dt;
+    o.kvy += 1500 * dt; o.ky += o.kvy * dt; o.kx += o.kvx * dt; o.rot += o.rv * dt;
+    if (o.ky >= 0 && o.kvy > 0) {
+      o.ky = 0; o.hops++;
+      if (o.hops === 1) { o.kvy = -o.kvy * 0.32; o.kvx *= 0.55; o.rv *= 0.45; thud('land'); }
+      else { o.kvy = 0; o.rv = 0; }
+    }
+    if (o.hops >= 2) {
+      o.kvx *= Math.pow(0.04, dt);
+      /* it settles on whichever side is nearer: upright, on its back or upside down */
+      const q = Math.round(o.rot / (Math.PI / 2)) * (Math.PI / 2);
+      o.rot += (q - o.rot) * Math.min(1, dt * 10);
+    }
+  }
+  function drawObs(o) {
+    const sx = o.x - cam + o.kx;
+    if (sx > LW + 60 || sx + o.w + 160 < 0) return;
+    const sp = OBS[o.type].sp, A = PIXOBS[sp], cx = sx + o.w / 2, fr = o.type === 'rock' ? o.v : 0;
+    if (!o.knock) {
+      softShadow(cx + 4, GY + 2, o.w * 1.45, 0.5);
+      pixObsBlit(g, sp, fr, cx, GY + 1, false);
+      return;
+    }
+    const fade = o.knock < KNOCK_LIFE - 0.5 ? 1 : Math.max(0, (KNOCK_LIFE - o.knock) / 0.5);
+    if (fade <= 0) return;
+    const lift = -o.ky, half = A.h / 2;
+    softShadow(cx + 4, GY + 2, o.w * 1.3, 0.45 * fade * Math.max(0.2, 1 - lift / 160));
+    g.save();
+    g.globalAlpha = fade;
+    /* turning about its middle; resting on its side it lies lower */
+    const s = Math.abs(Math.sin(o.rot)), c = Math.abs(Math.cos(o.rot));
+    const rest = (A.w / 2) * s + half * c;
+    g.translate(cx, GY + 1 - lift - rest);
+    g.rotate(o.rot);
+    pixObsBlit(g, sp, fr, 0, half, false);
+    g.restore();
+  }
+
+  /* ---------- the sky: swallows ---------- */
+  const birds = [];
+  function newBird(scatter) {
+    const right = Math.random() < 0.25;
+    return { x: scatter ? rand(0, LW) : right ? -60 - rand(0, 300) : LW + 60 + rand(0, 500), y0: rand(70, 250), ph: rand(0, TAU),
+      v: rand(70, 130) * (right ? 1 : -1), right, glide: rand(0, 3) };
+  }
+  for (let i = 0; i < 4; i++) birds.push(newBird(true));
+  function stepBirds(dt) {
+    for (let i = 0; i < birds.length; i++) {
+      const b = birds[i];
+      b.x += (b.v - speed * 0.3) * dt; b.glide += dt;
+      if ((!b.right && b.x < -80) || (b.right && b.x > LW + 80) || b.x < -700 || b.x > LW + 900) birds[i] = newBird(false);
+    }
+  }
+  function drawBirds() {
+    for (const b of birds) {
+      const y = b.y0 + Math.sin(t * 1.1 + b.ph) * 14 + Math.sin(t * 2.7 + b.ph) * 3;
+      const flap = (b.glide % 3.2) < 1.9 ? cycle(t + b.ph, 12, 4) : 0;
+      pixObsBlit(g, 'swallow', flap, b.x, y, b.right);
+    }
+  }
+
+  /* ---------- the air: sunlit specks and a few leaves blowing across ---------- */
+  function newAmb(kind, scatter) {
+    const p = { kind, x: scatter ? rand(0, LW) : LW + rand(10, 80), y: rand(40, GY - 20), s: rand(1, 2.6), a: rand(0.3, 0.9), t: rand(0, 6) };
+    if (kind === 'leaf') { p.vx = rand(-40, -15); p.vy = rand(8, 26); p.r = rand(0, TAU); p.c = Math.random() < 0.5 ? '#9DBE4E' : Math.random() < 0.5 ? '#C9C25A' : '#6E9A44'; p.y = scatter ? rand(40, GY - 30) : rand(-10, GY * 0.6); }
+    else { p.vx = rand(-12, 12); p.vy = rand(-6, 6); p.y = rand(GY - 230, GY - 20); }
+    return p;
+  }
+  function initAmb() {
+    scen.amb = [];
+    for (let k = 0; k < 18; k++) scen.amb.push(newAmb('glint', true));
+    for (let k = 0; k < 9; k++) scen.amb.push(newAmb('leaf', true));
+  }
+  function stepAmb(dt) {
+    for (let i = 0; i < scen.amb.length; i++) {
+      const p = scen.amb[i];
+      p.t += dt;
+      p.x += (p.vx - speed * (p.kind === 'leaf' ? 0.32 : 0.12)) * dt;
+      p.y += (p.vy + (p.kind === 'leaf' ? Math.sin(p.t * 2.1) * 14 : 0)) * dt;
+      if (p.kind === 'leaf') p.r += dt * (1.6 + Math.sin(p.t) * 1.2);
+      if (p.x < -20 || p.y > GY + 30 || p.y < -30 || p.x > LW + 120) scen.amb[i] = newAmb(p.kind, false);
+    }
+  }
+  function drawAmbient() {
+    g.globalCompositeOperation = 'lighter';
+    const img = halo('#FFFADC');
+    g.fillStyle = '#FFFADC';
+    for (const p of scen.amb) {
+      if (p.kind !== 'glint') continue;
+      const a = p.a * (0.55 + 0.45 * Math.sin(p.t * 3 + p.s * 4)), r = p.s * 3.4;
+      g.globalAlpha = a * 0.75; g.drawImage(img, p.x - r, p.y - r, r * 2, r * 2);
+      g.globalAlpha = a; g.fillRect(p.x - p.s / 2, p.y - p.s / 2, p.s, p.s);
+    }
+    g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+    /* leaves: three square pixels turning over, two units each, like the panorama's pixels */
+    for (const p of scen.amb) {
+      if (p.kind !== 'leaf') continue;
+      const c = Math.cos(p.r), s = Math.sin(p.r), x = Math.round(p.x / 2) * 2, y = Math.round(p.y / 2) * 2;
+      g.fillStyle = p.c;
+      g.fillRect(x, y, 2, 2);
+      g.fillRect(x + Math.round(c * 1.2) * 2, y + Math.round(s * 1.2) * 2, 2, 2);
+      g.fillStyle = 'rgba(40,60,30,.55)';
+      g.fillRect(x - Math.round(c * 1.2) * 2, y - Math.round(s * 1.2) * 2, 2, 2);
+    }
+  }
+  /* ---------- the bear and the rider (the victory ride's: the bear BEAR_K times its art, the rider his own size) ---------- */
+  function drawRide() {
+    const seat = PIXOBS.winMedo.seat, sx0 = seat[0] * BEAR_K, sy0 = seat[1] * BEAR_K;
+    const jump = Math.max(0, GY - P.y), bx = PX - sx0;
+    softShadow(bx + 2, GY + 2, 140, 0.5 * (1 - Math.min(jump, 200) / 260));
+    const moving = speed > 12;
+    const f = !P.onGround ? 2 : moving ? BEAR_STEP[cycle(P.run, 12, 6)] : 0;
+    pixObsBlit(g, 'bear', f, bx, GY + 1 - jump, false, BEAR_K);
+    const bob = moving && P.onGround ? Math.round(Math.abs(Math.sin(P.run * TAU * 2)) * 1.5) : 0;
+    pixObsBlit(g, 'winMedo', rider, bx + sx0, GY + 1 + sy0 - jump - bob, false);
+  }
+
+  /* ---------- particles and shouts (as in the game) ---------- */
+  function stepParts(dt) {
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i];
+      p.t += dt;
+      if (p.t >= p.life) { parts.splice(i, 1); continue; }
+      p.vy += p.g * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+    }
+    if (parts.length > 300) parts.splice(0, parts.length - 300);
+    for (let i = pops.length - 1; i >= 0; i--) { pops[i].t += dt; if (pops[i].t >= pops[i].life) pops.splice(i, 1); }
+  }
+  function drawParts() {
+    for (const p of parts) {
+      g.globalAlpha = Math.max(0, 1 - p.t / p.life); g.fillStyle = p.col;
+      g.fillRect(p.x - p.s / 2, p.y - p.s / 2, p.s, p.s);
+    }
+    g.globalAlpha = 1;
+  }
+  function pop(x, y, text, col, kind, sub) { pops.push({ x, y, text, col, kind: kind || '', sub: sub || '', t: 0, life: kind === 'big' ? 1.5 : 1.1 }); }
+  function drawPops() {
+    g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
+    const en = Lang.en;
+    for (const q of pops) {
+      const k = q.t / q.life;
+      g.globalAlpha = 1 - k * k;
+      const size = q.kind === 'big' ? 44 : q.kind === 'tag' ? 34 : 26;
+      g.font = q.kind === 'tag' ? `${size}px ${TAGF}` : `900 ${size}px ${STENF}`;
+      const x = clamp(q.x, 90, LW - 90), y = q.y - 46 * q.t;
+      g.lineWidth = size > 30 ? 6 : 5; g.strokeStyle = INK; g.strokeText(q.text, x, y);
+      g.fillStyle = q.col; g.fillText(q.text, x, y);
+      if (en && q.sub) {
+        const ss = Math.max(15, Math.round(size * 0.46));
+        g.font = `800 ${ss}px ${STENF}`; g.lineWidth = 4;
+        g.strokeText(q.sub, x, y + size * 0.5 + ss * 0.8); g.fillStyle = '#F3F0E6'; g.fillText(q.sub, x, y + size * 0.5 + ss * 0.8);
+      }
+    }
+    g.globalAlpha = 1; g.textAlign = 'left'; g.textBaseline = 'alphabetic';
+  }
+  let vig = null, vigW = 0;
+  function vignette() {
+    if (!vig || vigW !== LW) {
+      vig = document.createElement('canvas');
+      vig.width = Math.ceil(LW / 2); vig.height = Math.ceil(LH / 2);
+      const x = vig.getContext('2d');
+      x.scale(0.5, 0.5);
+      const gr = x.createRadialGradient(LW / 2, LH / 2, LH * 0.35, LW / 2, LH / 2, LW * 0.75);
+      gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,.34)');
+      x.fillStyle = gr; x.fillRect(0, 0, LW, LH);
+      vigW = LW;
+    }
+    g.drawImage(vig, 0, 0, LW, LH);
+  }
+
+  /* ---------- sounds: a soft thump and a wooden knock, quieter than the game's ---------- */
+  function thud(type) {
+    if (!Sound.on) return;
+    const a = Sound.context(); if (!a) return;
+    const t0 = a.currentTime + 0.01, out = a.createGain(); out.gain.value = 0.9; out.connect(a.destination);
+    const o = a.createOscillator(), gn = a.createGain();
+    o.type = 'sine'; o.frequency.setValueAtTime(130, t0); o.frequency.exponentialRampToValueAtTime(48, t0 + 0.2);
+    gn.gain.setValueAtTime(0.0001, t0); gn.gain.exponentialRampToValueAtTime(0.2, t0 + 0.008); gn.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.26);
+    o.connect(gn); gn.connect(out); o.start(t0); o.stop(t0 + 0.3);
+    if (type === 'land') { gn.gain.cancelScheduledValues(t0); gn.gain.setValueAtTime(0.0001, t0); gn.gain.exponentialRampToValueAtTime(0.09, t0 + 0.008); gn.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.2); return; }
+    const knocks = type === 'bench' || type === 'cafe' ? [[310, 0.05], [235, 0.12]] : [[180, 0.04]];
+    for (const [f, d] of knocks) {
+      const k = a.createOscillator(), kg = a.createGain();
+      k.type = 'triangle'; k.frequency.setValueAtTime(f, t0 + d); k.frequency.exponentialRampToValueAtTime(f * 0.7, t0 + d + 0.09);
+      kg.gain.setValueAtTime(0.0001, t0 + d); kg.gain.exponentialRampToValueAtTime(0.07, t0 + d + 0.005); kg.gain.exponentialRampToValueAtTime(0.0001, t0 + d + 0.12);
+      k.connect(kg); kg.connect(out); k.start(t0 + d); k.stop(t0 + d + 0.15);
+    }
+  }
+
+  /* ---------- music: Bihać Slow, the game's own station ---------- */
+  /* the same switch as the game's music button (and, in the game, the Sound chip in the header too) */
+  let musicOn = Store.get('gameMusic', true) !== false;
+  function musicShow() { btnMusic.setAttribute('aria-pressed', musicOn && Sound.on ? 'true' : 'false'); }
+  function musicGo(level) {
+    musicShow();
+    if (!musicOn || !Sound.on) return;
+    Sound.ensure();
+    Music.level(level, 0.6);
+    if (!Music.playing || Music.station.id !== 'bihac') Music.set('bihac', false);
+  }
+  function musicLow() { if (Music.playing) Music.level(MUSIC_LOW, 0.8); }
+  btnMusic.addEventListener('click', () => {
+    Sound.ensure();
+    if (musicOn && Sound.on) { musicOn = false; Store.set('gameMusic', false); musicShow(); if (Music.playing) Music.stop(); return; }
+    musicOn = true; Store.set('gameMusic', true);
+    /* the sound is off in the header: the music button turns it back on, as the game's does */
+    if (!Sound.on) document.dispatchEvent(new CustomEvent('zid:want-sound'));
+    musicGo(state === 'run' ? MUSIC_RIDE : MUSIC_LOW);
+  });
+
+  /* ---------- flow ---------- */
+  function show(name) { for (const k in OV) if (OV[k]) OV[k].hidden = k !== name; }
+  function focusBtn(sel) { const b = $(sel); if (b) { try { b.focus({ preventScroll: true }); } catch (_) { /* optional */ } } }
+  function begin() {
+    if (state === 'run') return;
+    Sound.ensure();
+    show('none');
+    state = 'run'; phaseT = 0; v0 = speed;
+    stats.knocked = 0; stats.jumped = 0; stats.from = cam;
+    if (!obs.length) resetRoad();
+    host.classList.add('playing');
+    btnStop.hidden = false;
+    musicGo(MUSIC_RIDE);
+    pop(PX + 90, GY - 190, L('AJDE, MEDO!', 'AJDE, MEDO!'), '#EBC343', 'tag', 'giddy up, bear!');
+    try { Sound.sfx.snarl(); if (Music.playing) Music.duck(0.4, 0.7); } catch (_) { /* optional */ }
+  }
+  function stopRide() {
+    if (state !== 'run') return;
+    state = 'stop'; phaseT = 0; v0 = speed;
+    btnStop.hidden = true;
+    input.jumpHeld = false;
+  }
+  /* ---------- a wall's story: the bear stops, the music goes down, the card opens ---------- */
+  let memoOpen = null;
+  function fillMemo() {
+    if (!memoOpen) return;
+    const M = MEMOS[memoOpen.i], C = MEMO_CAT[M.cat], li = Lang.en ? 1 : 0;
+    OV.memo.style.setProperty('--cat', C.col);
+    $('#ride-m-ico').src = PIXSCN['memo_' + M.id].png;
+    $('#ride-m-cat').textContent = C.name[li];
+    $('#ride-m-title').textContent = M.title[li];
+    $('#ride-m-when').textContent = M.when[li];
+    $('#ride-m-text').textContent = M.text[li];
+    const a = $('#ride-m-src');
+    a.href = M.src[0];
+    a.textContent = L('Izvor: ', 'Source: ') + M.src[1];
+    $('#ride-m-count').textContent = L(`pročitano ${memoRead.size}/${MEMOS.length}`, `read ${memoRead.size}/${MEMOS.length}`);
+  }
+  function openMemo(m) {
+    if (state !== 'run' || !m) return;
+    memoOpen = m; hoverMemo = null;
+    state = 'read'; phaseT = 0; v0 = speed;
+    input.jumpPressed = false; input.jumpHeld = false;
+    btnStop.hidden = true;
+    memoRead.add(MEMOS[m.i].id); Store.set('bihacRead', [...memoRead]);
+    fillMemo();
+    show('memo');
+    musicLow();
+    focusBtn('#ride-memo-go');
+  }
+  function closeMemo() {
+    if (state !== 'read') return;
+    memoOpen = null;
+    show('none');
+    state = 'run'; phaseT = 0; v0 = speed;
+    btnStop.hidden = false;
+    musicGo(MUSIC_RIDE);
+  }
+  /* the wall nearest the middle of the screen, for the keyboard */
+  function memoInView() {
+    let best = null, bd = 1e9;
+    for (const m of memos) {
+      const b = memoBox(m);
+      if (b.x0 < 10 || b.x0 + b.w > LW - 10) continue;
+      const d = Math.abs(b.cx - LW / 2);
+      if (d < bd) { bd = d; best = m; }
+    }
+    return best;
+  }
+  $('#ride-memo-go').addEventListener('click', closeMemo);
+
+  function endCard() {
+    state = 'end';
+    host.classList.remove('playing');
+    const km = Math.max(0, (cam - stats.from) / 70000), n = stats.knocked;
+    const m = km * 1000, kmS = km < 1 ? String(Math.round(m / 10) * 10) : km.toFixed(1);
+    $('#ride-e-km').textContent = Lang.en ? kmS : kmS.replace('.', ',');
+    $('#ride-e-unit').textContent = km < 1 ? 'm' : 'km';
+    $('#ride-e-knock').textContent = n;
+    $('#ride-e-walls').textContent = memoRead.size;
+    $('#ride-e-walls-of').textContent = '/' + MEMOS.length;
+    $('#ride-e-line').textContent = n === 0 ? L('Ni jedna klupa nije pala. Svaka čast, medo.', 'Not one bench fell. Well done, bear.')
+      : n < 5 ? L('Polahko, medo.', 'Easy does it, bear.')
+      : n < 15 ? L('Medo je danas u formi.', 'The bear is on form today.')
+      : L('Ko je pustio ovog medu?!', 'Who let this bear out?!');
+    show('end');
+    musicLow();
+    focusBtn('#ride-again');
+  }
+  /* ---------- in the game: opened from its start card, closed back to it ---------- */
+  function open(back) {
+    scnLazy();
+    onClose = back || null;
+    active = true;
+    musicOn = Store.get('gameMusic', true) !== false;
+    frame.hidden = false;
+    resize();
+    startLoop();
+    begin();
+  }
+  function close() {
+    if (standalone) { location.href = 'https://zidbosna.com/'; return; }
+    active = false;
+    state = 'idle'; speed = 0; memoOpen = null; hoverMemo = null;
+    input.jumpPressed = false; input.jumpHeld = false;
+    host.classList.remove('playing');
+    show('none');
+    btnStop.hidden = true;
+    frame.hidden = true;
+    /* the music carries on as the radio, at its own level, as it does after a run in the game */
+    if (Music.playing) Music.level(1, 1.5);
+    if (onClose) { const f = onClose; onClose = null; f(); }
+  }
+  /* the game's Jump pad under the frame, on phones */
+  function pad(down) {
+    if (!active) return;
+    if (!down) { input.jumpHeld = false; return; }
+    Sound.ensure();
+    if (state === 'run') { input.jumpPressed = true; input.jumpHeld = true; }
+    else if (state === 'end') begin();
+  }
+  const btnGo = $('#ride-go');
+  if (btnGo) btnGo.addEventListener('click', begin);
+  $('#ride-again').addEventListener('click', begin);
+  $('#ride-back').addEventListener('click', close);
+  btnStop.addEventListener('click', stopRide);
+
+  /* ---------- the body: the bear's jump, as the runner's in the game ---------- */
+  function physics(dt) {
+    if (input.jumpPressed) { P.buffer = 0.12; input.jumpPressed = false; }
+    if (P.buffer > 0) {
+      if (P.onGround) {
+        P.vy = JUMP_V; P.onGround = false; P.jumps = 1; P.cut = true; P.buffer = 0;
+        Sound.sfx.jump();
+        for (let i = 0; i < 6; i++) parts.push({ x: PX - 40 + rand(-20, 20), y: GY - 2, vx: rand(-60, 60), vy: rand(-50, -10), g: 300, t: 0, life: rand(0.2, 0.35), s: rand(1.5, 3.5), col: 'rgba(240,230,210,.7)' });
+      } else if (P.jumps < 2) {
+        P.vy = JUMP2_V; P.jumps = 2; P.cut = true; P.buffer = 0;
+        Sound.sfx.jump2();
+      } else P.buffer -= dt;
+    }
+    if (P.cut && !input.jumpHeld && P.vy < CUT_V) { P.vy = CUT_V; P.cut = false; }
+    if (!P.onGround) {
+      P.vy += GRAV * dt;
+      P.y += P.vy * dt;
+      if (P.y >= GY) {
+        P.y = GY; P.vy = 0; P.onGround = true; P.jumps = 0; P.cut = false;
+        for (let i = 0; i < 8; i++) parts.push({ x: PX - 10 + rand(-60, 50), y: GY - 2, vx: rand(-80, 80), vy: rand(-60, -10), g: 300, t: 0, life: rand(0.25, 0.4), s: rand(2, 3.5), col: 'rgba(240,230,210,.7)' });
+      }
+    }
+  }
+
+  /* ---------- update & render ---------- */
+  function update(dt) {
+    t += dt; phaseT += dt;
+    if (state === 'run') {
+      const k = clamp(phaseT / RAMP, 0, 1);
+      speed = v0 + (SPEED - v0) * (1 - (1 - k) * (1 - k));
+    } else if (state === 'stop') {
+      const k = clamp(phaseT / BRAKE, 0, 1);
+      speed = v0 * (1 - k) * (1 - k);
+      if (k >= 1 && P.onGround) endCard();
+    } else if (state === 'read') {
+      /* the bear pulls up in half a second and waits */
+      const k = clamp(phaseT / 0.5, 0, 1);
+      speed = v0 * (1 - k) * (1 - k);
+    } else speed = 0;
+    cam += speed * dt;
+    P.run += dt * (speed / 350);
+    /* the rider changes his wave now and then */
+    riderT -= dt;
+    if (riderT <= 0) { rider = rider ? 0 : 1; riderT = state === 'run' ? 1.4 + Math.random() * 2.2 : 2.5 + Math.random() * 2; }
+    if (state === 'run' || state === 'stop' || state === 'read') physics(dt);
+    spawnRoad();
+    spawnMemos();
+    for (const o of obs) if (o.knock) stepKnock(o, dt);
+    hitTest();
+    if (P.onGround && speed > 60 && Math.random() < 0.35) {
+      const bx = PX - PIXOBS.winMedo.seat[0] * BEAR_K;
+      parts.push({ x: bx - 46 + rand(-6, 6), y: GY - 2, vx: -speed * 0.4 + rand(-20, 20), vy: rand(-40, -10), g: 120, t: 0, life: 0.4, s: rand(1.5, 3), col: 'rgba(240,230,210,.6)' });
+    }
+    stepBirds(dt);
+    stepAmb(dt);
+    stepParts(dt);
+  }
+  function render() {
+    g.setTransform(scale * dpr, 0, 0, scale * dpr, 0, 0);
+    g.imageSmoothingEnabled = true;
+    if (!scen.ok) buildScenery();
+    if (!scen.ok) {
+      const gr = g.createLinearGradient(0, 0, 0, LH); gr.addColorStop(0, '#8FC3E4'); gr.addColorStop(0.8, '#D9EBE6'); gr.addColorStop(1, '#6E8A6A');
+      g.fillStyle = gr; g.fillRect(0, 0, LW, LH);
+      return;
+    }
+    drawPano();
+    riverGlints();
+    drawDucks();
+    drawBirds();
+    drawBank();
+    drawGround();
+    for (const o of obs) drawObs(o);
+    drawRide();
+    drawAmbient();
+    drawParts();
+    g.fillStyle = LOOK.grade; g.fillRect(0, 0, LW, LH);
+    drawPops();
+    vignette();
+  }
+  /* if a phone can't keep up, step the canvas resolution down instead of stuttering (as the game does) */
+  let dprCap = 3, perfN = 0, perfT = 0;
+  function watchPerf(raw) {
+    if (state !== 'run' || raw <= 0 || raw > 0.25) return;
+    perfT += raw; perfN++;
+    if (perfN < 90) return;
+    if (perfT / perfN > 0.024 && dpr > 1.25) { dprCap = Math.max(1, dpr - 0.75); resize(); }
+    perfN = 0; perfT = 0;
+  }
+  function tick(now) {
+    const raw = (now - lastT) / 1000;
+    const dt = Math.min(0.033, Math.max(0, raw));
+    lastT = now;
+    watchPerf(raw);
+    update(dt);
+    render();
+    if (active && !document.hidden) requestAnimationFrame(tick); else looping = false;
+  }
+  function startLoop() {
+    if (looping || !active) return;
+    looping = true; lastT = performance.now();
+    requestAnimationFrame(tick);
+  }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) startLoop(); });
+
+  /* ---------- input ---------- */
+  const JUMP_KEYS = [' ', 'ArrowUp', 'w', 'W'];
+  window.addEventListener('keydown', (e) => {
+    if (!active) return;
+    const tag = e.target && e.target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    if (state === 'read') {
+      if (e.key === 'Escape') { e.preventDefault(); closeMemo(); }
+      else if (e.key === 'm' || e.key === 'M') btnMusic.click();
+      return;
+    }
+    if (state === 'run' && JUMP_KEYS.includes(e.key)) { e.preventDefault(); if (!e.repeat) input.jumpPressed = true; input.jumpHeld = true; return; }
+    if (state === 'run' && (e.key === 'i' || e.key === 'I')) { e.preventDefault(); openMemo(memoInView()); return; }
+    if (state === 'run' && (e.key === 'Escape' || e.key === 's' || e.key === 'S')) { e.preventDefault(); stopRide(); return; }
+    if ((state === 'idle' || state === 'end') && (e.key === ' ') && (!e.target || e.target.tagName !== 'BUTTON')) { e.preventDefault(); begin(); return; }
+    if (state === 'end' && e.key === 'Escape' && !standalone) { e.preventDefault(); close(); return; }
+    if (e.key === 'm' || e.key === 'M') btnMusic.click();
+  });
+  window.addEventListener('keyup', (e) => { if (JUMP_KEYS.includes(e.key)) input.jumpHeld = false; });
+  /* a point of the canvas in game units */
+  function gamePoint(e) {
+    const r = cv.getBoundingClientRect();
+    return [((e.clientX - r.left) * LW) / r.width, ((e.clientY - r.top) * LH) / r.height];
+  }
+  cv.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'touch') markCoarse();
+    if (state !== 'run') return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    e.preventDefault();
+    /* a wall first: a tap on one opens its story; anywhere else is a jump */
+    const [gx, gy] = gamePoint(e), m = memoUnder(gx, gy, e.pointerType === 'mouse' ? 6 : 16);
+    if (m) { openMemo(m); return; }
+    input.jumpPressed = true; input.jumpHeld = true;
+  });
+  cv.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse') return;
+    const [gx, gy] = gamePoint(e);
+    hoverMemo = state === 'run' ? memoUnder(gx, gy, 6) : null;
+  });
+  cv.addEventListener('pointerleave', () => { hoverMemo = null; });
+  const up = () => { input.jumpHeld = false; };
+  cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+
+  /* ---------- size ---------- */
+  function resize() {
+    const r = frame.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    LW = Math.round((LH * r.width) / r.height);
+    PX = Math.round(LW * 0.27);
+    scale = r.height / LH;
+    /* no more than about 2560 pixels across: the pictures are pixel art, a bigger canvas only costs */
+    dpr = Math.min(dprCap, window.devicePixelRatio || 1, Math.max(1, 2560 / r.width));
+    cv.width = Math.round(r.width * dpr);
+    cv.height = Math.round(r.height * dpr);
+    const nrf = clamp(Math.ceil(scale * dpr * 2 - 0.15) / 2, 1, 2);
+    if (nrf !== rf || !scen.ok) { rf = nrf; scen.ok = false; buildScenery(); }
+    vig = null;
+    if (!looping) render();
+  }
+  function init(opts) {
+    standalone = !!(opts && opts.standalone);
+    if ('ResizeObserver' in window) new ResizeObserver(resize).observe(frame);
+    else window.addEventListener('resize', resize);
+    initAmb();
+    resetRoad();
+    btnStop.hidden = true;
+    musicShow();
+    Lang.on(() => { if (state === 'end') endCard(); if (state === 'read') fillMemo(); });
+    if (standalone) { scnLazy(); active = true; frame.hidden = false; resize(); show('start'); startLoop(); }
+    else {
+      frame.hidden = true; show('none');
+      /* in the game: fetch the ride's pictures quietly a little after the page has loaded */
+      const later = () => setTimeout(scnLazy, 2500);
+      if (document.readyState === 'complete') later(); else addEventListener('load', later, { once: true });
+    }
+  }
+  return { init, open, close, pad, get active() { return active; }, get state() { return state; }, _: { get cam() { return cam; }, set cam(v) { cam = v; }, get t() { return t; }, set t(v) { t = v; }, update, render, begin, stopRide, jump: () => { input.jumpPressed = true; }, hold: (v) => { input.jumpHeld = v; }, get px() { return PX; }, get lw() { return LW; }, obs: () => obs, stats,
+    memos: () => memos.map((m) => ({ id: MEMOS[m.i].id, ...memoBox(m) })), openMemo: (k) => openMemo(memos[k]), closeMemo, card: (i) => { memoOpen = { i, v: 0 }; fillMemo(); show('memo'); }, memoUnder, read: () => [...memoRead], get hover() { return hoverMemo && MEMOS[hoverMemo.i].id; } } };
+})();
 /* ===== hero: the spray wall, a photo of a real wall with a paint canvas on top ===== */
 const Hero = (() => {
   const wall = $('#wall'), cv = $('#wall-canvas'), c = cv.getContext('2d');
@@ -2937,15 +4157,28 @@ const Game = (() => {
   }
   bindPad($('#pad-jump'), () => {
     Sound.ensure();
+    if (Ride.active) { Ride.pad(true); return; }
     if (state === 'idle') { startGame(); return; }
     if (state === 'aim') { dive(); return; }
     if (state === 'card') { beginZone(); return; }
     if (state === 'pick') { pickDone(); return; }
     if (state === 'run' || state === 'clear' || state === 'bridge') { input.jumpPressed = true; input.jumpHeld = true; }
-  }, () => { input.jumpHeld = false; });
-  bindPad($('#pad-spray'), () => { if (!input.sprayPad) { input.sprayPad = true; newStroke(); } }, () => { input.sprayPad = false; });
+  }, () => { input.jumpHeld = false; if (Ride.active) Ride.pad(false); });
+  bindPad($('#pad-spray'), () => { if (Ride.active) return; if (!input.sprayPad) { input.sprayPad = true; newStroke(); } }, () => { input.sprayPad = false; });
 
   $('#btn-start').addEventListener('click', startGame);
+  /* Bihać, the chill ride (bihac/): it takes over the frame from the start card and gives the start card back when
+     the rider taps Back */
+  Ride.init();
+  $('#btn-ride').addEventListener('click', () => {
+    if (state !== 'idle' || Ride.active) return;
+    Sound.ensure();
+    show(null);
+    /* the ride and the game share the music switch: the game takes it back as the ride left it */
+    Ride.open(() => { tunesSet(Store.get('gameMusic', true) !== false); show('start'); focusBtn('#btn-ride'); });
+    const r = frame.getBoundingClientRect();
+    if (r.top < 0 || r.bottom > innerHeight) frame.scrollIntoView({ block: 'center', behavior: REDUCED ? 'auto' : 'smooth' });
+  });
   $('#btn-zone').addEventListener('click', beginZone);
   $('#btn-resume').addEventListener('click', resume);
   $('#btn-restart-p').addEventListener('click', restart);
