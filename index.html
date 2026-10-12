@@ -6352,12 +6352,14 @@ const PIXCREW = (() => {
   /* the bear ride: the bear runs in from behind, he hops on as it reaches him, and they ride off */
   const BEAR_IN = 300, BEAR_OUT = 210, HOP = 0.36;
   function medoRide(t) {
-    const S = PIXOBS.winMedo.seat, meet = (330 - S[0]) / BEAR_IN, up = -S[1];
-    const bx = t < meet ? PX - 330 + BEAR_IN * t : PX - S[0] + BEAR_OUT * (t - meet);
+    /* the bear is drawn BEAR_K times bigger than the art (06c-game-actors.js); the rider keeps his size and sits at the bear's scaled back */
+    const K = BEAR_K, S = PIXOBS.winMedo.seat, sx0 = S[0] * K, sy0 = S[1] * K;
+    const meet = (330 - sx0) / BEAR_IN, up = -sy0;
+    const bx = t < meet ? PX - 330 + BEAR_IN * t : PX - sx0 + BEAR_OUT * (t - meet);
     const bf = BEAR_STEP[cycle(t, t < meet ? 10 : 7, 6)];
-    softShadow(bx + 2, GY + 2, 104, 0.5);
+    softShadow(bx + 2, GY + 2, 140, 0.5);
     if (t < meet) softShadow(PX + 3, GY + 2, 62, 0.62);
-    pixObsBlit(g, 'bear', bf, bx, GY + 1, false);
+    pixObsBlit(g, 'bear', bf, bx, GY + 1, false, K);
     if (t < meet - HOP) {
       drawFigure(PX, GY, { gem: 'idle' });
     } else if (t < meet) {
@@ -6365,7 +6367,7 @@ const PIXCREW = (() => {
       drawFigure(PX, GY - (up * u + 100 * u * (1 - u)), { gem: 'jump' });
     } else {
       const bob = Math.abs(Math.sin((t - meet) * 7 * Math.PI / 6 * 2)) * 1.5;
-      pixObsBlit(g, 'winMedo', cycle(t, 3, 2), bx + S[0], GY + 1 + S[1] - bob, false);
+      pixObsBlit(g, 'winMedo', cycle(t, 3, 2), bx + sx0, GY + 1 + sy0 - bob, false);
     }
   }
   /* the flag of Bosnia and Herzegovina, waving from the top of his pole: drawn as pixel art on his own pixel grid (the
