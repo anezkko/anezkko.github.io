@@ -939,7 +939,7 @@ body:has(.game.playing) .ticker{display:none}
             <button class="ov-btn sb-go" type="submit"><span id="sb-go-t">Upiši se</span></button>
           </form>
           <p class="sb-msg" id="sb-msg" role="status" hidden></p>
-          <div class="ov-btns"><button class="ov-btn" id="btn-again" type="button" data-en="Play again">Igraj opet</button><button class="ov-btn share-btn" id="btn-share" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 12.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span data-en="Challenge">Izazovi</span><span class="sh-x" data-en="a friend">raju</span></button><a class="ov-btn kahva-btn" data-tip href="#" target="_blank" rel="noopener" aria-label="Častiš kahvu? Buy me a coffee (opens in a new tab)" data-en-aria="Buy me a coffee (opens in a new tab)"><svg viewBox="0 0 40 44" aria-hidden="true"><path d="M8 40 L12 15 H26 L30 40 Z" fill="#B8632B" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M26 19 L38 13" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/><path d="M15 11 q-3 -4 0 -8 M21 11 q-3 -4 0 -8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-en="Buy me a coffee">Častiš kahvu?</span></a></div>
+          <div class="ov-btns"><button class="ov-btn" id="btn-again" type="button" data-en="Play again">Igraj opet</button><button class="ov-btn alt" id="btn-ride-end" type="button" data-en="Chill ride: Bihać">Mirna vožnja: Bihać</button><button class="ov-btn share-btn" id="btn-share" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 12.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span data-en="Challenge">Izazovi</span><span class="sh-x" data-en="a friend">raju</span></button><a class="ov-btn kahva-btn" data-tip href="#" target="_blank" rel="noopener" aria-label="Častiš kahvu? Buy me a coffee (opens in a new tab)" data-en-aria="Buy me a coffee (opens in a new tab)"><svg viewBox="0 0 40 44" aria-hidden="true"><path d="M8 40 L12 15 H26 L30 40 Z" fill="#B8632B" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M26 19 L38 13" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/><path d="M15 11 q-3 -4 0 -8 M21 11 q-3 -4 0 -8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-en="Buy me a coffee">Častiš kahvu?</span></a></div>
         </div>
       </div>
       <!-- Bihać, the chill ride (bihac/): its canvas, its corner buttons and its cards, over the game frame -->
@@ -4186,6 +4186,14 @@ const Game = (() => {
   $('#btn-retry').addEventListener('click', retry);
   $('#btn-restart-f').addEventListener('click', restart);
   $('#btn-again').addEventListener('click', restart);
+  /* the end card's way to the Bihać ride: back to the start card (as init leaves it), then the ride's own button */
+  $('#btn-ride-end').addEventListener('click', () => {
+    if (state !== 'end' || Ride.active) return;
+    setupZone(0);
+    state = 'idle';
+    hud.hidden = true;
+    $('#btn-ride').click();
+  });
   btnPause.addEventListener('click', pause);
   /* ===== game: scenery and walls ===== */
   const SW = 1400;
