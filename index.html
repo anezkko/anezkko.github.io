@@ -649,9 +649,44 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
   .sticker:hover{transform:rotate(var(--r))}
   .btn:hover,.wall-play:hover{transform:none}
 }
+/* Bosnia national team ticker: a bar along the bottom of the screen, like a news channel (update by hand) */
+body{padding-bottom:44px}
+body:has(.game.playing){padding-bottom:0}
+.ticker{position:fixed;left:0;right:0;bottom:0;z-index:60;display:flex;align-items:stretch;height:44px;background:rgba(10,9,13,.96);border-top:2px solid var(--pink,#FF4DC4);box-shadow:0 -10px 28px rgba(0,0,0,.45)}
+body:has(.game.playing) .ticker{display:none}
+.tk-chip{flex:none;display:grid;place-items:center;padding:0 16px;background:var(--pink,#FF4DC4);color:#0A090D;font-family:var(--f-display);font-weight:800;font-size:1rem;letter-spacing:.02em}
+.tk-view{flex:1;min-width:0;overflow:hidden;display:flex;align-items:center}
+.ticker-track{display:flex;width:max-content;animation:tk 48s linear infinite}
+.ticker:hover .ticker-track{animation-play-state:paused}
+.ticker-set{display:flex;align-items:center;gap:18px;margin:0;padding:0 18px 0 0;white-space:nowrap;font-family:var(--f-mono);font-size:.82rem;color:var(--text)}
+.tk-item{display:inline-flex;align-items:baseline;gap:8px}
+.tk-item b{font-family:var(--f-display);font-weight:800;font-size:1rem;color:var(--lime,#B4F53A)}
+.tk-k{font-size:.7rem;letter-spacing:.04em;color:var(--text-soft)}
+.tk-sep{color:var(--pink,#FF4DC4)}
+.tk-cd{font-weight:700;color:var(--pink,#FF4DC4)}
+@keyframes tk{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (max-width:560px){.tk-chip{padding:0 11px;font-size:.9rem}.ticker-set{font-size:.74rem}.tk-item b{font-size:.9rem}}
+@media (prefers-reduced-motion:reduce){.ticker-track{animation-duration:150s}}
 </style>
 </head>
 <body>
+<div class="ticker" role="region" aria-label="Bosnia and Herzegovina national team: last result and next match">
+  <div class="tk-chip" aria-hidden="true">BiH</div>
+  <div class="tk-view"><div class="ticker-track">
+    <p class="ticker-set">
+      <span class="tk-item"><span class="tk-k" data-en="Last result">Zadnja utakmica</span> <b data-en="Bosnia 1–0 Poland">BiH 1–0 Poljska</b> <span data-en="5 Oct · Zenica · Bašić 84′">5. okt · Zenica · Bašić 84′</span></span>
+      <span class="tk-sep" aria-hidden="true">◆</span>
+      <span class="tk-item tk-next" data-kick="2026-11-14T20:45:00+01:00"><span class="tk-k" data-en="Next match">Sljedeća utakmica</span> <b data-en="Sweden (away)">Švedska (u gostima)</b> <span data-en="14 Nov · 20:45 · Nations League">14. nov · 20:45 · Liga nacija</span> <span class="tk-cd"></span></span>
+      <span class="tk-sep" aria-hidden="true">◆</span>
+    </p>
+    <p class="ticker-set" aria-hidden="true">
+      <span class="tk-item"><span class="tk-k" data-en="Last result">Zadnja utakmica</span> <b data-en="Bosnia 1–0 Poland">BiH 1–0 Poljska</b> <span data-en="5 Oct · Zenica · Bašić 84′">5. okt · Zenica · Bašić 84′</span></span>
+      <span class="tk-sep">◆</span>
+      <span class="tk-item tk-next" data-kick="2026-11-14T20:45:00+01:00"><span class="tk-k" data-en="Next match">Sljedeća utakmica</span> <b data-en="Sweden (away)">Švedska (u gostima)</b> <span data-en="14 Nov · 20:45 · Nations League">14. nov · 20:45 · Liga nacija</span> <span class="tk-cd"></span></span>
+      <span class="tk-sep">◆</span>
+    </p>
+  </div></div>
+</div>
 <div class="page">
 <p class="demo-note" id="demo-note" hidden>Preview copy · the scores here are examples · the real board is on <a href="https://zidbosna.com/" target="_blank" rel="noopener">zidbosna.com</a></p>
 <header class="top">
@@ -720,6 +755,7 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
     </dl>
   </div>
 </section>
+
 
 <section class="sec" id="igra" aria-labelledby="igra-h">
   <div class="sec-head">
@@ -8070,6 +8106,19 @@ function boot(data) {
   const hot = window.claude && window.claude.hot;
   if (hot && typeof hot.ready === 'function') hot.ready(boot);
   else boot((hot && hot.data) || {});
+})();
+
+/* Bosnia ticker: days to the next match, in the current language */
+(() => {
+  const next = document.querySelector('.tk-next[data-kick]');
+  if (!next) return;
+  const kick = Date.parse(next.dataset.kick);
+  const show = () => {
+    const days = Math.ceil((kick - Date.now()) / 864e5);
+    const txt = days > 0 ? L(`još ${days} ${days === 1 ? 'dan' : 'dana'}`, `${days} ${days === 1 ? 'day' : 'days'} to go`) : '';
+    document.querySelectorAll('.tk-cd').forEach((el) => { el.textContent = txt; });
+  };
+  show(); Lang.on(show);
 })();
 
 })();
