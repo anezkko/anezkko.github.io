@@ -2575,7 +2575,7 @@ const Game = (() => {
     lasta: { w: 44, h: 20, air: true },
     selfie: { w: 96, h: 12, air: true },
     patke: { w: 70, h: 30 },
-    medo: { w: 74, h: 56 },
+    medo: { w: 100, h: 72 },
     nana: { w: 42, h: 24 },
     ribar: { w: 96, h: 12, air: true },
   };
@@ -4439,9 +4439,12 @@ const Game = (() => {
   }
   /* Gemini's six bear frames are not one clean cycle: in this order the far front paw lifts, reaches and lands */
   const BEAR_STEP = [0, 1, 2, 4, 3, 5];
+  /* the charging bear is drawn bigger than the art (BEAR_K) and its legs cycle faster; it stays on the ground (no bob), so
+     its paws always sit on the road */
+  const BEAR_K = 1.4;
   function bearDraw(cx, t, run) {
-    const f = run ? BEAR_STEP[((Math.floor(t * 10) % 6) + 6) % 6] : 0;
-    pixObsBlit(g, 'bear', f, cx, GY + 1, true);
+    const f = run ? BEAR_STEP[((Math.floor(t * 14) % 6) + 6) % 6] : 0;
+    pixObsBlit(g, 'bear', f, cx, GY + 1, true, BEAR_K);
   }
   /* the fisherman (people.js) stands still a while, then tugs his line: frames 1, 2, 2, 2, 1. The rod is drawn from his
      hand in each frame, so it lifts with the hand and the line pulls tight. Run through his line and he shakes his fist
@@ -4565,7 +4568,7 @@ const Game = (() => {
         duck(sx + 18, t, 1, false);
         for (let k = 0; k < 3; k++) duck(sx + 44 + k * 16, t + k * 0.7, 0.5, true);
         break;
-      case 'medo': softShadow(sx + o.w / 2 + 2, GY + 2, 104, 0.5); bearDraw(sx + o.w / 2, t, o.run); break;
+      case 'medo': softShadow(sx + o.w / 2 + 2, GY + 2, 140, 0.5); bearDraw(sx + o.w / 2, t, o.run); break;
       case 'ribar': ribarDraw(sx, o, t); break;
       case 'nana': nanaDraw(sx, o, t); break;
     }
