@@ -535,6 +535,15 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
   /* tablets: a shorter game frame, so the end screen drops the dive line and the total label to keep its buttons in view */
   #ov-end.has-sb #e-dive,#ov-end.has-sb .k{display:none}
 }
+@media (max-width:1240px){
+  /* tablets, small laptops and phones on their side: the end screen's four buttons take two rows, so it drops the
+     local best under this week's place, sets the shout's gloss beside it and closes up a little, keeping every button
+     in the frame (phones have their own rules below) */
+  #ov-end.has-sb #e-place:not([hidden]) ~ #e-best{display:none}
+  #ov-end .tag .gloss{display:inline;margin:0 0 0 .5em}
+  #ov-end .ov-in{gap:clamp(4px,.7vw,8px)}
+  #ov-end .ov-btn{padding:.55em 1.2em}
+}
 @media (max-width:860px){
   .route{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:6px}
   /* on tablets and phones the game comes straight after its heading; the scoreboard follows it and the route goes last */
@@ -939,7 +948,7 @@ body:has(.game.playing) .ticker{display:none}
             <button class="ov-btn sb-go" type="submit"><span id="sb-go-t">Upiši se</span></button>
           </form>
           <p class="sb-msg" id="sb-msg" role="status" hidden></p>
-          <div class="ov-btns"><button class="ov-btn" id="btn-again" type="button" data-en="Play again">Igraj opet</button><button class="ov-btn share-btn" id="btn-share" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 12.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span data-en="Challenge">Izazovi</span><span class="sh-x" data-en="a friend">raju</span></button><a class="ov-btn kahva-btn" data-tip href="#" target="_blank" rel="noopener" aria-label="Častiš kahvu? Buy me a coffee (opens in a new tab)" data-en-aria="Buy me a coffee (opens in a new tab)"><svg viewBox="0 0 40 44" aria-hidden="true"><path d="M8 40 L12 15 H26 L30 40 Z" fill="#B8632B" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M26 19 L38 13" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/><path d="M15 11 q-3 -4 0 -8 M21 11 q-3 -4 0 -8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-en="Buy me a coffee">Častiš kahvu?</span></a></div>
+          <div class="ov-btns"><button class="ov-btn" id="btn-again" type="button" data-en="Play again">Igraj opet</button><button class="ov-btn alt" id="btn-ride-end" type="button" data-en="Chill ride: Bihać">Mirna vožnja: Bihać</button><button class="ov-btn share-btn" id="btn-share" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 12.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span data-en="Challenge">Izazovi</span><span class="sh-x" data-en="a friend">raju</span></button><a class="ov-btn kahva-btn" data-tip href="#" target="_blank" rel="noopener" aria-label="Častiš kahvu? Buy me a coffee (opens in a new tab)" data-en-aria="Buy me a coffee (opens in a new tab)"><svg viewBox="0 0 40 44" aria-hidden="true"><path d="M8 40 L12 15 H26 L30 40 Z" fill="#B8632B" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M26 19 L38 13" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/><path d="M15 11 q-3 -4 0 -8 M21 11 q-3 -4 0 -8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-en="Buy me a coffee">Častiš kahvu?</span></a></div>
         </div>
       </div>
       <!-- Bihać, the chill ride (bihac/): its canvas, its corner buttons and its cards, over the game frame -->
@@ -4171,7 +4180,7 @@ const Game = (() => {
   /* Bihać, the chill ride (bihac/): it takes over the frame from the start card and gives the start card back when
      the rider taps Back */
   Ride.init();
-  $('#btn-ride').addEventListener('click', () => {
+  function openRide() {
     if (state !== 'idle' || Ride.active) return;
     Sound.ensure();
     show(null);
@@ -4179,13 +4188,24 @@ const Game = (() => {
     Ride.open(() => { tunesSet(Store.get('gameMusic', true) !== false); show('start'); focusBtn('#btn-ride'); });
     const r = frame.getBoundingClientRect();
     if (r.top < 0 || r.bottom > innerHeight) frame.scrollIntoView({ block: 'center', behavior: REDUCED ? 'auto' : 'smooth' });
-  });
+  }
+  $('#btn-ride').addEventListener('click', openRide);
   $('#btn-zone').addEventListener('click', beginZone);
   $('#btn-resume').addEventListener('click', resume);
   $('#btn-restart-p').addEventListener('click', restart);
   $('#btn-retry').addEventListener('click', retry);
   $('#btn-restart-f').addEventListener('click', restart);
   $('#btn-again').addEventListener('click', restart);
+  /* after a finished run the end card offers the ride too: the game goes back to its start card as a fresh page has
+     it (Bosanski Novi behind it, the score to beat up to date), and the ride opens from there */
+  $('#btn-ride-end').addEventListener('click', () => {
+    if (state !== 'end' || Ride.active) return;
+    setupZone(0);
+    state = 'idle';
+    beatLines();
+    render();
+    openRide();
+  });
   btnPause.addEventListener('click', pause);
   /* ===== game: scenery and walls ===== */
   const SW = 1400;
