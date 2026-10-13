@@ -204,7 +204,8 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .wp-txt b{font-family:var(--f-display);font-weight:800;font-size:clamp(1.05rem,.78rem + .7vw,1.4rem);letter-spacing:-.01em}
 .wp-txt small{font-family:var(--f-mono);font-size:.6rem;letter-spacing:.05em;opacity:.8}
 .wall .eyebrow{margin-bottom:14px;text-shadow:0 1px 8px rgba(0,0,0,.7)}
-.wall .hero-h{font-size:clamp(1.9rem,.4rem + 4.2vw,4.8rem);text-shadow:0 2px 24px rgba(0,0,0,.5)}
+.hero-h > span{display:inline-block;white-space:nowrap}
+.wall .hero-h{max-width:none;width:min-content;font-size:clamp(1.9rem,.4rem + 4.2vw,4.8rem);text-shadow:0 2px 24px rgba(0,0,0,.5)}
 .wall .hero-en{color:#E7E2F0;margin-top:14px;text-shadow:0 1px 10px rgba(0,0,0,.75)}
 .hero-text{display:grid;gap:clamp(24px,3vw,36px);padding:clamp(24px,3.5vw,44px) clamp(4px,2vw,24px) 0}
 .eyebrow{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--pink);margin:0 0 20px}
@@ -304,9 +305,9 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .ov .k{font-family:var(--f-mono);font-size:clamp(9px,1.2vw,11px);letter-spacing:.12em;text-transform:uppercase;opacity:.75;margin:0}
 .ov-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:4px}
 .ov-btn{font-family:var(--f-display);font-weight:800;font-size:clamp(15px,2.2vw,22px);letter-spacing:-.01em;background:#B4F53A;color:#0B0A0F;border:0;border-radius:999px;padding:.7em 1.5em;cursor:pointer;line-height:1}
-.ov-btn:hover{background:#FF4DC4}
+@media (hover:hover){.ov-btn:hover{background:#FF4DC4}}
 .ov-btn.alt{background:transparent;color:#F4F0E6;box-shadow:inset 0 0 0 1px rgba(244,240,230,.7)}
-.ov-btn.alt:hover{background:rgba(244,240,230,.12)}
+@media (hover:hover){.ov-btn.alt:hover{background:rgba(244,240,230,.12)}}
 .ov-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px 14px;margin:2px 0;font-family:var(--f-mono);font-size:clamp(9px,1.2vw,12px);letter-spacing:.04em}
 .ov-stats div{display:grid;gap:2px}
 .ov-stats b{font-family:var(--f-display);font-size:clamp(16px,2.6vw,26px);font-weight:800;font-variant-numeric:tabular-nums}
@@ -337,6 +338,12 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .ov-btn.share-btn{display:inline-flex;align-items:center;gap:.45em;background:transparent;color:#FF4DC4;box-shadow:inset 0 0 0 1.5px #FF4DC4}
 @media (hover:hover){.ov-btn.share-btn:hover{background:#FF4DC4;color:#0B0A0F}}
 .ov-btn.share-btn svg{width:1em;height:1em;flex:none}
+.sh-x::before{content:" "}
+/* the end card's buttons: two even columns, every row the same height */
+#ov-end .ov-btns{display:grid;grid-template-columns:repeat(2,auto);grid-auto-rows:1fr;justify-content:center}
+#ov-end .ov-btns > *{justify-content:center}
+.ov p,.ov .k,.keys,.e-place,.stats dd{text-wrap:balance}
+.foot .foot-bs{font-family:var(--f-mono);font-size:var(--step--1);letter-spacing:.06em;color:var(--text-soft);margin:14px 0 0}
 .pads{display:none;grid-template-columns:1fr 1fr;gap:10px}
 .coarse .pads{display:grid}
 .pad{min-height:70px;border:1px solid var(--line-strong);background:var(--panel);color:var(--text);font-family:var(--f-display);font-weight:800;font-size:1.5rem;letter-spacing:-.02em;line-height:1;border-radius:18px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;cursor:pointer}
@@ -368,11 +375,11 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 
 /* laws */
 .laws{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:44px;border-top:1px solid var(--line-strong)}
-.law{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 18px;padding-block:24px;border-bottom:1px solid var(--line)}
+.law{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto 1fr;gap:4px 18px;padding-block:24px;border-bottom:1px solid var(--line)}
 .law-n{grid-row:span 3;font-family:var(--f-display);font-weight:800;font-size:3.4rem;line-height:.8;letter-spacing:-.04em;color:var(--pink);min-width:1.4ch}
 .law-n small{display:block;font-family:var(--f-mono);font-weight:400;font-size:.6rem;letter-spacing:.1em;color:var(--text-soft);margin-bottom:6px}
 .law h3{margin:0;font-family:var(--f-display);font-weight:800;font-size:1.7rem;line-height:1;letter-spacing:-.03em;text-wrap:balance}
-.law .en{margin:0;font-family:var(--f-mono);font-size:var(--step--1);color:var(--text-soft)}
+.law .bs{margin:0;font-family:var(--f-mono);font-size:var(--step--1);color:var(--text-soft)}
 .law p.d{margin:6px 0 0;max-width:50ch;color:var(--text-mid)}
 
 /* footer */
@@ -449,7 +456,7 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .kahva small{display:block;font-family:var(--f-mono);font-size:.64rem;letter-spacing:.05em;text-transform:uppercase;opacity:.72}
 .ov-btn.kahva-btn{display:inline-flex;align-items:center;gap:.4em;background:transparent;color:#FFD23F;box-shadow:inset 0 0 0 1.5px #FFD23F;text-decoration:none}
 .ov-btn.kahva-btn svg{width:1.05em;height:1.15em;flex:none}
-.ov-btn.kahva-btn:hover{background:#FFD23F;color:#0B0A0F}
+@media (hover:hover){.ov-btn.kahva-btn:hover{background:#FFD23F;color:#0B0A0F}}
 .ov-btn.kahva-btn:focus-visible{outline:3px solid #FF4DC4;outline-offset:3px}
 .foot .halal{font-family:var(--f-tag);font-size:1.8rem;line-height:1;color:var(--text);display:inline-block;transform:rotate(-3deg);margin:4px 0 12px}
 
@@ -529,7 +536,7 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .toast a{color:var(--lime);font-weight:600}
 
 @media (max-width:960px){
-  .route{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:6px}
+  .route{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:24px}
 }
 @media (max-width:1100px){
   /* tablets: a shorter game frame, so the end screen drops the dive line and the total label to keep its buttons in view */
@@ -545,7 +552,7 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
   #ov-end .ov-btn{padding:.55em 1.2em}
 }
 @media (max-width:860px){
-  .route{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:6px}
+  .route{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:24px}
   /* on tablets and phones the game comes straight after its heading; the scoreboard follows it and the route goes last */
   #igra{display:flex;flex-direction:column}
   #igra > .board{order:2}
@@ -636,6 +643,10 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
   .ov{padding:10px}
   #ov-zone .ov-in,#ov-start .ov-in{gap:3px}
   .ov h3{font-size:25px}
+  /* and the end card's two rows of buttons stay clear of the frame's bottom edge */
+  #ov-end{padding:6px 10px}
+  #ov-end .ov-in{gap:3px}
+  #ov-end .ov-btns{gap:6px}
 }
 @media (max-width:349px){
   /* the smallest phones: a smaller boombox so the header stays one row next to the credit */
@@ -791,8 +802,8 @@ body:has(.game.playing) .ticker{display:none}
     <img class="wall-photo" src="img/04.webp" alt="" width="1408" height="768" decoding="async" fetchpriority="high" onerror="this.remove()">
     <div class="hero-copy">
       <p class="eyebrow">ZID · Sarajevo → Mostar</p>
-      <h1 class="hero-h" id="hero-h">Ovo je zid. Ofarbaj ga.</h1>
-      <p class="hero-en">This is a wall. Paint it.</p>
+      <h1 class="hero-h" id="hero-h"><span>This is a wall.</span> <span>Paint it.</span></h1>
+      <p class="hero-en" lang="bs">Ovo je zid. Ofarbaj ga.</p>
       <div class="wall-cta">
       <a class="wall-play" href="#igra" data-play><i class="wp-ico" aria-hidden="true"></i><span class="wp-txt"><b>Play Spray to Mostar</b><small>Free · no sign-up<span class="wp-ph"> · works on your phone</span></small></span></a>
       <p class="wall-beat" id="wall-beat" hidden><i class="wb-crown" aria-hidden="true"></i><span class="wb-t"><span class="wb-k" id="wb-k"></span> <span class="wb-v" id="wb-v"></span></span></p>
@@ -800,7 +811,7 @@ body:has(.game.playing) .ticker{display:none}
     </div>
     <canvas id="wall-canvas" role="img" aria-label="Wall you can spray. Drag across it to paint."></canvas>
     <div class="roller" id="roller" hidden></div>
-    <p class="wall-hint" id="wall-hint">Povuci po zidu · drag to spray</p>
+    <p class="wall-hint" id="wall-hint">Drag to spray · <span lang="bs">povuci po zidu</span></p>
     <div class="logo-sticker" aria-hidden="true"></div>
   </div>
   <div class="tray" role="group" aria-label="Spray tools">
@@ -823,9 +834,9 @@ body:has(.game.playing) .ticker{display:none}
       </div>
     </div>
     <dl class="stats">
-      <div><dt>5</dt><dd>zona, od Bosanskog Novog do Starog mosta<span>five zones, one run</span></dd></div>
-      <div><dt>~20 m</dt><dd>skok u Neretvu<span>the dive at the end</span></dd></div>
-      <div><dt>12</dt><dd>riječi s ulice<span>street words to learn</span></dd></div>
+      <div><dt>5</dt><dd>zones in one run<span lang="bs">zona, jedna trka</span></dd></div>
+      <div><dt>~20 m</dt><dd>dive into the Neretva<span lang="bs">skok u Neretvu</span></dd></div>
+      <div><dt>12</dt><dd>street words to learn<span lang="bs">riječi s ulice</span></dd></div>
     </dl>
   </div>
 </section>
@@ -948,7 +959,7 @@ body:has(.game.playing) .ticker{display:none}
             <button class="ov-btn sb-go" type="submit"><span id="sb-go-t">Upiši se</span></button>
           </form>
           <p class="sb-msg" id="sb-msg" role="status" hidden></p>
-          <div class="ov-btns"><button class="ov-btn" id="btn-again" type="button" data-en="Play again">Igraj opet</button><button class="ov-btn alt" id="btn-ride-end" type="button" data-en="Chill ride: Bihać">Mirna vožnja: Bihać</button><button class="ov-btn share-btn" id="btn-share" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 12.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span data-en="Challenge">Izazovi</span><span class="sh-x" data-en="a friend">raju</span></button><a class="ov-btn kahva-btn" data-tip href="#" target="_blank" rel="noopener" aria-label="Častiš kahvu? Buy me a coffee (opens in a new tab)" data-en-aria="Buy me a coffee (opens in a new tab)"><svg viewBox="0 0 40 44" aria-hidden="true"><path d="M8 40 L12 15 H26 L30 40 Z" fill="#B8632B" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M26 19 L38 13" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/><path d="M15 11 q-3 -4 0 -8 M21 11 q-3 -4 0 -8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-en="Buy me a coffee">Častiš kahvu?</span></a></div>
+          <div class="ov-btns"><button class="ov-btn" id="btn-again" type="button" data-en="Play again">Igraj opet</button><button class="ov-btn alt" id="btn-ride-end" type="button" data-en="Chill ride: Bihać">Mirna vožnja: Bihać</button><button class="ov-btn share-btn" id="btn-share" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 12.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span class="sh-t"><span data-en="Challenge">Izazovi</span><span class="sh-x" data-en="a friend">raju</span></span></button><a class="ov-btn kahva-btn" data-tip href="#" target="_blank" rel="noopener" aria-label="Častiš kahvu? Buy me a coffee (opens in a new tab)" data-en-aria="Buy me a coffee (opens in a new tab)"><svg viewBox="0 0 40 44" aria-hidden="true"><path d="M8 40 L12 15 H26 L30 40 Z" fill="#B8632B" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M26 19 L38 13" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/><path d="M15 11 q-3 -4 0 -8 M21 11 q-3 -4 0 -8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-en="Buy me a coffee">Častiš kahvu?</span></a></div>
         </div>
       </div>
       <!-- Bihać, the chill ride (bihac/): its canvas, its corner buttons and its cards, over the game frame -->
@@ -1056,8 +1067,8 @@ body:has(.game.playing) .ticker{display:none}
 <section class="sec" id="rjecnik" aria-labelledby="rjecnik-h">
   <div class="sec-head">
     <div>
-      <p class="kicker">12 riječi · 12 words</p>
-      <h2 id="rjecnik-h">Rječnik ulice</h2>
+      <p class="kicker">12 words · <span lang="bs">rječnik ulice</span></p>
+      <h2 id="rjecnik-h">Street dictionary</h2>
     </div>
     <p class="sec-lede">Words you'll hear from the čaršija to the bridge. Press Spray it and the word goes up on the wall at the top of the page.</p>
   </div>
@@ -1072,34 +1083,34 @@ body:has(.game.playing) .ticker{display:none}
 <section class="sec" id="zakon" aria-labelledby="zakon-h">
   <div class="sec-head">
     <div>
-      <p class="kicker">4 člana · 4 articles</p>
-      <h2 id="zakon-h">Zakon ulice</h2>
+      <p class="kicker">4 rules · <span lang="bs">zakon ulice</span></p>
+      <h2 id="zakon-h">Street law</h2>
     </div>
     <p class="sec-lede">Every crew has rules. These four keep the paint on the right walls, and the game scores you on them too.</p>
   </div>
   <ol class="laws">
     <li class="law">
-      <span class="law-n"><small>Član</small>1</span>
-      <h3>Stećke ne diraš.</h3>
-      <p class="en">Don't touch the stećci.</p>
+      <span class="law-n"><small>Rule</small>1</span>
+      <h3>Don't touch the stećci.</h3>
+      <p class="bs" lang="bs">Stećke ne diraš.</p>
       <p class="d">Medieval tombstones carved between the 12th and 16th centuries, on the UNESCO World Heritage list since 2016. Borrow their spirals and raised hands for your sketchbook. Leave the stone alone.</p>
     </li>
     <li class="law">
-      <span class="law-n"><small>Član</small>2</span>
-      <h3>Ruže ostaju crvene.</h3>
-      <p class="en">Sarajevo Roses stay red.</p>
+      <span class="law-n"><small>Rule</small>2</span>
+      <h3>Sarajevo Roses stay red.</h3>
+      <p class="bs" lang="bs">Ruže ostaju crvene.</p>
       <p class="d">Mortar scars in the pavement, filled with red resin where people were killed during the siege. Walk around them. Never paint them.</p>
     </li>
     <li class="law">
-      <span class="law-n"><small>Član</small>3</span>
-      <h3>Ne ideš preko boljeg komada.</h3>
-      <p class="en">Don't go over a better piece.</p>
+      <span class="law-n"><small>Rule</small>3</span>
+      <h3>Don't go over a better piece.</h3>
+      <p class="bs" lang="bs">Ne ideš preko boljeg komada.</p>
       <p class="d">If what you're about to paint isn't better than what's already there, find another wall.</p>
     </li>
     <li class="law">
-      <span class="law-n"><small>Član</small>4</span>
-      <h3>Nađi pravi zid.</h3>
-      <p class="en">Find the right wall.</p>
+      <span class="law-n"><small>Rule</small>4</span>
+      <h3>Find the right wall.</h3>
+      <p class="bs" lang="bs">Nađi pravi zid.</p>
       <p class="d">Ask the owner, or paint where it's allowed. Painters work freely on the old Olympic bobsled track on Trebević, and festivals like Fasada in Sarajevo and Mostar's street art festival repaint whole facades.</p>
     </li>
   </ol>
@@ -1109,15 +1120,16 @@ body:has(.game.playing) .ticker{display:none}
 <footer class="foot">
   <div class="decal d-polahko" style="--r:-4deg" aria-hidden="true"><svg viewBox="0 0 38 28"><path d="M3 24 H30 q5 0 6 -5" fill="none" stroke="#141216" stroke-width="3" stroke-linecap="round"/><circle cx="16" cy="14" r="9" fill="none" stroke="#141216" stroke-width="3"/><path d="M16 10 a4 4 0 1 1 -4 4" fill="none" stroke="#141216" stroke-width="2.5" stroke-linecap="round"/><path d="M32 19 l1 -7 M35 19 l3 -6" stroke="#141216" stroke-width="2" stroke-linecap="round"/></svg><b>POLAHKO</b></div>
   <div>
-    <p class="foot-big">Džaba.</p>
+    <p class="foot-big">Free.</p>
+    <p class="foot-bs" lang="bs">Džaba.</p>
     <p class="sig">@anezkko creation</p>
   </div>
   <div>
-    <p class="halal">Halal ti bilo.</p>
+    <p class="halal">It's all yours.</p>
     <p>Free to play and free to share. No sign-up, no ads, no cookies. Your score only goes on the public board if you type a name after a run.</p>
     <a class="kahva" data-tip href="#" target="_blank" rel="noopener" aria-label="Buy me a coffee (opens in a new tab)"><svg viewBox="0 0 40 44" aria-hidden="true"><path d="M8 40 L12 15 H26 L30 40 Z" fill="#B8632B" stroke="#1E1A14" stroke-width="2" stroke-linejoin="round"/><path d="M10.6 24 H27.4" stroke="#F2C14E" stroke-width="2"/><path d="M26 19 L38 13" stroke="#1E1A14" stroke-width="3" stroke-linecap="round"/><path d="M15 11 q-3 -4 0 -8 M21 11 q-3 -4 0 -8" fill="none" stroke="#1E1A14" stroke-width="1.5" stroke-linecap="round"/></svg><span><b>Buy me a coffee</b><small>keeps ZID going</small></span></a>
-    <p class="small">Halal ti bilo: it's yours, no strings attached. · Ovo je igra. Pravi zidovi imaju vlasnike. This is a game. Real walls have owners.</p>
-    <p class="small">Muzika: Radio ZID, četiri originalne stanice napravljene u kodu: Polahko House, Neretva Nights, Čoček Turbo i Sevdah Deep. Original music made for this page, no licensed tracks.</p>
+    <p class="small">It's yours, no strings attached: <span lang="bs">halal ti bilo</span>. This is a game; real walls have owners: <span lang="bs">ovo je igra, pravi zidovi imaju vlasnike</span>.</p>
+    <p class="small">Music: Radio ZID, five original stations made in code: Polahko House, Neretva Nights, Čoček Turbo, Sevdah Deep and Bihać Slow. No licensed tracks.</p>
   </div>
 </footer>
 </div>
