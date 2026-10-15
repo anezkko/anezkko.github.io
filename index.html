@@ -2853,8 +2853,9 @@ const Ride = (() => {
   const OBS = { bench: { sp: 'bench', w: 96 }, rock: { sp: 'rock', w: 56 }, stump: { sp: 'stump', w: 48 }, cafe: { sp: 'cafe', w: 68 } };
   const OBS_PICK = [['bench', 0.52], ['rock', 0.2], ['stump', 0.1], ['cafe', 0.18]];
   let obs = [], nextObs = 0, obsR = rng(77);
+  /* a new seed each ride, so the benches, rocks, stumps and café tables never stand in the same spots twice */
   function resetRoad() {
-    obs = []; nextObs = cam + LW + 420; obsR = rng(77 + Math.floor(cam));
+    obs = []; nextObs = cam + LW + 420; obsR = rng((Math.random() * 4294967296) >>> 0);
   }
   function spawnRoad() {
     while (nextObs < cam + LW + 500) {
@@ -3858,17 +3859,33 @@ const Game = (() => {
     return { type, x, y, w, h, air: !!s.air, phase: R() * TAU, hit: false };
   }
   /* move a ground obstacle off any wall it would stand in front of: to just before the wall, if that leaves room after
-     the obstacle before it (minX), or else to just after the wall */
-  function offWalls(o, walls, minX) {
-    const pad = 34;
+     the obstacle before it (minX), or else to just after the wall. Given R (a run with random items), it then steps a
+     random way on into the open ground, up to 220, never into another wall or nearer the obstacle before it than minX,
+     so it doesn't wait at the same wall edge every run. Returns that step (+ on, − back, 0 for none). */
+  function offWalls(o, walls, minX, R) {
+    const pad = 34, onWall = (w) => o.x + o.w > w.x - pad && o.x < w.x + w.w + pad;
+    let moved = 0;
     for (let k = 0; k < 4; k++) {
-      const wl = walls.find((w) => o.x + o.w > w.x - pad && o.x < w.x + w.w + pad);
-      if (!wl) return;
+      const wl = walls.find(onWall);
+      if (!wl) break;
       const before = wl.x - pad - o.w, after = wl.x + wl.w + pad;
-      o.x = before >= minX && o.x - before <= after - o.x ? before : after;
+      moved = before >= minX && o.x - before <= after - o.x ? -1 : 1;
+      o.x = moved < 0 ? before : after;
     }
+    if (!R || !moved || walls.some(onWall)) return 0;
+    let room = moved < 0 ? Math.min(220, o.x - minX) : 220;
+    for (const w of walls) {
+      if (moved > 0 && w.x >= o.x + o.w) room = Math.min(room, w.x - pad - o.w - o.x);
+      if (moved < 0 && w.x + w.w <= o.x) room = Math.min(room, o.x - (w.x + w.w + pad));
+    }
+    const step = room > 0 ? moved * R() * room : 0;
+    o.x += step;
+    return step;
   }
-  function buildTrack(i, seed) {
+  /* The walls come from the zone's own seed, so a zone always has the same walls. The obstacles and pickups come from
+     itemSeed, a new one each run (setupZone), so they turn up in different spots every time; without one they follow
+     the zone's seed as before. */
+  function buildTrack(i, seed, itemSeed) {
     const z = ZONES[i], R = rng(seed);
     const walls = [], obs = [], picks = [];
     let x = 520, last = '';
@@ -3882,29 +3899,45 @@ const Game = (() => {
       last = kind;
       x += w + 200 + R() * 340;
     }
-    let ox = 1000, n = 0, prevAir = false, lastX = -1e9;
+    const Ri = itemSeed === undefined ? R : rng(itemSeed), rand = itemSeed !== undefined;
+    /* the first one a random way in, and never sooner than 1.4 s ahead of the writer at the zone's starting speed (the
+       soonest the fixed tracks put one): minX for it is lastX + v */
+    let ox = rand ? 1000 + Ri() * 400 : 1000, n = 0, prevAir = false, lastX = rand ? PX + 0.4 * z.v0 : -1e9;
     while (ox < z.len - 500) {
       const v = z.v0 + (z.v1 - z.v0) * (ox / z.len);
-      const air = n > 2 && !prevAir && R() < z.airRate;
-      let type = air ? z.air : z.ground[(R() * z.ground.length) | 0];
-      if (!air && z.special && n > 3 && R() < z.specialRate) type = z.special;
+      const air = n > 2 && !prevAir && Ri() < z.airRate;
+      let type = air ? z.air : z.ground[(Ri() * z.ground.length) | 0];
+      if (!air && z.special && n > 3 && Ri() < z.specialRate) type = z.special;
       if (type === 'medo') ox += 360;
-      const ob = makeObs(type, ox, R);
+      const ob = makeObs(type, ox, Ri);
       /* bags, tables, crates, rocks, sheep and ducks never stand in front of a wall, where they blend into it and you're
-         busy painting: they wait just before the wall or just after it. The bear runs and Nana sweeps, so they stay put. */
-      if (!ob.air && type !== 'medo' && type !== 'nana') offWalls(ob, walls, lastX + v);
+         busy painting: they wait before the wall or after it. The bear runs and Nana sweeps, so they stay put. */
+      const step = !ob.air && type !== 'medo' && type !== 'nana' ? offWalls(ob, walls, lastX + v, rand ? Ri : null) : 0;
       if (ob.x > z.len - 260) break;
       obs.push(ob); lastX = ob.x; ox = ob.x;
       prevAir = air;
       n++;
-      const gap = v * (1.05 + R() * 1.15);
-      if (R() < 0.17) {
-        const kind = R() < 0.5 ? 'dzezva' : 'limenka', high = R() >= 0.55, o = obs[obs.length - 1];
+      /* one that stepped on off a wall doesn't push the rest of the track on with it: the next keeps its place, as long
+         as the usual gap still stands between them */
+      let gap = v * (1.05 + Ri() * 1.15);
+      if (step > 0) gap = Math.max(v * 1.05, gap - step);
+      if (Ri() < 0.17) {
+        const kind = Ri() < 0.5 ? 'dzezva' : 'limenka', high = Ri() >= 0.55, o = obs[obs.length - 1];
         const over = high && !o.air && o.type !== 'medo';      /* a bear runs, so its jump comes early: keep it low */
-        picks.push({ kind, x: over ? o.x + o.w / 2 + 10 : ox + gap * 0.5, y: over ? GY - 150 : GY - 34, got: false, bob: R() * 6 });
+        picks.push({ kind, x: over ? o.x + o.w / 2 + 10 : ox + gap * 0.5, y: over ? GY - 150 : GY - 34, got: false, bob: Ri() * 6 });
       }
       ox += gap;
     }
+    /* a pickup low on the ground never stays on an obstacle (one that stepped back off a wall can land on it): it goes up
+       over the obstacle, as the high ones do, or if one is up there already it goes */
+    for (let k = picks.length - 1; k >= 0; k--) {
+      const p = picks[k], o = p.y === GY - 34 && obs.find((b) => !b.air && b.type !== 'medo' && p.x > b.x - 12 && p.x < b.x + b.w + 12);
+      if (!o) continue;
+      const x = o.x + o.w / 2 + 10;
+      if (picks.some((q) => q !== p && Math.abs(q.x - x) < 20)) picks.splice(k, 1);
+      else { p.x = x; p.y = GY - 150; }
+    }
+    picks.sort((a, b) => a.x - b.x);       /* pickTest stops at the first one ahead, so they must be in order */
     return { walls, obs, picks };
   }
 
@@ -3912,7 +3945,7 @@ const Game = (() => {
   function setupZone(i) {
     zi = i;
     const z = ZONES[i];
-    track = buildTrack(i, 7919 * (z.seed + 1) + 13);
+    track = buildTrack(i, 7919 * (z.seed + 1) + 13, (Math.random() * 4294967296) >>> 0);
     cam = 0; speed = z.v0; runT = 0; slowT = 0; hitSlow = 0; shakeT = 0; clearT = 0;
     P.y = GY; P.vy = 0; P.onGround = true; P.jumps = 0; P.inv = 0; P.buffer = 0; P.cut = false; P.run = 0; P.squash = 1; P.spinT = 0;
     S.lives = 3;
