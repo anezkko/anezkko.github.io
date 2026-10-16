@@ -232,7 +232,7 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .can .can-ic{display:block;width:28px;height:40px;overflow:visible;transform-origin:50% 80%;transition:transform .2s cubic-bezier(.3,1.5,.5,1),filter .2s ease;filter:drop-shadow(0 3px 2px rgba(0,0,0,.55))}
 @media (hover:hover){.can:hover .can-ic{transform:translateY(-2px) rotate(-3deg)}}
 .can[aria-checked="true"]{color:var(--text)}
-.can[aria-checked="true"] .can-ic{transform:translateY(-5px) rotate(-9deg) scale(1.07);filter:drop-shadow(0 0 6px var(--c)) drop-shadow(0 5px 3px rgba(0,0,0,.5))}
+.can[aria-checked="true"] .can-ic{transform:translateY(-5px) rotate(-9deg) scale(1.07);filter:drop-shadow(0 0 6px var(--glow,var(--c))) drop-shadow(0 5px 3px rgba(0,0,0,.5))}
 .seg{display:inline-flex;border:1px solid var(--line-strong);border-radius:999px;overflow:hidden}
 .seg button{appearance:none;border:0;background:transparent;color:var(--text-soft);font:600 .62rem/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:.9em 1.05em;cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--text);color:var(--ink)}
@@ -601,6 +601,8 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
   .cans{flex-wrap:nowrap;justify-content:space-between;width:100%;gap:0}
   .can{padding:8px 4px 4px;min-width:0}
   .tray .seg button,.tray-btn{padding:.85em .95em}
+  .tray .caps{display:grid;grid-template-columns:repeat(3,1fr);width:100%;border-radius:16px}
+  .tray .caps button{padding:.85em .4em}
   .board-list{grid-template-columns:minmax(0,1fr)}
   .board-list li.p1,.board-list li.p2,.board-list li.p3{grid-column:auto;grid-row:auto}
   .board-list li.p1{padding:18px 18px 20px}
@@ -817,9 +819,13 @@ body:has(.game.playing) .ticker{display:none}
   <div class="tray" role="group" aria-label="Spray tools">
     <span class="tray-l" id="cans-label">Colour</span>
     <div class="cans" id="cans" role="radiogroup" aria-labelledby="cans-label"></div>
-    <div class="seg" role="group" aria-label="Spray cap">
-      <button type="button" id="cap-skinny" aria-pressed="false">Thin</button>
-      <button type="button" id="cap-fat" aria-pressed="true">Thick</button>
+    <div class="seg caps" role="group" aria-label="Paint style">
+      <button type="button" data-cap="skinny" aria-pressed="false" title="Skinny cap: a fine line">Thin</button>
+      <button type="button" data-cap="fat" aria-pressed="true" title="Fat cap: a wide soft line">Thick</button>
+      <button type="button" data-cap="mist" aria-pressed="false" title="A light, wide haze for fades and backgrounds">Mist</button>
+      <button type="button" data-cap="splatter" aria-pressed="false" title="Flicked drops of paint">Splatter</button>
+      <button type="button" data-cap="drippy" aria-pressed="false" title="Too much paint: it runs as you go">Drippy</button>
+      <button type="button" data-cap="marker" aria-pressed="false" title="A paint marker: hard, solid line">Marker</button>
     </div>
     <button type="button" class="tray-btn arm" id="arm-toggle" aria-pressed="false">Start painting</button>
     <button type="button" class="tray-btn" id="whitewash" aria-label="Clean the wall">Clean<span class="cw-x"> the wall</span></button>
@@ -1170,6 +1176,7 @@ const PAINTS = [
   { id: 'sljiva', name: 'Plum', hex: '#9B5CFF' },
   { id: 'cilim', name: 'Kilim', hex: '#FF5A3D' },
   { id: 'krec', name: 'Whitewash', hex: '#F4F1FA' },
+  { id: 'katran', name: 'Tar', hex: '#121117', glow: '#F4F1FA' },
 ];
 
 /* the spray can: one drawing for the paint tray, the lives counter and the extra-can pickup in the game.
@@ -3444,7 +3451,17 @@ const Hero = (() => {
   const drips = [], reveals = [];
   let wipe = null;
   const stamps = new Map();
-  const capR = () => (cap === 'fat' ? 24 : 8);
+  /* paint styles: r is the reach of the spray; hiss is how loud the can is; drip says how readily it runs */
+  const STYLES = {
+    skinny: { r: 8, hiss: 0.6, drip: [1.3, 2, 20, 60] },
+    fat: { r: 24, hiss: 1, drip: [2.2, 3.6, 40, 120] },
+    mist: { r: 46, hiss: 0.85, drip: null },
+    splatter: { r: 20, hiss: 0.9, drip: [1.6, 2.8, 14, 50] },
+    drippy: { r: 20, hiss: 1, drip: [2.4, 4, 60, 160], every: [30, 80] },
+    marker: { r: 5, hiss: 0.35, drip: [1.6, 2.4, 16, 46] },
+  };
+  const capR = () => STYLES[cap].r;
+  let travel = 0, nextRun = 60;
   const isCoarse = () => document.documentElement.classList.contains('coarse');
 
   function stamp(hex, r) {
@@ -3480,8 +3497,48 @@ const Hero = (() => {
   }
   function line(x0, y0, x1, y1, hex, r) {
     const d = Math.hypot(x1 - x0, y1 - y0);
-    const n = Math.max(1, Math.ceil(d / Math.max(1, r * 0.33)));
-    for (let i = 1; i <= n; i++) dot(lerp(x0, x1, i / n), lerp(y0, y1, i / n), hex, r, 0.8);
+    if (cap === 'marker') {
+      c.strokeStyle = hex; c.lineWidth = r * 2; c.lineCap = 'round';
+      c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.stroke();
+      return;
+    }
+    const gap = cap === 'mist' ? r * 0.22 : cap === 'splatter' ? r * 0.7 : r * 0.33;
+    const n = Math.max(1, Math.ceil(d / Math.max(1, gap)));
+    for (let i = 1; i <= n; i++) spray(lerp(x0, x1, i / n), lerp(y0, y1, i / n), hex, r, 0.8);
+  }
+  /* one puff of the current style */
+  function spray(x, y, hex, r, k = 1) {
+    if (cap === 'mist') { mist(x, y, hex, r, k); return; }
+    if (cap === 'splatter') { splat(x, y, hex, r, k); return; }
+    if (cap === 'marker') { c.globalAlpha = Math.min(1, k * 1.25); c.fillStyle = hex; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); c.globalAlpha = 1; return; }
+    dot(x, y, hex, r, k);
+  }
+  /* mist: a faint, wide haze that builds up slowly */
+  function mist(x, y, hex, r, k) {
+    c.globalAlpha = 0.2 * k;
+    c.drawImage(stamp(hex, r), x - r, y - r, r * 2, r * 2);
+    c.fillStyle = hex;
+    for (let i = 0; i < 6; i++) {
+      const a = Math.random() * TAU, d = r * Math.random();
+      c.globalAlpha = (0.15 + Math.random() * 0.3) * k;
+      c.fillRect(x + Math.cos(a) * d, y + Math.sin(a) * d, 1.2, 1.2);
+    }
+    c.globalAlpha = 1;
+  }
+  /* splatter: drops of every size flicked off the cap, the big ones sometimes run */
+  function splat(x, y, hex, r, k) {
+    c.fillStyle = hex;
+    const n = Math.random() < k ? 3 + ((Math.random() * 4) | 0) : 1;
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * TAU, d = r * 1.5 * Math.pow(Math.random(), 0.7);
+      const big = Math.random() < 0.08;
+      const s = big ? rand(3.5, 6.5) : rand(0.6, 2.4);
+      const px = x + Math.cos(a) * d, py = y + Math.sin(a) * d;
+      c.globalAlpha = big ? 0.95 : 0.55 + Math.random() * 0.4;
+      c.beginPath(); c.ellipse(px, py, s, s * rand(0.75, 1), a, 0, TAU); c.fill();
+      if (big && Math.random() < 0.25) drip(px, py + s * 0.6, hex, s * 0.55, rand(10, 40));
+    }
+    c.globalAlpha = 1;
   }
 
   /* drips run down when the can stays still */
@@ -3603,10 +3660,10 @@ const Hero = (() => {
       let active = false;
       if (down) {
         active = true;
-        if (now - stillSince > 80) dot(lx, ly, paint.hex, capR(), 0.3);
-        if (now - stillSince > 300 && now - lastDrip > 420) {
-          const fat = cap === 'fat';
-          drip(lx + rand(-0.4, 0.4) * capR(), ly + capR() * 0.45, paint.hex, fat ? rand(2.2, 3.6) : rand(1.3, 2), fat ? rand(40, 120) : rand(20, 60));
+        if (now - stillSince > 80) spray(lx, ly, paint.hex, capR(), 0.3);
+        const dr = STYLES[cap].drip;
+        if (dr && now - stillSince > 300 && now - lastDrip > 420) {
+          drip(lx + rand(-0.4, 0.4) * capR(), ly + capR() * 0.45, paint.hex, rand(dr[0], dr[1]), rand(dr[2], dr[3]));
           lastDrip = now;
         }
       }
@@ -3628,13 +3685,14 @@ const Hero = (() => {
   }
   function setCap(v) {
     cap = v;
-    $('#cap-fat').setAttribute('aria-pressed', v === 'fat' ? 'true' : 'false');
-    $('#cap-skinny').setAttribute('aria-pressed', v === 'skinny' ? 'true' : 'false');
+    $$('[data-cap]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.cap === v ? 'true' : 'false'));
     setCursor();
   }
   function setCursor() {
-    const r = capR(), s = Math.round(r * 2 + 8), h = s / 2;
-    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${s}' height='${s}'><circle cx='${h}' cy='${h}' r='${r}' fill='none' stroke='black' stroke-opacity='.45' stroke-width='3'/><circle cx='${h}' cy='${h}' r='${r}' fill='none' stroke='${paint.hex}' stroke-width='1.6'/><circle cx='${h}' cy='${h}' r='1.6' fill='${paint.hex}'/></svg>`;
+    /* the cursor can only be so big; past that the ring stands for the reach */
+    const r = Math.min(capR(), 40), s = Math.round(r * 2 + 8), h = s / 2;
+    const back = paint.glow ? 'white' : 'black';
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${s}' height='${s}'><circle cx='${h}' cy='${h}' r='${r}' fill='none' stroke='${back}' stroke-opacity='.45' stroke-width='3'/><circle cx='${h}' cy='${h}' r='${r}' fill='none' stroke='${paint.hex}' stroke-width='1.6'/><circle cx='${h}' cy='${h}' r='1.6' fill='${paint.hex}'/></svg>`;
     cv.style.cursor = `url("data:image/svg+xml,${encodeURIComponent(svg)}") ${h} ${h}, crosshair`;
   }
 
@@ -3648,8 +3706,9 @@ const Hero = (() => {
       down = true; pid = e.pointerId;
       const p = pos(e);
       lx = p.x; ly = p.y; stillSince = performance.now();
-      dot(lx, ly, paint.hex, capR());
-      Sound.hiss(cap === 'fat' ? 1 : 0.6);
+      spray(lx, ly, paint.hex, capR());
+      travel = 0;
+      Sound.hiss(STYLES[cap].hiss);
       hideHint();
       loop();
     });
@@ -3660,6 +3719,12 @@ const Hero = (() => {
         const p = pos(ev);
         const d = Math.hypot(p.x - lx, p.y - ly);
         line(lx, ly, p.x, p.y, paint.hex, capR());
+        const runs = STYLES[cap].every;
+        if (runs && (travel += d) > nextRun) {
+          const dr = STYLES[cap].drip;
+          drip(p.x + rand(-0.5, 0.5) * capR(), p.y + capR() * 0.4, paint.hex, rand(dr[0], dr[1]), rand(dr[2], dr[3]));
+          travel = 0; nextRun = rand(runs[0], runs[1]);
+        }
         if (d > 3) stillSince = performance.now();
         lx = p.x; ly = p.y;
       }
@@ -3707,6 +3772,7 @@ const Hero = (() => {
       b.setAttribute('role', 'radio');
       b.setAttribute('aria-checked', p === paint ? 'true' : 'false');
       b.style.setProperty('--c', p.hex);
+      if (p.glow) b.style.setProperty('--glow', p.glow);
       b.innerHTML = `${CAN.markup()}<span class="can-n">${p.name}</span>`;
       b.addEventListener('click', () => {
         paint = p;
@@ -3726,8 +3792,7 @@ const Hero = (() => {
       const n = (i + (e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : -1) + bs.length) % bs.length;
       bs[n].focus(); bs[n].click();
     });
-    $('#cap-fat').addEventListener('click', () => setCap('fat'));
-    $('#cap-skinny').addEventListener('click', () => setCap('skinny'));
+    $$('[data-cap]').forEach((b) => b.addEventListener('click', () => setCap(b.dataset.cap)));
     $('#whitewash').addEventListener('click', whitewash);
     armBtn.addEventListener('click', () => setArmed(!armed));
     if (isCoarse()) hint.textContent = 'Dodirni boju pa farbaj · tap a colour, then paint';
