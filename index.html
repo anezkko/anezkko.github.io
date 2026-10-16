@@ -9,10 +9,10 @@
 <meta property="og:title" content="ZID Sarajevo–Mostar">
 <meta property="og:description" content="Bosnian graffiti wall, game and street slang. @anezkko creation.">
 <meta property="og:url" content="https://zidbosna.com/">
-<meta property="og:image" content="https://zidbosna.com/og-image.jpg">
+<meta property="og:image" content="https://zidbosna.com/og-image.jpg?v=2">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="The ZID logo: a pink graffiti Z with a lime crown, dripping paint">
+<meta property="og:image:alt" content="The ZID logo, a pink graffiti Z with a lime crown, sprayed on an old Sarajevo wall, a kilim spray can at its foot">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#0A090D">
 <link rel="icon" type="image/png" href="img/01.png">
@@ -284,11 +284,13 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .js-spray .route-map.on .rm-route-shadow{transition:opacity 1s ease 1.6s}
 .js-spray .route-map .pin,.js-spray .route-map .pin-l{transition:opacity .35s ease;transition-delay:calc(var(--d,0) * 1s)}
 .route{list-style:none;margin:0;padding:0;display:grid}
-.route li{position:relative;padding:16px 0 16px 40px;display:grid;gap:4px;align-content:start;min-width:0;border-radius:12px;transition:background .2s ease}
+.route li{position:relative;padding:14px 0;display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:18px;row-gap:4px;align-content:start;min-width:0}
 .route li + li{border-top:1px solid var(--line)}
-.route li::before{content:"";position:absolute;top:21px;left:4px;width:13px;height:13px;border-radius:50%;background:var(--bg);border:2px solid var(--line-strong)}
-.route li[data-state="current"]::before{background:var(--pink);border-color:var(--pink);box-shadow:0 0 14px var(--pink)}
-.route li[data-state="done"]::before{background:var(--lime);border-color:var(--lime)}
+.route li > *{grid-column:2}
+.route .zone-ic{grid-column:1;grid-row:1 / span 3;align-self:center;width:clamp(52px,5vw,64px);height:auto;border-radius:50%;filter:drop-shadow(0 8px 10px rgba(0,0,0,.55));transition:box-shadow .3s ease,transform .25s cubic-bezier(.2,.8,.3,1)}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.route li:hover .zone-ic{transform:rotate(-6deg) scale(1.06)}}
+.route li[data-state="current"] .zone-ic{box-shadow:0 0 0 3px var(--pink),0 0 22px var(--pink)}
+.route li[data-state="done"] .zone-ic{box-shadow:0 0 0 3px var(--lime)}
 .route .n{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-soft)}
 .route b{font-family:var(--f-display);font-weight:800;font-size:1.5rem;line-height:1;letter-spacing:-.03em}
 .route p{margin:2px 0 0;font-size:var(--step--1);line-height:1.5;color:var(--text-mid);max-width:52ch}
@@ -672,6 +674,8 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
   .drip-wrap > .decal{top:-26px;transform:scale(.85) rotate(var(--r,0deg))}
 }
 @media (max-width:460px){
+  .law-ic{width:58px}
+  .law{column-gap:14px}
   .route b{font-size:1.25rem;overflow-wrap:anywhere}
   .route p{font-size:.78rem}
   .st-word{font-size:2.1rem}
@@ -794,9 +798,8 @@ body:has(.game.playing) .ticker{display:none}
 
 /* street law: a sticker for each rule, beside the words */
 .law{grid-template-columns:auto minmax(0,1fr) auto}
-.law-ic{grid-column:3;grid-row:1 / span 3;width:clamp(64px,7vw,84px);height:auto;align-self:start;transform:rotate(5deg);filter:drop-shadow(0 12px 14px rgba(0,0,0,.55));transition:transform .25s cubic-bezier(.2,.8,.3,1)}
-.law:nth-child(even) .law-ic{transform:rotate(-4deg)}
-@media (hover:hover) and (prefers-reduced-motion:no-preference){.law:hover .law-ic{transform:rotate(0deg) scale(1.08)}}
+.law-ic{grid-column:3;grid-row:1 / span 3;width:clamp(72px,8vw,96px);height:auto;align-self:start;filter:drop-shadow(0 14px 16px rgba(0,0,0,.6));transition:transform .25s cubic-bezier(.2,.8,.3,1)}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.law:hover .law-ic{transform:rotate(-3deg) scale(1.08)}}
 /* the finale: the Stari Most art across the page, the words and one last Play under it */
 .finale{max-width:1240px;margin:clamp(72px,9vw,128px) auto 0;display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:clamp(20px,3vw,40px) clamp(24px,4vw,64px);align-items:end;padding-bottom:clamp(40px,5vw,72px)}
 .finale-art{grid-column:1 / -1;display:block;width:100%;height:auto;border-radius:24px;border:1px solid var(--line);background:#120F1A;box-shadow:0 40px 80px -40px rgba(139,61,255,.55)}
@@ -950,11 +953,11 @@ body:has(.game.playing) .ticker{display:none}
 <g class="rm-n" transform="translate(586 48)"><path d="M0 -20L7 4 0 0-7 4Z"/><text y="22">N</text></g>
 </svg>
   <ol class="route" id="route" aria-label="Route">
-    <li data-state="current"><span class="n" data-en="Zone 1 · Novi Grad">Zona 1 · Novi Grad</span><b>Bosanski Novi</b><p>Where the Sana flows into the Una. The first Bosnian railway reached it in 1872, and the Una quay was built in 1906.</p></li>
-    <li><span class="n" data-en="Zone 2 · Sarajevo">Zona 2 · Sarajevo</span><b>Baščaršija</b><p>The old bazaar. On Kazandžiluk the coppersmiths still hammer copper.</p></li>
-    <li><span class="n" data-en="Zone 3 · above the city">Zona 3 · iznad grada</span><b>Trebević</b><p>The 1984 Olympic bobsled track, now an open-air gallery above the city.</p></li>
-    <li><span class="n" data-en="Zone 4 · Konjic → Jablanica">Zona 4 · Konjic → Jablanica</span><b>Neretva</b><p>The road and the railway follow this emerald river south to Mostar.</p></li>
-    <li><span class="n" data-en="Zone 5 · Mostar">Zona 5 · Mostar</span><b>Stari Most</b><p>Built 1566, rebuilt 2004. Divers have jumped the roughly 20 m to the river since at least 1664.</p></li>
+    <li data-state="current"><img class="zone-ic" src="img/zone-1.webp" width="160" height="160" alt="" loading="lazy" decoding="async"><span class="n" data-en="Zone 1 · Novi Grad">Zona 1 · Novi Grad</span><b>Bosanski Novi</b><p>Where the Sana flows into the Una. The first Bosnian railway reached it in 1872, and the Una quay was built in 1906.</p></li>
+    <li><img class="zone-ic" src="img/zone-2.webp" width="160" height="160" alt="" loading="lazy" decoding="async"><span class="n" data-en="Zone 2 · Sarajevo">Zona 2 · Sarajevo</span><b>Baščaršija</b><p>The old bazaar. On Kazandžiluk the coppersmiths still hammer copper.</p></li>
+    <li><img class="zone-ic" src="img/zone-3.webp" width="160" height="160" alt="" loading="lazy" decoding="async"><span class="n" data-en="Zone 3 · above the city">Zona 3 · iznad grada</span><b>Trebević</b><p>The 1984 Olympic bobsled track, now an open-air gallery above the city.</p></li>
+    <li><img class="zone-ic" src="img/zone-4.webp" width="160" height="160" alt="" loading="lazy" decoding="async"><span class="n" data-en="Zone 4 · Konjic → Jablanica">Zona 4 · Konjic → Jablanica</span><b>Neretva</b><p>The road and the railway follow this emerald river south to Mostar.</p></li>
+    <li><img class="zone-ic" src="img/zone-5.webp" width="160" height="160" alt="" loading="lazy" decoding="async"><span class="n" data-en="Zone 5 · Mostar">Zona 5 · Mostar</span><b>Stari Most</b><p>Built 1566, rebuilt 2004. Divers have jumped the roughly 20 m to the river since at least 1664.</p></li>
   </ol>
   </div>
 
@@ -1189,28 +1192,28 @@ body:has(.game.playing) .ticker{display:none}
   <ol class="laws">
     <li class="law">
       <span class="law-n"><small>Rule</small>1</span>
-      <svg class="law-ic" viewBox="0 0 96 96" aria-hidden="true" focusable="false"><rect x="4" y="4" width="88" height="88" rx="16" fill="#F1EEF5"/><path d="M14 82H82" stroke="#15121C" stroke-width="3" stroke-linecap="round"/><path d="M24 82V46L48 28L72 46V82Z" fill="#BDB4A4" stroke="#15121C" stroke-width="3" stroke-linejoin="round"/><path d="M24 46H72" stroke="#15121C" stroke-width="2.5"/><path d="M48 63m-1.5 0a1.5 1.5 0 1 1 3 0a4 4 0 1 1-8 0a6.5 6.5 0 1 1 13 0a9 9 0 1 1-18 0" fill="none" stroke="#6B6253" stroke-width="2.2" stroke-linecap="round"/><path d="M33 41l15-10 15 10" fill="none" stroke="#6B6253" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="72" cy="24" r="11" fill="#FF4DC4" stroke="#15121C" stroke-width="3"/><path d="M65.5 30.5l13-13" stroke="#15121C" stroke-width="3" stroke-linecap="round"/></svg>
+      <img class="law-ic" src="img/law-1.webp" width="256" height="254" alt="" loading="lazy" decoding="async">
       <h3>Don't touch the stećci.</h3>
       <p class="bs" lang="bs">Stećke ne diraš.</p>
       <p class="d">Medieval tombstones carved between the 12th and 16th centuries, on the UNESCO World Heritage list since 2016. Borrow their spirals and raised hands for your sketchbook. Leave the stone alone.</p>
     </li>
     <li class="law">
       <span class="law-n"><small>Rule</small>2</span>
-      <svg class="law-ic" viewBox="0 0 96 96" aria-hidden="true" focusable="false"><rect x="4" y="4" width="88" height="88" rx="16" fill="#F1EEF5"/><rect x="14" y="16" width="68" height="66" rx="5" fill="#8C8792" stroke="#15121C" stroke-width="3"/><path d="M14 40l14 3 9-6M60 82l3-14 19-4M22 82l6-10" fill="none" stroke="#5F5A66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><g fill="#C8202F"><ellipse cx="58.5" cy="50.0" rx="9.4" ry="3.4" transform="rotate(0 58.5 50.0)"/><ellipse cx="53.8" cy="56.5" rx="7.7" ry="3.0" transform="rotate(48 53.8 56.5)"/><ellipse cx="46.0" cy="61.6" rx="10.5" ry="3.6" transform="rotate(100 46.0 61.6)"/><ellipse cx="40.9" cy="53.8" rx="7.2" ry="2.8" transform="rotate(152 40.9 53.8)"/><ellipse cx="37.9" cy="45.3" rx="9.9" ry="3.4" transform="rotate(205 37.9 45.3)"/><ellipse cx="45.6" cy="41.0" rx="8.2" ry="3.0" transform="rotate(255 45.6 41.0)"/><ellipse cx="54.8" cy="41.9" rx="9.4" ry="3.2" transform="rotate(310 54.8 41.9)"/><circle cx="48" cy="50" r="8"/></g><circle cx="48" cy="50" r="8" fill="none" stroke="#7E1119" stroke-width="1.5"/></svg>
+      <img class="law-ic" src="img/law-2.webp" width="256" height="254" alt="" loading="lazy" decoding="async">
       <h3>Sarajevo Roses stay red.</h3>
       <p class="bs" lang="bs">Ruže ostaju crvene.</p>
       <p class="d">Mortar scars in the pavement, filled with red resin where people were killed during the siege. Walk around them. Never paint them.</p>
     </li>
     <li class="law">
       <span class="law-n"><small>Rule</small>3</span>
-      <svg class="law-ic" viewBox="0 0 96 96" aria-hidden="true" focusable="false"><rect x="4" y="4" width="88" height="88" rx="16" fill="#F1EEF5"/><path d="M18 78C12 62 26 52 37 57C42 45 59 45 63 56C75 50 88 62 80 75C73 86 25 88 18 78Z" fill="#FF4DC4" stroke="#15121C" stroke-width="3" stroke-linejoin="round"/><path d="M27 68c4-6 9-7 12-3M46 63c3-5 9-5 11 0M64 66c4-4 8-3 9 1" fill="none" stroke="#F4F1FA" stroke-width="3" stroke-linecap="round"/><path d="M31 40V24l9 8 8-14 8 14 9-8v16Z" fill="#FFD23F" stroke="#15121C" stroke-width="3" stroke-linejoin="round"/><path d="M31 40h34" stroke="#15121C" stroke-width="3" stroke-linecap="round"/></svg>
+      <img class="law-ic" src="img/law-3.webp" width="256" height="254" alt="" loading="lazy" decoding="async">
       <h3>Don't go over a better piece.</h3>
       <p class="bs" lang="bs">Ne ideš preko boljeg komada.</p>
       <p class="d">If what you're about to paint isn't better than what's already there, find another wall.</p>
     </li>
     <li class="law">
       <span class="law-n"><small>Rule</small>4</span>
-      <svg class="law-ic" viewBox="0 0 96 96" aria-hidden="true" focusable="false"><rect x="4" y="4" width="88" height="88" rx="16" fill="#F1EEF5"/><rect x="14" y="28" width="68" height="50" rx="3" fill="#D8B48A" stroke="#15121C" stroke-width="3"/><g stroke="#8E6A45" stroke-width="2"><path d="M14 40.5H82" /><path d="M14 53H82" /><path d="M14 65.5H82" /><path d="M36 28V40.5"/><path d="M60 28V40.5"/><path d="M24 40.5V53.0"/><path d="M48 40.5V53.0"/><path d="M72 40.5V53.0"/><path d="M36 53V65.5"/><path d="M60 53V65.5"/><path d="M24 65.5V78.0"/><path d="M48 65.5V78.0"/><path d="M72 65.5V78.0"/></g><rect x="14" y="28" width="68" height="50" rx="3" fill="none" stroke="#15121C" stroke-width="3"/><circle cx="70" cy="72" r="15" fill="#B4F53A" stroke="#15121C" stroke-width="3"/><path d="M62.5 72.5l5 5 10-11" fill="none" stroke="#15121C" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <img class="law-ic" src="img/law-4.webp" width="256" height="254" alt="" loading="lazy" decoding="async">
       <h3>Find the right wall.</h3>
       <p class="bs" lang="bs">Nađi pravi zid.</p>
       <p class="d">Ask the owner, or paint where it's allowed. Painters work freely on the old Olympic bobsled track on Trebević, and festivals like Fasada in Sarajevo and Mostar's street art festival repaint whole facades.</p>
