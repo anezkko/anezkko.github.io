@@ -35,6 +35,17 @@ Webby) without losing what makes it ZID.
 12. Ask the owner before: game rules or difficulty, removing a section, a big visual change, anything about
     Ko-fi or money, any outside service.
 
+## Accessibility conventions
+- Game events a screen reader should hear go through `announce(text)` (js/core.js, one polite live region), bilingual
+  with `L(bs, en)`. Short, gender-neutral Bosnian.
+- Game cards are `role="dialog"` with `aria-labelledby` on their heading. When a card closes for a run, call
+  `focusFrame()`; when one opens, `focusBtn()` its main button.
+- Small controls get the invisible 44×44 hit area (the `::after` rule near `.lang-sw` in index.html); add new
+  control classes there rather than making the pills bigger.
+- A visible label must start the accessible name (axe `label-content-name-mismatch`): prefer `sr-only` text inside
+  the control to an `aria-label` that rewords it.
+- Anything that moves checks `REDUCED` (live: it follows the system setting during a visit).
+
 ## How to test
 ```
 cd _dev && npm install          # once: playwright, axe-core, lighthouse (git-ignored)
