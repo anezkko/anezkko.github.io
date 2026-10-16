@@ -30,9 +30,7 @@
   document.documentElement.setAttribute('data-gl', l); })();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sedgwick+Ave+Display&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Martian+Mono:wght@400;600&family=Sedgwick+Ave+Display&display=swap">
 <style>
 /* Layout: a black wall of old tags under a magenta glow. Big bold type, neon numbers, stickers pasted on top. One dark world by design. */
 :root{
@@ -84,11 +82,10 @@ a{color:inherit}
 .top-l{display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap}
 .logo{font-family:var(--f-tag);font-size:2rem;line-height:1;color:var(--text);text-decoration:none;display:inline-flex;align-items:center;gap:10px;padding:4px 2px}
 .logo-word{display:inline-block;transform:rotate(-5deg)}
-/* the ZID logo (pink Z, lime crown), one image used for the header mark and the sticker on the wall */
+/* the ZID logo (pink Z, lime crown), the header mark */
 :root{--logo:url("img/02.webp")}
 .logo-mark{display:block;width:42px;height:42px;border-radius:12px;background:var(--logo) center/cover no-repeat;transform:rotate(-4deg);box-shadow:0 0 0 1px rgba(255,255,255,.14),0 8px 20px -8px rgba(255,77,196,.65)}
-.logo-sticker{position:absolute;right:3%;bottom:7%;z-index:4;width:clamp(104px,12vw,168px);aspect-ratio:1;background:var(--logo) center/cover no-repeat;border:5px solid #F4F2F6;border-radius:24px;transform:rotate(6deg);box-shadow:0 16px 26px -12px rgba(0,0,0,.7)}
-.credit{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.08em;color:var(--text-soft);border:1px solid var(--line);border-radius:999px;padding:.5em .85em;line-height:1.2}
+.credit{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.08em;color:var(--text-soft);border:1px solid var(--line);border-radius:999px;padding:.5em .85em;line-height:1.2}
 .top-r{display:flex;align-items:center;gap:8px 18px;flex-wrap:wrap}
 .nav{display:flex;gap:2px 20px;flex-wrap:wrap;font-size:.88rem;color:var(--text-soft)}
 .nav a{text-decoration:none;padding-block:6px}
@@ -202,7 +199,7 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .wp-ico::after{content:"";position:absolute;left:53%;top:50%;transform:translate(-40%,-50%);border-style:solid;border-width:9px 0 9px 15px;border-color:transparent transparent transparent var(--lime)}
 .wp-txt{display:grid;gap:4px;line-height:1.05}
 .wp-txt b{font-family:var(--f-display);font-weight:800;font-size:clamp(1.05rem,.78rem + .7vw,1.4rem);letter-spacing:-.01em}
-.wp-txt small{font-family:var(--f-mono);font-size:.6rem;letter-spacing:.05em;opacity:.8}
+.wp-txt small{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.04em;opacity:.85}
 .wall .eyebrow{margin-bottom:14px;text-shadow:0 1px 8px rgba(0,0,0,.7)}
 .hero-h > span{display:inline-block;white-space:nowrap}
 .wall .hero-h{max-width:none;width:min-content;font-size:clamp(1.9rem,.4rem + 4.2vw,4.8rem);text-shadow:0 2px 24px rgba(0,0,0,.5)}
@@ -223,7 +220,7 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .stats div{min-width:0}
 .stats dt{font-family:var(--f-display);font-weight:800;font-size:clamp(1.6rem,.9rem + 4vw,4.4rem);line-height:.9;letter-spacing:-.04em;color:var(--lime);text-shadow:0 0 28px rgba(180,245,58,.28);font-variant-numeric:tabular-nums;white-space:nowrap}
 .stats dd{margin:10px 0 0;font-size:.86rem;line-height:1.4;color:var(--text)}
-.stats dd span{display:block;color:var(--text-soft);font-family:var(--f-mono);font-size:.66rem;letter-spacing:.04em;margin-top:4px}
+.stats dd span{display:block;color:var(--text-soft);font-family:var(--f-mono);font-size:.7rem;letter-spacing:.04em;margin-top:4px}
 
 .tray{display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px;padding:14px 18px;background:var(--panel);border:1px solid var(--line);border-radius:22px;color:var(--text)}
 .tray-l{font-family:var(--f-mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-soft);margin-right:-10px}
@@ -247,24 +244,54 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .coarse .tray-btn.arm{display:inline-block}
 .tray-btn.arm[aria-pressed="true"]{background:var(--pink);border-color:var(--pink);color:var(--ink)}
 
-.drip{height:36px;background:var(--pink);-webkit-mask:var(--drip-mask) repeat-x 0 0/260px 36px;mask:var(--drip-mask) repeat-x 0 0/260px 36px;margin-block:36px 28px;max-width:1240px;margin-inline:auto;opacity:.9}
+.drip{height:36px;background:var(--pink);-webkit-mask:var(--drip-mask) repeat-x 0 0/260px 36px;mask:var(--drip-mask) repeat-x 0 0/260px 36px;margin-block:clamp(48px,6vw,88px) 28px;max-width:1240px;margin-inline:auto;opacity:.9}
 
 /* sections */
-.sec{max-width:1240px;margin-inline:auto;padding-block:8px 36px}
-.sec-head{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:12px 44px;align-items:end;margin-bottom:28px}
+.sec{max-width:1240px;margin-inline:auto;padding-block:clamp(72px,9vw,128px) 36px}
+.drip-wrap + .sec{padding-top:clamp(28px,3.5vw,48px)}
+.sec-head{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:12px 44px;align-items:end;margin-bottom:clamp(28px,3.5vw,48px)}
 .kicker{font-family:var(--f-mono);font-size:var(--step--1);letter-spacing:.12em;text-transform:uppercase;color:var(--pink);margin:0 0 12px}
 .sec h2{font-family:var(--f-display);font-weight:800;font-size:var(--step-3);line-height:.92;letter-spacing:-.045em;margin:0;text-wrap:balance}
 .sec-lede{max-width:54ch;margin:0;color:var(--text-soft)}
 
 /* route */
-.route{list-style:none;margin:0 0 24px;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-top:1px solid var(--line-strong)}
-.route li{position:relative;padding:20px 16px 6px 0;display:grid;gap:4px;align-content:start;min-width:0}
-.route li::before{content:"";position:absolute;top:-7px;left:0;width:13px;height:13px;border-radius:50%;background:var(--bg);border:2px solid var(--line-strong)}
+/* the route: a map of Bosnia with the run drawn on it, and the five zones listed beside it */
+.route-wrap{display:grid;grid-template-columns:minmax(0,11fr) minmax(0,10fr);gap:clamp(24px,4vw,64px);align-items:center;margin:0 0 clamp(36px,4.5vw,64px)}
+.route-map{display:block;width:100%;height:auto;overflow:visible}
+.rm-land{fill:#15131B;stroke:rgba(255,255,255,.3);stroke-width:2;stroke-linejoin:round}
+.rm-land.rm-hatch{stroke:none}
+.rm-river{fill:none;stroke:#19C9AE;stroke-width:3;stroke-linecap:round;opacity:.65}
+.rm-riv{font:italic 600 13px var(--f-body);fill:#19C9AE;opacity:.8}
+.rm-route-shadow{fill:none;stroke:rgba(255,77,196,.25);stroke-width:12;stroke-linecap:round;stroke-linejoin:round;filter:blur(6px)}
+.rm-route{fill:none;stroke:var(--pink);stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:0}
+.pin-halo{fill:rgba(255,77,196,0);transition:fill .3s ease}
+.pin-dot{fill:var(--bg);stroke:#F4F1FA;stroke-width:2.5;transition:fill .3s ease,stroke .3s ease}
+.pin-n{font:800 13px var(--f-display);fill:#F4F1FA;text-anchor:middle}
+.pin-l{font:600 15px var(--f-mono);letter-spacing:.02em;fill:var(--text);paint-order:stroke;stroke:var(--bg);stroke-width:5px;stroke-linejoin:round}
+.pin.current .pin-dot{fill:var(--pink);stroke:var(--pink)}
+.pin.current .pin-n{fill:var(--ink)}
+.pin.current .pin-halo{fill:rgba(255,77,196,.3)}
+.pin.done .pin-dot{fill:var(--lime);stroke:var(--lime)}
+.pin.done .pin-n{fill:var(--ink)}
+.pin.hot .pin-halo{fill:rgba(244,241,250,.22)}
+.rm-n path{fill:var(--text-soft)}
+.rm-n text{font:600 13px var(--f-mono);fill:var(--text-soft);text-anchor:middle}
+/* drawn in as it scrolls into view: the line runs from Novi to Mostar and the pins land along it */
+.js-spray .route-map:not(.on) .rm-route{stroke-dashoffset:1}
+.js-spray .route-map:not(.on) .rm-route-shadow{opacity:0}
+.js-spray .route-map:not(.on) .pin,.js-spray .route-map:not(.on) .pin-l{opacity:0}
+.js-spray .route-map.on .rm-route{transition:stroke-dashoffset 2.2s cubic-bezier(.45,.05,.3,1)}
+.js-spray .route-map.on .rm-route-shadow{transition:opacity 1s ease 1.6s}
+.js-spray .route-map .pin,.js-spray .route-map .pin-l{transition:opacity .35s ease;transition-delay:calc(var(--d,0) * 1s)}
+.route{list-style:none;margin:0;padding:0;display:grid}
+.route li{position:relative;padding:16px 0 16px 40px;display:grid;gap:4px;align-content:start;min-width:0;border-radius:12px;transition:background .2s ease}
+.route li + li{border-top:1px solid var(--line)}
+.route li::before{content:"";position:absolute;top:21px;left:4px;width:13px;height:13px;border-radius:50%;background:var(--bg);border:2px solid var(--line-strong)}
 .route li[data-state="current"]::before{background:var(--pink);border-color:var(--pink);box-shadow:0 0 14px var(--pink)}
 .route li[data-state="done"]::before{background:var(--lime);border-color:var(--lime)}
-.route .n{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-soft)}
+.route .n{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-soft)}
 .route b{font-family:var(--f-display);font-weight:800;font-size:1.5rem;line-height:1;letter-spacing:-.03em}
-.route p{margin:2px 0 0;font-size:var(--step--1);line-height:1.45;color:var(--text-soft);max-width:32ch}
+.route p{margin:2px 0 0;font-size:var(--step--1);line-height:1.5;color:var(--text-mid);max-width:52ch}
 
 /* game screen */
 .game-wrap{display:grid;gap:12px}
@@ -350,7 +377,7 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .pad small{display:block;font-family:var(--f-mono);font-weight:400;font-size:.58rem;letter-spacing:.1em;margin-top:6px;color:var(--text-soft)}
 .pad.on{background:var(--pink);border-color:var(--pink);color:var(--ink)}
 .pad.on small{color:var(--ink)}
-.keys{display:flex;flex-wrap:wrap;gap:8px 24px;margin:4px 0 0;padding:0;list-style:none;font-family:var(--f-mono);font-size:var(--step--1);color:var(--text-soft)}
+.keys{display:flex;flex-wrap:wrap;gap:8px 24px;margin:4px 0 0;padding:0;list-style:none;font-size:var(--step-0);line-height:1.6;color:var(--text-mid)}
 .keys kbd{font-family:var(--f-mono);font-size:.92em;border:1px solid var(--line-strong);border-bottom-width:3px;border-radius:6px;padding:0 .45em;color:var(--text);background:var(--panel)}
 .coarse .keys,.coarse #ov-start .ov-btns ~ .k{display:none}
 .best{font-family:var(--f-mono);font-size:var(--step--1);margin:0;color:var(--text-soft)}
@@ -377,9 +404,9 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .laws{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:44px;border-top:1px solid var(--line-strong)}
 .law{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto 1fr;gap:4px 18px;padding-block:24px;border-bottom:1px solid var(--line)}
 .law-n{grid-row:span 3;font-family:var(--f-display);font-weight:800;font-size:3.4rem;line-height:.8;letter-spacing:-.04em;color:var(--pink);min-width:1.4ch}
-.law-n small{display:block;font-family:var(--f-mono);font-weight:400;font-size:.6rem;letter-spacing:.1em;color:var(--text-soft);margin-bottom:6px}
+.law-n small{display:block;font-family:var(--f-mono);font-weight:400;font-size:.66rem;letter-spacing:.1em;color:var(--text-soft);margin-bottom:6px}
 .law h3{margin:0;font-family:var(--f-display);font-weight:800;font-size:1.7rem;line-height:1;letter-spacing:-.03em;text-wrap:balance}
-.law .bs{margin:0;font-family:var(--f-mono);font-size:var(--step--1);color:var(--text-soft)}
+.law .bs{margin:2px 0 0;font-family:var(--f-mono);font-size:var(--step--1);color:var(--text-soft)}
 .law p.d{margin:6px 0 0;max-width:50ch;color:var(--text-mid)}
 
 /* footer */
@@ -402,7 +429,7 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .board-list li.board-note{display:block;font-family:var(--f-mono);font-size:var(--step--1);color:var(--text-soft);background:transparent;border:1px dashed var(--line-strong);grid-column:1 / -1}
 .board-me{font-family:var(--f-mono);font-size:var(--step--1);color:var(--text-soft);margin:12px 0 0}
 .board-me b{color:var(--lime)}
-.board-how{font-family:var(--f-mono);font-size:var(--step--1);color:var(--text-soft);margin:10px 0 0;max-width:70ch}
+.board-how{font-size:var(--step-0);line-height:1.55;color:var(--text-mid);margin:14px 0 0;max-width:62ch}
 /* outside zidbosna.com the board shows example scores, and says so */
 .demo-note{margin:0 auto;max-width:1240px;padding:9px 12px;font-family:var(--f-mono);font-size:.62rem;line-height:1.5;letter-spacing:.05em;text-align:center;color:#FFD23F;border-bottom:1px dashed rgba(255,210,63,.45)}
 .demo-note a{color:#FFD23F;text-underline-offset:3px}
@@ -420,8 +447,14 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .board-list .p1 .pts{grid-area:pts;text-align:left;font-size:clamp(2rem,1.4rem + 1.8vw,3rem);line-height:1;min-width:0}
 .board-list .p1 .rk{grid-area:rk;align-self:center;justify-self:start}
 .board-list .p1 .take{grid-area:take;justify-self:start;margin-top:4px}
-.board-list li.p2 .nm,.board-list li.p3 .nm{font-size:1.3rem}
-.board-list li.p2 .pts,.board-list li.p3 .pts,.board-list li.p2 .pos,.board-list li.p3 .pos{font-size:1.45rem}
+/* #2 and #3: medal cards that fill their half of the podium; a big place number, the name over the rank, the points */
+.board-list li.p2,.board-list li.p3{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"pos nm pts" "pos rk pts";align-content:center;gap:4px 18px;padding:18px 22px}
+.board-list li.p2{background:radial-gradient(110% 120% at 0% 0%,rgba(244,241,250,.1),rgba(244,241,250,0) 60%),var(--panel)}
+.board-list li.p3{background:radial-gradient(110% 120% at 0% 0%,rgba(232,131,58,.13),rgba(232,131,58,0) 60%),var(--panel)}
+.board-list li.p2 .pos,.board-list li.p3 .pos{grid-area:pos;align-self:center;font-size:clamp(2.4rem,1.8rem + 1.6vw,3.4rem);line-height:.85;letter-spacing:-.04em}
+.board-list li.p2 .nm,.board-list li.p3 .nm{grid-area:nm;align-self:end;font-size:clamp(1.3rem,1rem + .9vw,1.8rem);letter-spacing:-.02em}
+.board-list li.p2 .rk,.board-list li.p3 .rk{grid-area:rk;align-self:start}
+.board-list li.p2 .pts,.board-list li.p3 .pts{grid-area:pts;align-self:center;font-size:clamp(1.5rem,1.1rem + 1vw,2.1rem)}
 .board-list li.open{background:transparent;border-style:dashed}
 .board-list li.open .nm{color:var(--text-soft);font-weight:600}
 .board-list li.p1.open .nm{color:rgba(255,77,196,.5);font-weight:400;text-shadow:none}
@@ -446,7 +479,7 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .foot{max-width:1240px;margin-inline:auto;padding-block:30px 56px;display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:16px 44px;align-items:end;border-top:1px solid var(--line-strong)}
 .foot .foot-big{font-family:var(--f-display);font-weight:800;font-size:clamp(4.4rem,15vw,10.5rem);line-height:.8;letter-spacing:-.06em;margin:0;color:var(--lime);text-shadow:0 0 40px rgba(180,245,58,.25)}
 .foot p{margin:0 0 8px;max-width:54ch;color:var(--text-mid)}
-.foot .small{font-family:var(--f-mono);font-size:var(--step--1);color:var(--text-soft)}
+.foot .small{font-size:var(--step--1);line-height:1.55;color:var(--text-soft)}
 .foot .sig{font-family:var(--f-tag);font-size:clamp(1.6rem,3.4vw,2.4rem);line-height:1;color:var(--pink);display:inline-block;transform:rotate(-4deg);margin:18px 0 0}
 .kahva{display:inline-flex;align-items:center;gap:12px;margin:8px 0 16px;padding:10px 22px 10px 14px;border-radius:999px;background:#FFD23F;color:#141216;text-decoration:none;box-shadow:0 10px 28px -12px rgba(255,210,63,.75);transition:transform .15s ease,box-shadow .15s ease}
 .kahva:hover{transform:translateY(-2px) rotate(-1deg);box-shadow:0 14px 34px -10px rgba(255,210,63,.9)}
@@ -536,7 +569,16 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .toast a{color:var(--lime);font-weight:600}
 
 @media (max-width:960px){
-  .route{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:24px}
+  .route-wrap{grid-template-columns:1fr}
+  .route-map{max-width:440px;margin-inline:auto}}
+@media (max-width:600px){
+  /* the map is drawn small on a phone, so its words are set bigger to stay readable */
+  .pin-l{font-size:25px;stroke-width:8px}
+  .pin-n{font-size:15px}
+  .rm-riv{font-size:20px}
+  .rm-n{display:none}
+  .pin-l.pl2{transform:translateY(-11px)}
+  .pin-l.pl3{transform:translateY(9px)}
 }
 @media (max-width:1100px){
   /* tablets: a shorter game frame, so the end screen drops the dive line and the total label to keep its buttons in view */
@@ -552,11 +594,10 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
   #ov-end .ov-btn{padding:.55em 1.2em}
 }
 @media (max-width:860px){
-  .route{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:24px}
   /* on tablets and phones the game comes straight after its heading; the scoreboard follows it and the route goes last */
   #igra{display:flex;flex-direction:column}
   #igra > .board{order:2}
-  #igra > .route{order:3;margin:30px 0 0}
+  #igra > .route-wrap{order:3;margin:30px 0 0}
 }
 @media (max-width:760px){
   .sec-head,.foot{grid-template-columns:1fr}
@@ -622,7 +663,6 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
   .wall .eyebrow{margin-bottom:9px}
   .wall .hero-h{font-size:clamp(1.75rem,8vw,2.5rem)}
   .wall .hero-en{margin-top:9px}
-  .logo-sticker{top:14px;bottom:auto;right:12px;width:88px;border-width:4px;border-radius:16px}
   .hero-text{padding:22px 2px 0}
 }
 @media (max-width:560px){
@@ -656,9 +696,6 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
   .radio-btn{margin:-6px 0 -5px}
   .top-l{gap:7px}
   .top-r{gap:5px}
-}
-@media (max-width:340px){
-  .route{grid-template-columns:1fr}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
@@ -754,9 +791,64 @@ body:has(.game.playing) .ticker{display:none}
   .ride .ov-stats b{font-size:20px}
 }
 @media (prefers-reduced-motion:reduce){.ride .memo-card{animation:none}}
+
+/* street law: a sticker for each rule, beside the words */
+.law{grid-template-columns:auto minmax(0,1fr) auto}
+.law-ic{grid-column:3;grid-row:1 / span 3;width:clamp(64px,7vw,84px);height:auto;align-self:start;transform:rotate(5deg);filter:drop-shadow(0 12px 14px rgba(0,0,0,.55));transition:transform .25s cubic-bezier(.2,.8,.3,1)}
+.law:nth-child(even) .law-ic{transform:rotate(-4deg)}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.law:hover .law-ic{transform:rotate(0deg) scale(1.08)}}
+/* the finale: Stari Most, the diver, and one last Play */
+.finale{max-width:1240px;margin:clamp(72px,9vw,128px) auto 0;display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:clamp(20px,3vw,48px);align-items:center;padding-bottom:clamp(40px,5vw,72px)}
+.finale-art{display:block;width:100%;height:auto;border-radius:24px;background:#0E0C13;border:1px solid var(--line)}
+.fn-bank{fill:#1D1A24;stroke:rgba(236,234,242,.45);stroke-width:2.5;stroke-linejoin:round}
+.fn-stone path{fill:#2A2633;stroke:#ECEAF2;stroke-width:3;stroke-linejoin:round}
+.fn-stone .fn-line{fill:none;stroke-width:2.5}
+.fn-trail{fill:none;stroke:var(--pink);stroke-width:3;stroke-linecap:round;stroke-dasharray:2 9;opacity:.85}
+.fn-diver{fill:none;stroke:var(--pink);stroke-width:3.4;stroke-linecap:round}
+.fn-diver circle{fill:var(--pink)}
+.fn-river{fill:rgba(25,201,174,.2)}
+.fn-wave{fill:none;stroke:#19C9AE;stroke-width:2.5;stroke-linecap:round;opacity:.8}
+.finale h2{font-family:var(--f-display);font-weight:800;font-size:var(--step-3);line-height:.92;letter-spacing:-.045em;margin:0;text-wrap:balance}
+.finale-bs{font-family:var(--f-tag);font-size:clamp(1.8rem,1.2rem + 1.6vw,2.6rem);line-height:1;color:var(--pink);transform:rotate(-4deg);transform-origin:left center;margin:10px 0 14px}
+.finale-d{margin:0 0 22px;max-width:40ch;color:var(--text-mid)}
+@media (prefers-reduced-motion:no-preference){
+  .fn-diver{animation:fn-dive 5.5s cubic-bezier(.5,0,.75,.4) infinite}
+  @keyframes fn-dive{0%,12%{transform:translate(480px,100px);opacity:0}18%{opacity:1}62%{transform:translate(480px,214px);opacity:1}74%,100%{transform:translate(480px,300px);opacity:0}}
+}
+@media (max-width:760px){
+  .finale{grid-template-columns:1fr}
+}
+
+/* ===== the intro: a spray of the logo, about a second and a half, once a visit ===== */
+.intro{display:none}
+.intro-on .intro{display:grid;place-items:center;position:fixed;inset:0;z-index:300;background:radial-gradient(60% 50% at 50% 46%,rgba(139,61,255,.22),rgba(139,61,255,0) 70%),var(--bg);animation:intro-out .55s ease 1.75s forwards;cursor:pointer}
+.intro-in{display:grid;justify-items:center;gap:6px}
+.intro-mark{width:clamp(84px,12vw,120px);aspect-ratio:1;border-radius:26px;background:var(--logo) center/cover no-repeat;box-shadow:0 0 0 1px rgba(255,255,255,.14),0 18px 50px -14px rgba(255,77,196,.7);animation:intro-pop .5s cubic-bezier(.2,1.4,.4,1) .1s both}
+.intro-tag{font-family:var(--f-tag);font-size:clamp(4rem,12vw,7.5rem);line-height:1;color:var(--pink);transform:rotate(-6deg);text-shadow:0 0 34px rgba(255,77,196,.55);-webkit-mask-image:linear-gradient(100deg,#000 calc(var(--spray) - 22%),transparent var(--spray));mask-image:linear-gradient(100deg,#000 calc(var(--spray) - 22%),transparent var(--spray));animation:intro-spray .85s cubic-bezier(.35,.6,.25,1) .45s both}
+.intro-sub{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text-soft);animation:intro-fade .4s ease 1.05s both}
+.intro.gone{animation:intro-out .25s ease forwards}
+@keyframes intro-spray{from{--spray:0%;filter:blur(8px)}to{--spray:130%;filter:blur(0)}}
+@keyframes intro-pop{from{opacity:0;transform:scale(.6) rotate(-12deg)}to{opacity:1;transform:rotate(-4deg)}}
+@keyframes intro-fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes intro-out{to{opacity:0;visibility:hidden;pointer-events:none}}
+
+/* ===== motion: headings are sprayed on as they scroll in (only with JS, and never with reduced motion) ===== */
+@property --spray{syntax:'<percentage>';inherits:false;initial-value:130%}
+.js-spray .spray-in{-webkit-mask-image:linear-gradient(100deg,#000 calc(var(--spray) - 22%),rgba(0,0,0,.4) calc(var(--spray) - 8%),transparent var(--spray));mask-image:linear-gradient(100deg,#000 calc(var(--spray) - 22%),rgba(0,0,0,.4) calc(var(--spray) - 8%),transparent var(--spray));-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.js-spray .spray-in:not(.sprayed){--spray:0%;filter:blur(6px);text-shadow:0 0 22px rgba(255,77,196,.75)}
+.js-spray .spray-in.sprayed{--spray:130%;transition:--spray 1.15s cubic-bezier(.35,.6,.25,1),filter .9s ease,text-shadow 1.6s ease}
+.js-spray .spray-in.dry{-webkit-mask-image:none;mask-image:none}
+@media print{.js-spray .spray-in{-webkit-mask-image:none!important;mask-image:none!important;filter:none!important;text-shadow:none!important}.js-spray .route-map .pin,.js-spray .route-map .pin-l{opacity:1!important}.js-spray .route-map .rm-route{stroke-dashoffset:0!important}.intro{display:none!important}}
+/* dictionary cards lean toward the pointer, with a soft sheen where it is */
+@media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+  .sticker{transition:transform .25s cubic-bezier(.2,.8,.3,1),box-shadow .25s ease}
+  .sticker:hover{transform:perspective(800px) rotateX(var(--ty,0deg)) rotateY(var(--tx,0deg)) translateY(-5px);box-shadow:0 34px 44px -24px rgba(0,0,0,.95);background-image:radial-gradient(circle at var(--mx,50%) var(--my,30%),rgba(255,255,255,.26),rgba(255,255,255,0) 46%)}
+}
 </style>
+<script>try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&!sessionStorage.getItem('zid-intro')&&!location.hash){document.documentElement.classList.add('intro-on');sessionStorage.setItem('zid-intro','1')}}catch(e){}</script>
 </head>
 <body>
+<div class="intro" id="intro" aria-hidden="true"><div class="intro-in"><i class="intro-mark"></i><span class="intro-tag">zid</span><span class="intro-sub">Sarajevo → Mostar</span></div></div>
 <div class="ticker" role="region" aria-label="Bosnia and Herzegovina national team: last result and next match">
   <div class="tk-chip" aria-hidden="true">BiH</div>
   <div class="tk-view"><div class="ticker-track">
@@ -814,7 +906,6 @@ body:has(.game.playing) .ticker{display:none}
     <canvas id="wall-canvas" role="img" aria-label="Wall you can spray. Drag across it to paint."></canvas>
     <div class="roller" id="roller" hidden></div>
     <p class="wall-hint" id="wall-hint">Drag to spray · <span lang="bs">povuci po zidu</span></p>
-    <div class="logo-sticker" aria-hidden="true"></div>
   </div>
   <div class="tray" role="group" aria-label="Spray tools">
     <span class="tray-l" id="cans-label">Colour</span>
@@ -834,8 +925,8 @@ body:has(.game.playing) .ticker{display:none}
     <div class="hero-front">
       <p class="lede">ZID is a free page about Bosnian street walls. Spray the wall above, run the five-zone game from Bosanski Novi to the Old Bridge in Mostar, and pick up the slang you'll hear along the way.</p>
       <div class="ctas">
-        <a class="btn" href="#igra" data-play>Play</a>
-        <a class="btn ghost" href="#rjecnik">Dictionary</a>
+        <a class="btn ghost" href="#rjecnik">Street dictionary</a>
+        <a class="btn ghost" href="#zakon">Street law</a>
         <button type="button" class="btn ghost install" id="btn-install" hidden aria-label="Install ZID as an app on this device">Get the app <span aria-hidden="true">↓</span></button>
       </div>
     </div>
@@ -858,6 +949,16 @@ body:has(.game.playing) .ticker{display:none}
     <p class="sec-lede">Run from Bosanski Novi to Stari Most. Paint concrete for points. Leave old stone, wood and other people's best pieces alone, and jump the bears. Finish with a dive into the Neretva.</p>
   </div>
 
+  <div class="route-wrap">
+  <svg class="route-map" viewBox="0 0 640 630" role="img" aria-labelledby="route-map-t"><title id="route-map-t">Map of Bosnia and Herzegovina with the route from Bosanski Novi through Sarajevo and Trebević down the Neretva to Mostar</title>
+<defs><pattern id="rm-hatch" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><path d="M0 0V9" stroke="rgba(255,255,255,.05)" stroke-width="2"/></pattern></defs>
+<path class="rm-land" d="M549.3 388.5L544.8 387.7L537.0 389.6L531.3 391.9L523.5 388.5L515.1 386.2L511.7 389.6L510.0 396.4L515.1 408.1L524.6 426.5L523.5 440.5L515.6 442.0L508.9 430.3L502.7 428.4L496.0 428.8L480.2 442.3L468.4 454.0L465.6 461.9L461.1 470.6L460.0 477.0L460.6 498.1L439.2 501.5L434.7 504.5L432.5 510.9L434.2 538.0L435.8 552.3L447.6 574.9L448.2 581.7L446.5 586.6L438.1 595.2L434.2 598.6L431.3 599.4L417.3 593.7L410.6 591.1L382.5 571.1L370.1 560.2L350.4 545.9L338.1 537.6L331.9 525.2L322.4 522.6L311.1 526.3L298.2 517.3L307.2 512.8L309.4 508.3L308.3 502.6L304.4 494.7L269.6 460.8L252.7 437.8L249.9 429.5L249.9 407.3L246.0 402.0L220.1 391.9L191.5 363.3L162.2 335.0L158.3 327.1L143.1 306.0L124.6 286.4L110.0 274.0L97.6 260.1L84.2 240.5L77.4 210.7L71.2 184.4L67.3 174.2L58.9 170.4L32.5 139.2L10.0 121.1L10.0 101.1L13.9 68.4L17.9 31.5L23.5 26.2L33.6 23.2L45.4 24.3L55.5 29.2L75.7 54.4L87.0 64.2L96.5 68.4L107.8 57.5L121.8 34.9L133.6 23.2L174.6 27.3L194.3 10.0L226.9 33.0L239.8 36.4L247.6 33.3L257.8 34.5L280.2 41.3L285.3 43.9L292.0 43.5L308.9 34.9L314.5 36.0L333.6 53.3L343.7 53.3L354.9 45.8L362.2 39.4L384.7 44.3L397.1 41.3L407.8 40.9L419.0 43.9L429.1 48.0L439.2 51.4L466.7 53.3L479.7 64.2L484.7 75.2L484.7 81.6L485.8 88.7L493.7 95.5L510.0 99.3L520.1 98.5L525.7 98.1L539.8 92.1L556.1 88.7L567.9 92.5L573.5 95.9L574.6 100.8L571.2 117.7L564.5 135.8L553.8 155.0L542.6 172.7L539.8 182.1L539.2 197.2L537.5 208.8L539.2 215.6L542.6 221.7L555.5 226.2L571.8 238.2L586.4 253.7L604.4 271.0L610.0 277.8L610.0 284.5L604.9 289.8L589.2 291.7L572.9 290.2L566.7 288.7L561.1 290.6L557.2 294.7L559.4 299.2L575.7 320.7L595.4 351.6L596.5 364.8L594.3 374.9L589.8 382.1L581.3 381.0L575.2 375.3L566.2 375.7L558.9 377.2L549.3 388.5Z"/><path class="rm-land rm-hatch" d="M549.3 388.5L544.8 387.7L537.0 389.6L531.3 391.9L523.5 388.5L515.1 386.2L511.7 389.6L510.0 396.4L515.1 408.1L524.6 426.5L523.5 440.5L515.6 442.0L508.9 430.3L502.7 428.4L496.0 428.8L480.2 442.3L468.4 454.0L465.6 461.9L461.1 470.6L460.0 477.0L460.6 498.1L439.2 501.5L434.7 504.5L432.5 510.9L434.2 538.0L435.8 552.3L447.6 574.9L448.2 581.7L446.5 586.6L438.1 595.2L434.2 598.6L431.3 599.4L417.3 593.7L410.6 591.1L382.5 571.1L370.1 560.2L350.4 545.9L338.1 537.6L331.9 525.2L322.4 522.6L311.1 526.3L298.2 517.3L307.2 512.8L309.4 508.3L308.3 502.6L304.4 494.7L269.6 460.8L252.7 437.8L249.9 429.5L249.9 407.3L246.0 402.0L220.1 391.9L191.5 363.3L162.2 335.0L158.3 327.1L143.1 306.0L124.6 286.4L110.0 274.0L97.6 260.1L84.2 240.5L77.4 210.7L71.2 184.4L67.3 174.2L58.9 170.4L32.5 139.2L10.0 121.1L10.0 101.1L13.9 68.4L17.9 31.5L23.5 26.2L33.6 23.2L45.4 24.3L55.5 29.2L75.7 54.4L87.0 64.2L96.5 68.4L107.8 57.5L121.8 34.9L133.6 23.2L174.6 27.3L194.3 10.0L226.9 33.0L239.8 36.4L247.6 33.3L257.8 34.5L280.2 41.3L285.3 43.9L292.0 43.5L308.9 34.9L314.5 36.0L333.6 53.3L343.7 53.3L354.9 45.8L362.2 39.4L384.7 44.3L397.1 41.3L407.8 40.9L419.0 43.9L429.1 48.0L439.2 51.4L466.7 53.3L479.7 64.2L484.7 75.2L484.7 81.6L485.8 88.7L493.7 95.5L510.0 99.3L520.1 98.5L525.7 98.1L539.8 92.1L556.1 88.7L567.9 92.5L573.5 95.9L574.6 100.8L571.2 117.7L564.5 135.8L553.8 155.0L542.6 172.7L539.8 182.1L539.2 197.2L537.5 208.8L539.2 215.6L542.6 221.7L555.5 226.2L571.8 238.2L586.4 253.7L604.4 271.0L610.0 277.8L610.0 284.5L604.9 289.8L589.2 291.7L572.9 290.2L566.7 288.7L561.1 290.6L557.2 294.7L559.4 299.2L575.7 320.7L595.4 351.6L596.5 364.8L594.3 374.9L589.8 382.1L581.3 381.0L575.2 375.3L566.2 375.7L558.9 377.2L549.3 388.5Z" fill="url(#rm-hatch)"/>
+<path class="rm-river" d="M398.0 392.0C395.0 388.3 386.8 374.9 380.0 370.0C373.2 365.1 363.7 363.3 357.0 362.6C350.3 361.9 345.2 366.3 340.0 366.0C334.8 365.7 329.5 357.9 325.8 360.9C322.1 363.9 318.3 375.8 318.0 384.0C317.7 392.2 321.3 402.2 324.0 410.0C326.7 417.8 333.9 422.9 334.2 430.9C334.5 438.9 329.2 450.1 326.0 458.0C322.8 465.9 318.0 472.2 315.0 478.0C312.0 483.8 309.2 490.5 308.0 493.0"/><path class="rm-river" d="M60.0 40.0C64.0 42.0 75.7 48.6 84.0 52.0C92.3 55.4 103.1 59.2 110.1 60.2C117.1 61.2 121.0 60.0 126.0 58.0C131.0 56.0 137.7 49.7 140.0 48.0"/>
+<text class="rm-riv" x="300" y="452" transform="rotate(-72 300 452)">Neretva</text><text class="rm-riv" x="40" y="30">Una</text>
+<path class="rm-route-shadow" d="M110.1 60.2C120.1 66.2 148.9 86.0 170.0 96.0C191.1 106.0 215.0 107.8 236.7 120.1C258.4 132.4 281.3 149.4 300.0 170.0C318.7 190.6 333.2 225.0 349.0 243.7C364.8 262.4 381.4 269.7 395.0 282.0C408.6 294.3 420.8 308.4 430.3 317.7C439.8 327.0 455.4 331.6 452.0 338.0C448.6 344.4 425.8 351.9 410.0 356.0C394.2 360.1 371.0 361.8 357.0 362.6C343.0 363.4 331.6 355.0 325.8 360.9C320.0 366.8 320.6 386.3 322.0 398.0C323.4 409.7 332.2 425.4 334.2 430.9"/><path class="rm-route" d="M110.1 60.2C120.1 66.2 148.9 86.0 170.0 96.0C191.1 106.0 215.0 107.8 236.7 120.1C258.4 132.4 281.3 149.4 300.0 170.0C318.7 190.6 333.2 225.0 349.0 243.7C364.8 262.4 381.4 269.7 395.0 282.0C408.6 294.3 420.8 308.4 430.3 317.7C439.8 327.0 455.4 331.6 452.0 338.0C448.6 344.4 425.8 351.9 410.0 356.0C394.2 360.1 371.0 361.8 357.0 362.6C343.0 363.4 331.6 355.0 325.8 360.9C320.0 366.8 320.6 386.3 322.0 398.0C323.4 409.7 332.2 425.4 334.2 430.9" pathLength="1"/>
+<g class="pin" data-z="1" transform="translate(110.1 60.2)"><circle class="pin-halo" r="17"/><circle class="pin-dot" r="11"/><text class="pin-n" y="4">1</text></g><text class="pin-l" x="128.1" y="65.2" text-anchor="start">Bosanski Novi</text><g class="pin" data-z="2" transform="translate(430.3 317.7)"><circle class="pin-halo" r="17"/><circle class="pin-dot" r="11"/><text class="pin-n" y="4">2</text></g><text class="pin-l pl2" x="448.3" y="322.7" text-anchor="start">Baščaršija</text><g class="pin" data-z="3" transform="translate(452.0 338.0)"><circle class="pin-halo" r="17"/><circle class="pin-dot" r="11"/><text class="pin-n" y="4">3</text></g><text class="pin-l pl3" x="470.0" y="343.0" text-anchor="start">Trebević</text><g class="pin" data-z="4" transform="translate(341.0 362.0)"><circle class="pin-halo" r="17"/><circle class="pin-dot" r="11"/><text class="pin-n" y="4">4</text></g><text class="pin-l" x="323.0" y="367.0" text-anchor="end">Neretva</text><g class="pin" data-z="5" transform="translate(334.2 430.9)"><circle class="pin-halo" r="17"/><circle class="pin-dot" r="11"/><text class="pin-n" y="4">5</text></g><text class="pin-l" x="352.2" y="435.9" text-anchor="start">Stari Most</text>
+<g class="rm-n" transform="translate(586 48)"><path d="M0 -20L7 4 0 0-7 4Z"/><text y="22">N</text></g>
+</svg>
   <ol class="route" id="route" aria-label="Route">
     <li data-state="current"><span class="n" data-en="Zone 1 · Novi Grad">Zona 1 · Novi Grad</span><b>Bosanski Novi</b><p>Where the Sana flows into the Una. The first Bosnian railway reached it in 1872, and the Una quay was built in 1906.</p></li>
     <li><span class="n" data-en="Zone 2 · Sarajevo">Zona 2 · Sarajevo</span><b>Baščaršija</b><p>The old bazaar. On Kazandžiluk the coppersmiths still hammer copper.</p></li>
@@ -865,6 +966,7 @@ body:has(.game.playing) .ticker{display:none}
     <li><span class="n" data-en="Zone 4 · Konjic → Jablanica">Zona 4 · Konjic → Jablanica</span><b>Neretva</b><p>The road and the railway follow this emerald river south to Mostar.</p></li>
     <li><span class="n" data-en="Zone 5 · Mostar">Zona 5 · Mostar</span><b>Stari Most</b><p>Built 1566, rebuilt 2004. Divers have jumped the roughly 20 m to the river since at least 1664.</p></li>
   </ol>
+  </div>
 
   <div class="game-wrap" id="game-wrap">
     <div class="game" id="game">
@@ -1097,29 +1199,62 @@ body:has(.game.playing) .ticker{display:none}
   <ol class="laws">
     <li class="law">
       <span class="law-n"><small>Rule</small>1</span>
+      <svg class="law-ic" viewBox="0 0 96 96" aria-hidden="true" focusable="false"><rect x="4" y="4" width="88" height="88" rx="16" fill="#F1EEF5"/><path d="M14 82H82" stroke="#15121C" stroke-width="3" stroke-linecap="round"/><path d="M24 82V46L48 28L72 46V82Z" fill="#BDB4A4" stroke="#15121C" stroke-width="3" stroke-linejoin="round"/><path d="M24 46H72" stroke="#15121C" stroke-width="2.5"/><path d="M48 63m-1.5 0a1.5 1.5 0 1 1 3 0a4 4 0 1 1-8 0a6.5 6.5 0 1 1 13 0a9 9 0 1 1-18 0" fill="none" stroke="#6B6253" stroke-width="2.2" stroke-linecap="round"/><path d="M33 41l15-10 15 10" fill="none" stroke="#6B6253" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="72" cy="24" r="11" fill="#FF4DC4" stroke="#15121C" stroke-width="3"/><path d="M65.5 30.5l13-13" stroke="#15121C" stroke-width="3" stroke-linecap="round"/></svg>
       <h3>Don't touch the stećci.</h3>
       <p class="bs" lang="bs">Stećke ne diraš.</p>
       <p class="d">Medieval tombstones carved between the 12th and 16th centuries, on the UNESCO World Heritage list since 2016. Borrow their spirals and raised hands for your sketchbook. Leave the stone alone.</p>
     </li>
     <li class="law">
       <span class="law-n"><small>Rule</small>2</span>
+      <svg class="law-ic" viewBox="0 0 96 96" aria-hidden="true" focusable="false"><rect x="4" y="4" width="88" height="88" rx="16" fill="#F1EEF5"/><rect x="14" y="16" width="68" height="66" rx="5" fill="#8C8792" stroke="#15121C" stroke-width="3"/><path d="M14 40l14 3 9-6M60 82l3-14 19-4M22 82l6-10" fill="none" stroke="#5F5A66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><g fill="#C8202F"><ellipse cx="58.5" cy="50.0" rx="9.4" ry="3.4" transform="rotate(0 58.5 50.0)"/><ellipse cx="53.8" cy="56.5" rx="7.7" ry="3.0" transform="rotate(48 53.8 56.5)"/><ellipse cx="46.0" cy="61.6" rx="10.5" ry="3.6" transform="rotate(100 46.0 61.6)"/><ellipse cx="40.9" cy="53.8" rx="7.2" ry="2.8" transform="rotate(152 40.9 53.8)"/><ellipse cx="37.9" cy="45.3" rx="9.9" ry="3.4" transform="rotate(205 37.9 45.3)"/><ellipse cx="45.6" cy="41.0" rx="8.2" ry="3.0" transform="rotate(255 45.6 41.0)"/><ellipse cx="54.8" cy="41.9" rx="9.4" ry="3.2" transform="rotate(310 54.8 41.9)"/><circle cx="48" cy="50" r="8"/></g><circle cx="48" cy="50" r="8" fill="none" stroke="#7E1119" stroke-width="1.5"/></svg>
       <h3>Sarajevo Roses stay red.</h3>
       <p class="bs" lang="bs">Ruže ostaju crvene.</p>
       <p class="d">Mortar scars in the pavement, filled with red resin where people were killed during the siege. Walk around them. Never paint them.</p>
     </li>
     <li class="law">
       <span class="law-n"><small>Rule</small>3</span>
+      <svg class="law-ic" viewBox="0 0 96 96" aria-hidden="true" focusable="false"><rect x="4" y="4" width="88" height="88" rx="16" fill="#F1EEF5"/><path d="M18 78C12 62 26 52 37 57C42 45 59 45 63 56C75 50 88 62 80 75C73 86 25 88 18 78Z" fill="#FF4DC4" stroke="#15121C" stroke-width="3" stroke-linejoin="round"/><path d="M27 68c4-6 9-7 12-3M46 63c3-5 9-5 11 0M64 66c4-4 8-3 9 1" fill="none" stroke="#F4F1FA" stroke-width="3" stroke-linecap="round"/><path d="M31 40V24l9 8 8-14 8 14 9-8v16Z" fill="#FFD23F" stroke="#15121C" stroke-width="3" stroke-linejoin="round"/><path d="M31 40h34" stroke="#15121C" stroke-width="3" stroke-linecap="round"/></svg>
       <h3>Don't go over a better piece.</h3>
       <p class="bs" lang="bs">Ne ideš preko boljeg komada.</p>
       <p class="d">If what you're about to paint isn't better than what's already there, find another wall.</p>
     </li>
     <li class="law">
       <span class="law-n"><small>Rule</small>4</span>
+      <svg class="law-ic" viewBox="0 0 96 96" aria-hidden="true" focusable="false"><rect x="4" y="4" width="88" height="88" rx="16" fill="#F1EEF5"/><rect x="14" y="28" width="68" height="50" rx="3" fill="#D8B48A" stroke="#15121C" stroke-width="3"/><g stroke="#8E6A45" stroke-width="2"><path d="M14 40.5H82" /><path d="M14 53H82" /><path d="M14 65.5H82" /><path d="M36 28V40.5"/><path d="M60 28V40.5"/><path d="M24 40.5V53.0"/><path d="M48 40.5V53.0"/><path d="M72 40.5V53.0"/><path d="M36 53V65.5"/><path d="M60 53V65.5"/><path d="M24 65.5V78.0"/><path d="M48 65.5V78.0"/><path d="M72 65.5V78.0"/></g><rect x="14" y="28" width="68" height="50" rx="3" fill="none" stroke="#15121C" stroke-width="3"/><circle cx="70" cy="72" r="15" fill="#B4F53A" stroke="#15121C" stroke-width="3"/><path d="M62.5 72.5l5 5 10-11" fill="none" stroke="#15121C" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <h3>Find the right wall.</h3>
       <p class="bs" lang="bs">Nađi pravi zid.</p>
       <p class="d">Ask the owner, or paint where it's allowed. Painters work freely on the old Olympic bobsled track on Trebević, and festivals like Fasada in Sarajevo and Mostar's street art festival repaint whole facades.</p>
     </li>
   </ol>
+</section>
+<section class="finale" aria-labelledby="finale-h">
+  <svg class="finale-art" viewBox="0 0 960 340" aria-hidden="true" focusable="false">
+    <defs><radialGradient id="fn-sky" cx="50%" cy="38%" r="55%"><stop offset="0" stop-color="#FF4DC4" stop-opacity=".42"/><stop offset=".45" stop-color="#8B3DFF" stop-opacity=".22"/><stop offset="1" stop-color="#8B3DFF" stop-opacity="0"/></radialGradient></defs>
+    <rect width="960" height="300" fill="url(#fn-sky)"/>
+    <g class="fn-town" fill="#1A1721" stroke="rgba(236,234,242,.35)" stroke-width="2" stroke-linejoin="round">
+      <path d="M0 236V200l18-12 18 12v-8l22-14 22 14v44Z"/><path d="M96 236V96l5-14 5 14v140Z"/><path d="M93 132h16"/>
+      <path d="M840 236v-34l20-13 20 13v-6l20-12 22 13 18-11 20 12v38Z"/>
+    </g>
+    <path class="fn-bank" d="M0 236H330L316 262 300 300H0Z"/><path class="fn-bank" d="M630 236H960V300H660L644 262Z"/>
+    <g class="fn-stone">
+      <path d="M164 300V92H256V300Z"/><path d="M158 92L210 60 262 92Z"/><path d="M200 130v18M222 130v18M210 200v20" stroke-linecap="round"/>
+      <path d="M708 300V128H808V300Z"/><path d="M702 128L758 98 814 128Z"/><path d="M748 160v18M770 160v18" stroke-linecap="round"/>
+      <path d="M250 186C320 160 400 98 480 98C560 98 640 160 710 186L710 236L630 236C630 160 560 128 480 128C400 128 330 160 330 236L250 236Z"/>
+      <path class="fn-line" d="M314 236C314 150 392 112 480 112C568 112 646 150 646 236"/>
+      <path class="fn-line" d="M250 176C320 150 400 88 480 88C560 88 640 150 710 176" stroke-width="2.5"/>
+    </g>
+    <path class="fn-trail" d="M480 92C474 120 486 150 480 182"/>
+    <g class="fn-diver" transform="translate(480 214)"><circle cx="0" cy="8" r="5"/><path d="M0 3V-18M0 -18L-3 -32M0 -18L3 -32M0 -6L-16 -14M0 -6L16 -14"/></g>
+    <rect class="fn-river" y="300" width="960" height="40"/>
+    <path class="fn-wave" d="M300 312q15-7 30 0t30 0 30 0 30 0 30 0 30 0 30 0 30 0 30 0 30 0 30 0 30 0M120 326q15-7 30 0t30 0 30 0 30 0M700 328q15-7 30 0t30 0 30 0 30 0"/>
+  </svg>
+  <div class="finale-copy">
+    <p class="kicker">Zone 5 · Stari Most · 1566 / 2004</p>
+    <h2 id="finale-h">Take the dive.</h2>
+    <p class="finale-bs" lang="bs">Skoči.</p>
+    <p class="finale-d">About 20 m from the top of the arch into the Neretva. Paint your way from Bosanski Novi and the bridge is yours.</p>
+    <a class="btn" href="#igra" data-play>Play Spray to Mostar</a>
+  </div>
 </section>
 </main>
 
@@ -3690,10 +3825,13 @@ const Hero = (() => {
     setCursor();
   }
   function setCursor() {
-    /* the cursor can only be so big; past that the ring stands for the reach */
+    /* the cursor: a ring for the reach of the spray, and the can itself up by the ring, nozzle towards it.
+       Cursors can only be so big, so past 40 the ring stands for the reach. */
     const r = Math.min(capR(), 40), s = Math.round(r * 2 + 8), h = s / 2;
+    const cx = Math.round(h + (r + 9) * 0.72), cy = Math.max(14, Math.round(h - (r + 9) * 0.72)), w = Math.max(s, cx + 14), ht = Math.max(s, cy + 16);
     const back = paint.glow ? 'white' : 'black';
-    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${s}' height='${s}'><circle cx='${h}' cy='${h}' r='${r}' fill='none' stroke='${back}' stroke-opacity='.45' stroke-width='3'/><circle cx='${h}' cy='${h}' r='${r}' fill='none' stroke='${paint.hex}' stroke-width='1.6'/><circle cx='${h}' cy='${h}' r='1.6' fill='${paint.hex}'/></svg>`;
+    const can = `<g transform='translate(${cx} ${cy}) rotate(-135)'><rect x='-5' y='-3' width='10' height='16' rx='2' fill='${paint.hex}' stroke='${back === 'white' ? '#F4F1FA' : '#15121C'}' stroke-width='1.6'/><rect x='-5' y='3' width='10' height='5' fill='#F1E3C6'/><path d='M-3.6 -3 Q0 -8 3.6 -3Z' fill='#C6C8D2' stroke='#15121C' stroke-width='1.2'/><rect x='-1.6' y='-9' width='3.2' height='3' rx='.8' fill='#FAFAFC' stroke='#15121C' stroke-width='1'/></g>`;
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${ht}'><circle cx='${h}' cy='${h}' r='${r}' fill='none' stroke='${back}' stroke-opacity='.45' stroke-width='3'/><circle cx='${h}' cy='${h}' r='${r}' fill='none' stroke='${paint.hex}' stroke-width='1.6'/><circle cx='${h}' cy='${h}' r='1.6' fill='${paint.hex}'/>${can}</svg>`;
     cv.style.cursor = `url("data:image/svg+xml,${encodeURIComponent(svg)}") ${h} ${h}, crosshair`;
   }
 
@@ -9506,6 +9644,78 @@ function boot(data) {
     document.querySelectorAll('.tk-cd').forEach((el) => { el.textContent = txt; });
   };
   show(); Lang.on(show);
+})();
+
+/* ===== the intro: a tap or a key skips it, and it leaves the page once it has faded ===== */
+(() => {
+  const el = $('#intro');
+  if (!el) return;
+  if (!document.documentElement.classList.contains('intro-on')) { el.remove(); return; }
+  const skip = () => el.classList.add('gone');
+  el.addEventListener('click', skip);
+  addEventListener('keydown', skip, { once: true });
+  el.addEventListener('animationend', (e) => { if (e.target === el) el.remove(); });
+})();
+
+/* ===== motion: sprayed-on headings and leaning dictionary cards ===== */
+(() => {
+  if (REDUCED || !('IntersectionObserver' in window)) return;
+  const heads = $$('.sec h2, .board-head h3, .finale h2, .foot-big');
+  document.documentElement.classList.add('js-spray');
+  heads.forEach((h) => h.classList.add('spray-in'));
+  const io = new IntersectionObserver((es) => {
+    es.forEach((e) => {
+      if (!e.isIntersecting) return;
+      const h = e.target;
+      io.unobserve(h);
+      h.classList.add('sprayed');
+      /* once the paint is down the mask comes off, so nothing is left half-sprayed */
+      setTimeout(() => h.classList.add('dry'), 1300);
+    });
+  }, { rootMargin: '0px 0px -12% 0px', threshold: 0.3 });
+  heads.forEach((h) => io.observe(h));
+
+  const box = $('#stickers');
+  if (box && matchMedia('(hover:hover) and (pointer:fine)').matches) {
+    box.addEventListener('pointermove', (e) => {
+      const st = e.target.closest('.sticker');
+      if (!st) return;
+      const r = st.getBoundingClientRect(), u = (e.clientX - r.left) / r.width, v = (e.clientY - r.top) / r.height;
+      st.style.setProperty('--tx', `${((u - 0.5) * 10).toFixed(2)}deg`);
+      st.style.setProperty('--ty', `${((0.5 - v) * 10).toFixed(2)}deg`);
+      st.style.setProperty('--mx', `${(u * 100).toFixed(1)}%`);
+      st.style.setProperty('--my', `${(v * 100).toFixed(1)}%`);
+    });
+    box.addEventListener('pointerout', (e) => {
+      const st = e.target.closest('.sticker');
+      if (st && !st.contains(e.relatedTarget)) ['--tx', '--ty'].forEach((k) => st.style.removeProperty(k));
+    });
+  }
+})();
+
+
+/* ===== the route map: drawn in on scroll, pins follow the game's zones, a hovered zone lights its pin ===== */
+(() => {
+  const map = $('.route-map');
+  if (!map) return;
+  const pins = $$('.pin', map), labels = $$('.pin-l', map), lis = $$('#route li');
+  pins.forEach((p, i) => { p.style.setProperty('--d', (0.25 + i * 0.42).toFixed(2)); labels[i].style.setProperty('--d', (0.35 + i * 0.42).toFixed(2)); });
+  const sync = () => lis.forEach((li, i) => {
+    if (!pins[i]) return;
+    pins[i].classList.toggle('current', li.dataset.state === 'current');
+    pins[i].classList.toggle('done', li.dataset.state === 'done');
+  });
+  sync();
+  new MutationObserver(sync).observe($('#route'), { subtree: true, attributes: true, attributeFilter: ['data-state'] });
+  lis.forEach((li, i) => {
+    li.addEventListener('pointerenter', () => pins[i] && pins[i].classList.add('hot'));
+    li.addEventListener('pointerleave', () => pins[i] && pins[i].classList.remove('hot'));
+  });
+  if (!document.documentElement.classList.contains('js-spray')) return;
+  const io = new IntersectionObserver((es) => {
+    if (es.some((e) => e.isIntersecting)) { map.classList.add('on'); io.disconnect(); }
+  }, { threshold: 0.35 });
+  io.observe(map);
 })();
 
 })();
