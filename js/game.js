@@ -1120,10 +1120,15 @@ const Ride = (() => {
     watchPerf(raw);
     update(dt);
     render();
-    if (active && !document.hidden) requestAnimationFrame(tick); else looping = false;
+    if (active && !document.hidden && onScreen) requestAnimationFrame(tick); else looping = false;
+  }
+  /* the ride draws nothing while it's scrolled out of view, and carries on when it's back */
+  let onScreen = true;
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver((es) => { onScreen = es[es.length - 1].isIntersecting; if (onScreen) startLoop(); }).observe(frame);
   }
   function startLoop() {
-    if (looping || !active) return;
+    if (looping || !active || !onScreen) return;
     looping = true; lastT = performance.now();
     requestAnimationFrame(tick);
   }
@@ -1545,6 +1550,13 @@ const Game = (() => {
     /* first run: pick a writer (when there is more than one). After that the zone card's round button changes it. */
     if (CREW_IDS.length < 2 || Store.get('char', '')) showCard(); else openPick('start');
     if (!frameInView()) frame.scrollIntoView({ block: 'center', behavior: REDUCED ? 'auto' : 'smooth' });
+  }
+  /* a run pauses, with the usual pause card, when the frame is scrolled mostly out of view: nothing runs unseen */
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver((es) => {
+      const e = es[es.length - 1];
+      if (e.intersectionRatio < 0.25 && state === 'run') pause();
+    }, { threshold: [0, 0.25] }).observe(frame);
   }
   function pause() {
     if (state !== 'run' && state !== 'clear' && state !== 'bridge') return;
