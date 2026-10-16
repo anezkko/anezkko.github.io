@@ -1218,7 +1218,7 @@ const Game = (() => {
   const frame = $('#game'), cv = $('#game-canvas');
   let g = cv.getContext('2d');
   const hud = $('#hud'), hudZone = $('#hud-zone'), hudProg = $('#hud-prog'), hudScore = $('#hud-score');
-  const hudCans = $$('#hud-cans i'), hudResp = $('#hud-resp'), btnPause = $('#btn-pause');
+  const hudCansBox = $('#hud-cans'), hudCans = $$('#hud-cans i'), hudResp = $('#hud-resp'), btnPause = $('#btn-pause');
   hudCans.forEach((el) => { el.innerHTML = CAN.markup(); });
   const OV = { start: $('#ov-start'), pick: $('#ov-pick'), zone: $('#ov-zone'), pause: $('#ov-pause'), fail: $('#ov-fail'), end: $('#ov-end') };
   const routeLis = $$('#route li');
@@ -1443,9 +1443,11 @@ const Game = (() => {
     const vis = Math.min(r.bottom, innerHeight) - Math.max(r.top, 0);
     return vis > r.height * 0.5;
   }
+  /* the card's button takes focus when the game is on screen, or when focus was on the card that just closed
+     (a keyboard player pressing Start shouldn't be dropped back at the top of the page) */
   function focusBtn(sel) {
-    const b = $(sel);
-    if (b && frameInView()) { try { b.focus({ preventScroll: true }); } catch (_) { /* focus is optional */ } }
+    const b = $(sel), a = document.activeElement;
+    if (b && (frameInView() || frame.contains(a) || a === document.body)) { try { b.focus({ preventScroll: true }); } catch (_) { /* focus is optional */ } }
   }
   /* ---------- the score to beat: this week's board and a friend's challenge (see Rivals) ---------- */
   const hudChase = $('#hud-chase'), zBeat = $('#z-beat'), sBeat = $('#s-beat');
@@ -1539,6 +1541,14 @@ const Game = (() => {
     btnPause.hidden = false;
     tunesLevel();                 /* this level's music (06h-tunes.js) */
     startLoop();
+    focusFrame();
+    announce(L(`Zona ${zi + 1} od ${ZONES.length}: ${ZONES[zi].name}. Kreni!`, `Zone ${zi + 1} of ${ZONES.length}: ${ZONES[zi].name}. Go!`));
+  }
+  /* when a card closes for a run, focus lands on the game frame, not on the page behind it */
+  function focusFrame() {
+    /* a div reads as tabIndex -1 even without the attribute, but only the attribute makes it focusable */
+    if (!frame.hasAttribute('tabindex')) frame.setAttribute('tabindex', '-1');
+    try { frame.focus({ preventScroll: true }); } catch (_) { /* focus is optional */ }
   }
   function startGame() {
     Sound.ensure();
@@ -1578,9 +1588,11 @@ const Game = (() => {
     btnPause.hidden = false;
     frame.classList.add('playing');
     startLoop();
+    focusFrame();
   }
   function fail() {
     state = 'fail';
+    announce(L('Pad: nema više limenki. Probaj opet ovu zonu ili kreni ispočetka.', 'You fell: no cans left. Try this zone again, or start over.'));
     say('fail');
     failText();
     show('fail');
@@ -1600,6 +1612,8 @@ const Game = (() => {
     frame.classList.add('playing');
     tunesLevel();
     startLoop();
+    focusFrame();
+    announce(L(`Ponovo zona ${zi + 1}: ${ZONES[zi].name}. Kreni!`, `Zone ${zi + 1} again: ${ZONES[zi].name}. Go!`));
   }
   function restart() { startGame(); }
 
@@ -1617,7 +1631,11 @@ const Game = (() => {
     if (force || hc.zl !== zl) { hudZone.textContent = zl; hc.zl = zl; }
     const sc = Math.max(0, Math.round(S.score));
     if (force || hc.sc !== sc) { hudScore.textContent = sc; hc.sc = sc; }
-    if (force || hc.lv !== S.lives) { hudCans.forEach((el, i) => el.classList.toggle('off', i >= S.lives)); hc.lv = S.lives; }
+    if (force || hc.lv !== S.lives) {
+      hudCans.forEach((el, i) => el.classList.toggle('off', i >= S.lives)); hc.lv = S.lives;
+      /* the cans are pictures: say the count in words for screen readers */
+      hudCansBox.setAttribute('aria-label', L(`Limenke: ${S.lives} od ${hudCans.length}`, `Cans left: ${S.lives} of ${hudCans.length}`));
+    }
     if (force || hc.rs !== S.respect) { hudResp.style.width = S.respect + '%'; hudResp.style.background = S.respect < 50 ? '#E8833A' : '#B4F53A'; hc.rs = S.respect; }
     const ch = hudChaseText();
     if (force || hc.ch !== ch) { hudChase.textContent = ch; hudChase.hidden = !ch; hudChase.classList.toggle('lead', !!ch && !nextRival(liveTotal())); hc.ch = ch; }
@@ -5491,6 +5509,7 @@ const PIXCREW = (() => {
     puff(PX + 14, P.y - 30, 14, '#F3F0E6', 120, 160, 0.5, 3);
     if (o.type === 'golub' || o.type === 'lasta') puff(o.x - cam + 20, o.y + 10, 10, '#C9CCD4', 100, 80, 0.8, 3);
     updateHud();
+    if (S.lives > 0) announce(S.lives === 1 ? L('Limenka izgubljena. Ostala je još jedna.', 'Lost a can. One left.') : L(`Limenka izgubljena. Ostale su još ${S.lives}.`, `Lost a can. ${S.lives} left.`));
     if (S.lives <= 0) fail();
   }
   function hitTest() {
@@ -6178,6 +6197,7 @@ const PIXCREW = (() => {
     const isBest = total > best;
     if (isBest) { best = total; bestRank = rank; Store.set('best', best); Store.set('bestRank', bestRank); }
     lastEnd = { rank, res: fin.res, legend, isBest };
+    announce(L(`Gotovo! Ukupno ${total} bodova. Rang: ${rankName(rank)}.`, `Done! ${total} points in total. Rank: ${rankName(rank)}.`) + (isBest ? ' ' + L('Novi rekord.', 'A new best.') : ''));
     endText();
     showBest();
     show('end');

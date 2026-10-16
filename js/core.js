@@ -9,7 +9,13 @@ const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
 const lerp = (a, b, t) => a + (b - a) * t;
 const rand = (a, b) => a + Math.random() * (b - a);
-const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* reduced motion, kept current: turning it on mid-visit also drops the scroll-in effects at once */
+const REDUCE_MQ = matchMedia('(prefers-reduced-motion: reduce)');
+let REDUCED = REDUCE_MQ.matches;
+REDUCE_MQ.addEventListener('change', (e) => {
+  REDUCED = e.matches;
+  if (REDUCED) document.documentElement.classList.remove('js-spray', 'intro-on');
+});
 
 function rng(seed) {
   let a = seed >>> 0;
@@ -376,6 +382,20 @@ const Sound = (() => {
 })();
 
 /* ---- toast ---- */
+/* one polite live region: the game says what happens (a zone starts, a can is lost, a fall, the final total) */
+const announce = (() => {
+  let el = null, timer = 0;
+  return (text) => {
+    if (!el) {
+      el = document.createElement('p');
+      el.className = 'sr-only'; el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite');
+      document.body.appendChild(el);
+    }
+    /* clear, then set a moment later, so the same words twice in a row are read twice */
+    el.textContent = ''; clearTimeout(timer);
+    timer = setTimeout(() => { el.textContent = text; }, 80);
+  };
+})();
 let toastTimer = 0;
 function toast(html, ms = 3200) {
   const el = $('#toast');
@@ -1030,7 +1050,9 @@ const Lang = (() => {
   }
   function apply() {
     document.documentElement.dataset.gl = cur;
-    swap('[data-en]', '', (el) => el.textContent, (el, v) => { el.textContent = v; });
+    /* screen readers pronounce the game in its own language: the section and every swapped string say which */
+    for (const id of ['igra', 'ticker']) { const s = document.getElementById(id); if (s) s.lang = cur; }
+    swap('[data-en]', '', (el) => el.textContent, (el, v) => { el.textContent = v; el.lang = cur; });
     swap('[data-en-ph]', 'Ph', (el) => el.getAttribute('placeholder') || '', (el, v) => el.setAttribute('placeholder', v));
     swap('[data-en-aria]', 'Aria', (el) => el.getAttribute('aria-label') || '', (el, v) => el.setAttribute('aria-label', v));
     for (const b of $$('[data-gl-btn]')) b.setAttribute('aria-pressed', String(b.dataset.glBtn === cur));
@@ -1302,6 +1324,49 @@ const Hero = (() => {
     $$('[data-cap]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.cap === v ? 'true' : 'false'));
     setCursor();
   }
+  /* keyboard painting: the wall takes focus; the arrow keys move a nozzle (Shift for bigger steps) and holding
+     Space or Enter sprays, through the same spray, line and drip code as a mouse or a finger */
+  const nozzle = document.createElement('div');
+  nozzle.className = 'nozzle'; nozzle.setAttribute('aria-hidden', 'true');
+  wall.appendChild(nozzle);
+  let kx = 0, ky = 0, keyDown = false;
+  function placeNozzle() {
+    nozzle.style.transform = `translate(${kx}px, ${ky}px)`;
+    nozzle.style.setProperty('--r', `${Math.min(capR(), 46)}px`);
+    nozzle.style.setProperty('--c', paint.hex);
+  }
+  function keyStop() { if (!keyDown) return; keyDown = false; down = false; pid = null; if (!reveals.length) Sound.hiss(0); }
+  function bindKeys() {
+    cv.addEventListener('focus', () => {
+      if (!kx && !ky) { kx = W * 0.62; ky = H * 0.55; }
+      placeNozzle();
+      if (!hinted && cv.matches(':focus-visible')) hint.innerHTML = '<span lang="bs">Strelice i Space</span> · arrows move, hold Space to spray';
+    });
+    cv.addEventListener('blur', keyStop);
+    cv.addEventListener('keydown', (e) => {
+      const step = e.shiftKey ? 28 : 9;
+      const mv = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[e.key];
+      if (mv) {
+        e.preventDefault();
+        const nx = clamp(kx + mv[0], 0, W), ny = clamp(ky + mv[1], 0, H);
+        if (keyDown) { line(kx, ky, nx, ny, paint.hex, capR()); stillSince = performance.now(); lx = nx; ly = ny; }
+        kx = nx; ky = ny; placeNozzle();
+        return;
+      }
+      if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) {
+        e.preventDefault();
+        if (keyDown) return;
+        keyDown = true; down = true; pid = 'keys';
+        lx = kx; ly = ky; stillSince = performance.now();
+        spray(lx, ly, paint.hex, capR());
+        travel = 0;
+        Sound.hiss(STYLES[cap].hiss);
+        hideHint();
+        loop();
+      } else if (e.key === ' ' || e.key === 'Enter') e.preventDefault();
+    });
+    cv.addEventListener('keyup', (e) => { if (e.key === ' ' || e.key === 'Enter') keyStop(); });
+  }
   function setCursor() {
     /* the cursor: a ring for the reach of the spray, and the can itself up by the ring, nozzle towards it.
        Cursors can only be so big, so past 40 the ring stands for the reach. */
@@ -1311,6 +1376,7 @@ const Hero = (() => {
     const can = `<g transform='translate(${cx} ${cy}) rotate(-135)'><rect x='-5' y='-3' width='10' height='16' rx='2' fill='${paint.hex}' stroke='${back === 'white' ? '#F4F1FA' : '#15121C'}' stroke-width='1.6'/><rect x='-5' y='3' width='10' height='5' fill='#F1E3C6'/><path d='M-3.6 -3 Q0 -8 3.6 -3Z' fill='#C6C8D2' stroke='#15121C' stroke-width='1.2'/><rect x='-1.6' y='-9' width='3.2' height='3' rx='.8' fill='#FAFAFC' stroke='#15121C' stroke-width='1'/></g>`;
     const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${ht}'><circle cx='${h}' cy='${h}' r='${r}' fill='none' stroke='${back}' stroke-opacity='.45' stroke-width='3'/><circle cx='${h}' cy='${h}' r='${r}' fill='none' stroke='${paint.hex}' stroke-width='1.6'/><circle cx='${h}' cy='${h}' r='1.6' fill='${paint.hex}'/>${can}</svg>`;
     cv.style.cursor = `url("data:image/svg+xml,${encodeURIComponent(svg)}") ${h} ${h}, crosshair`;
+    placeNozzle();
   }
 
   function pos(e) { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
@@ -1418,6 +1484,7 @@ const Hero = (() => {
     else window.addEventListener('resize', resize);
     setCursor();
     bindPointer();
+    bindKeys();
     const ready = document.fonts && document.fonts.load ? document.fonts.load(`40px ${TAGFONT}`).catch(() => {}) : Promise.resolve();
     Promise.race([ready, new Promise((r) => setTimeout(r, 1800))]).then(() => resize());
   }
@@ -1788,7 +1855,7 @@ function buildStickers() {
     const a = document.createElement('article');
     a.className = 'sticker' + (kinds[i] ? ' ' + kinds[i] : '') + (i % 3 === 0 ? ' tape' : '');
     a.style.setProperty('--r', rots[i] + 'deg');
-    a.innerHTML = '<h3 class="st-word" lang="bs"></h3><p class="st-say"></p><p class="st-mean"></p><p class="st-ex"><span lang="bs"></span></p><button type="button" class="st-spray">Spray it ↑</button>';
+    a.innerHTML = '<h3 class="st-word" lang="bs"></h3><p class="st-say"></p><p class="st-mean"></p><p class="st-ex"><span lang="bs"></span></p><button type="button" class="st-spray">Spray it <span aria-hidden="true">↑</span></button>';
     a.querySelector('.st-word').textContent = s.w;
     a.querySelector('.st-say').textContent = s.say;
     a.querySelector('.st-mean').textContent = s.mean;
@@ -1797,7 +1864,7 @@ function buildStickers() {
     ex.appendChild(document.createTextNode(s.en));
     const word = s.w.replace('?', '');
     const b = a.querySelector('.st-spray');
-    b.setAttribute('aria-label', `Spray ${word} on the wall at the top of the page`);
+    b.setAttribute('aria-label', `Spray it: ${word}, on the wall at the top of the page`);
     b.addEventListener('click', () => {
       Hero.sprayWord(word.toLowerCase());
       toast(`<span><b>${word}</b> is on the wall.</span> <a href="#zid">See it ↑</a>`);

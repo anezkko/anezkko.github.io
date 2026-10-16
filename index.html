@@ -253,7 +253,9 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 @media (hover:hover){.can:hover .can-ic{transform:translateY(-2px) rotate(-3deg)}}
 .can[aria-checked="true"]{color:var(--text)}
 .can[aria-checked="true"] .can-ic{transform:translateY(-5px) rotate(-9deg) scale(1.07);filter:drop-shadow(0 0 6px var(--glow,var(--c))) drop-shadow(0 5px 3px rgba(0,0,0,.5))}
-.seg{display:inline-flex;border:1px solid var(--line-strong);border-radius:999px;overflow:hidden}
+.seg{display:inline-flex;border:1px solid var(--line-strong);border-radius:999px}
+.seg button:first-child{border-top-left-radius:inherit;border-bottom-left-radius:inherit}
+.seg button:last-child{border-top-right-radius:inherit;border-bottom-right-radius:inherit}
 .seg button{appearance:none;border:0;background:transparent;color:var(--text-soft);font:600 .62rem/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:.9em 1.05em;cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--text);color:var(--ink)}
 /* game language: one language's lines hide, and in English the Bosnian shouts get a small English gloss */
@@ -261,6 +263,10 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 [data-gl="bs"] .en-only{display:none!important}
 .gloss{display:block;font-family:var(--f-mono);font-size:max(10px,.3em);font-weight:400;letter-spacing:.04em;line-height:1.3;color:#F4F0E6;opacity:.82;margin-top:.45em;text-transform:none}
 .lang-sw{margin-top:16px}
+/* touch targets: every control answers to at least 44×44 px. The smaller ones keep their look and get an invisible
+   hit area around them, centred, so a thumb that lands just outside the pill still counts */
+.chip,.can,.seg button,.tray-btn,.st-spray,.ov-btn,.tk-pause,.music-btn,.pause-btn{position:relative}
+.chip::after,.can::after,.seg button::after,.tray-btn::after,.st-spray::after,.ov-btn::after,.tk-pause::after,.music-btn::after,.pause-btn::after{content:"";position:absolute;left:50%;top:50%;width:max(100%,44px);height:max(100%,44px);transform:translate(-50%,-50%)}
 .tray-btn{appearance:none;border:1px solid var(--line-strong);background:transparent;color:var(--text);font:600 .62rem/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:.9em 1.15em;border-radius:999px;cursor:pointer}
 .tray-btn:hover{border-color:var(--text)}
 .tray-btn.arm{display:none}
@@ -323,6 +329,7 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .game{position:relative;width:100%;aspect-ratio:16/9;background:#0E0F12;overflow:hidden;border-radius:20px;border:1px solid var(--line-strong);box-shadow:0 40px 90px -40px rgba(255,77,196,.6);user-select:none;-webkit-user-select:none}
 .game > canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y;cursor:crosshair}
 .game.playing > canvas{touch-action:none}
+.game:focus{outline:none}   /* the frame takes focus during a run so the keys go to the game; the run itself shows where you are */
 .hud{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:10px 12px;pointer-events:none;color:#F4F0E6;font-family:var(--f-mono);font-size:clamp(9px,1.4vw,12px);letter-spacing:.06em;text-transform:uppercase;text-shadow:0 1px 0 rgba(0,0,0,.65)}
 .hud[hidden]{display:none!important}
 .hud-zone{display:grid;gap:6px;min-width:0}
@@ -669,7 +676,8 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
   .cans{flex-wrap:nowrap;justify-content:space-between;width:100%;gap:0;min-height:52px}
   .can{padding:8px 4px 4px;min-width:0}
   .tray .seg button,.tray-btn{padding:.85em .95em}
-  .tray .caps{display:grid;grid-template-columns:repeat(3,1fr);width:100%;border-radius:16px}
+  .tray .caps{display:grid;grid-template-columns:repeat(3,1fr);width:100%;border-radius:16px;overflow:hidden}
+  .tray .caps button{min-height:44px}   /* two rows of styles: each one really 44 px tall, so the rows can't steal each other's taps */
   .tray .caps button{padding:.85em .4em}
   .board-list{grid-template-columns:minmax(0,1fr)}
   .board-list li.p1,.board-list li.p2,.board-list li.p3{grid-column:auto;grid-row:auto}
@@ -858,6 +866,13 @@ body:has(.game.playing) .ticker{display:none}
 .game-load.failed .gl-can{animation:none}
 .gl-retry{appearance:none;min-height:44px;align-items:center;padding:.6em 1.3em;border-radius:999px;border:0;background:var(--lime);color:#0B0A0F;font:800 1rem/1 var(--f-display);cursor:pointer}
 @media (prefers-reduced-motion:reduce){.gl-can{animation:none;transform:rotate(-12deg)}}
+/* keyboard painting: a nozzle ring in the paint colour, shown while the wall has keyboard focus */
+.nozzle{position:absolute;left:0;top:0;z-index:3;width:calc(var(--r,24px) * 2);height:calc(var(--r,24px) * 2);margin:calc(var(--r,24px) * -1) 0 0 calc(var(--r,24px) * -1);border-radius:50%;border:2px solid var(--c,#FF4DC4);box-shadow:0 0 0 3px rgba(0,0,0,.5),inset 0 0 0 2px rgba(0,0,0,.35);pointer-events:none;display:none}
+.nozzle::after{content:"";position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:var(--c,#FF4DC4)}
+.wall canvas:focus-visible ~ .nozzle{display:block}
+.wall canvas:focus-visible{outline:3px solid var(--lime);outline-offset:-5px}
+/* for screen readers only: there, read out, but not drawn */
+.sr-only{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 /* tight display tracking also eats the spaces between words ("Thisisa wall."), so the spaces get some back */
 .hero-h,.sec h2,.finale h2,.board-head h3,.law h3,.ov h3,.foot-big,.st-word,.route b,.wb-s{word-spacing:.12em}
 /* ===== the intro: a spray of the logo, about a second and a half, once a visit ===== */
@@ -896,7 +911,7 @@ body:has(.game.playing) .ticker{display:none}
   <button class="tk-pause" id="tk-pause" type="button" aria-pressed="false" aria-label="Pause the ticker"><i aria-hidden="true"></i></button>
 </div>
 <div class="page">
-<p class="demo-note" id="demo-note">Preview copy · the scores here are examples · the real board is on <a href="https://zidbosna.com/" target="_blank" rel="noopener">zidbosna.com</a></p>
+<p class="demo-note" id="demo-note" role="region" aria-label="Preview notice">Preview copy · the scores here are examples · the real board is on <a href="https://zidbosna.com/" target="_blank" rel="noopener">zidbosna.com</a></p>
 <header class="top">
   <div class="top-l">
     <a class="logo" href="#zid" aria-label="ZID, back to the wall"><i class="logo-mark" aria-hidden="true"></i><span class="logo-word">zid</span></a>
@@ -941,7 +956,8 @@ body:has(.game.playing) .ticker{display:none}
       <p class="wall-beat" id="wall-beat" hidden><i class="wb-crown" aria-hidden="true"></i><span class="wb-t"><span class="wb-k" id="wb-k"></span> <span class="wb-v" id="wb-v"></span></span></p>
       </div>
     </div>
-    <canvas id="wall-canvas" role="img" aria-label="Wall you can spray. Drag across it to paint."></canvas>
+    <canvas id="wall-canvas" tabindex="0" role="application" aria-roledescription="wall to paint" aria-label="Wall to paint" aria-describedby="wall-keys"></canvas>
+    <p class="sr-only" id="wall-keys"><span lang="bs">Povuci po zidu i farbaj.</span> Drag across it to paint. With a keyboard: the arrow keys move the nozzle, Shift with an arrow moves it further, and holding Space sprays. Colours and paint styles are just below the wall.</p>
     <div class="roller" id="roller" hidden></div>
     <p class="wall-hint" id="wall-hint">Drag to spray · <span lang="bs">povuci po zidu</span></p>
   </div>
@@ -965,7 +981,7 @@ body:has(.game.playing) .ticker{display:none}
       <div class="ctas">
         <a class="btn ghost" href="#rjecnik">Street dictionary</a>
         <a class="btn ghost" href="#zakon">Street law</a>
-        <button type="button" class="btn ghost install" id="btn-install" hidden aria-label="Install ZID as an app on this device">Get the app <span aria-hidden="true">↓</span></button>
+        <button type="button" class="btn ghost install" id="btn-install" hidden aria-label="Get the app: install ZID on this device">Get the app <span aria-hidden="true">↓</span></button>
       </div>
     </div>
     <dl class="stats">
@@ -1015,7 +1031,7 @@ body:has(.game.playing) .ticker{display:none}
         <div class="hud-r">
           <span class="hud-score" id="hud-score">0</span>
           <div class="hud-row">
-            <span class="hud-cans" id="hud-cans" aria-label="Cans left"><i></i><i></i><i></i></span>
+            <span class="hud-cans" id="hud-cans" role="img" aria-label="Cans left: 3 of 3"><i></i><i></i><i></i></span>
             <span class="hud-resp"><span data-en="Resp.">Poš.</span> <b><i id="hud-resp"></i></b></span>
           </div>
           <span class="hud-chase" id="hud-chase" hidden></span>
@@ -1026,10 +1042,10 @@ body:has(.game.playing) .ticker{display:none}
         <button class="pause-btn" id="btn-pause" type="button" hidden data-en="Pause">Pauza</button>
       </div>
 
-      <div class="ov" id="ov-start">
+      <div class="ov" id="ov-start" role="dialog" aria-labelledby="ov-start-h">
         <div class="ov-in">
           <p class="k" data-en="Game · Bosanski Novi → Mostar">Igra · Bosanski Novi → Mostar</p>
-          <h3 data-en="Spray to Mostar">Sprej do Mostara</h3>
+          <h3 id="ov-start-h" data-en="Spray to Mostar">Sprej do Mostara</h3>
           <p class="tag">polahko? jok.<span class="gloss en-only">take it easy? nope.</span></p>
           <p class="bs-only">Trči od Bosanskog Novog do Starog mosta. Spreji beton, ne diraj staro, i na kraju skoči.</p>
           <p class="en">Run to the Old Bridge. Paint concrete, leave heritage alone, then dive.</p>
@@ -1039,9 +1055,9 @@ body:has(.game.playing) .ticker{display:none}
         </div>
       </div>
 
-      <div class="ov" id="ov-pick" hidden>
+      <div class="ov" id="ov-pick" hidden role="dialog" aria-labelledby="ov-pick-h">
         <div class="ov-in">
-          <h3 data-en="Who's running to Mostar?">Ko trči do Mostara?</h3>
+          <h3 id="ov-pick-h" data-en="Who's running to Mostar?">Ko trči do Mostara?</h3>
           <div class="pick-row" id="pick-row" role="radiogroup" aria-label="Biraj lika" data-en-aria="Pick your writer"></div>
           <p class="pick-name" id="pick-name" aria-hidden="true">Glavonja</p>
           <p class="pick-tag" id="pick-tag">Skače prvi, misli poslije.</p>
@@ -1049,7 +1065,7 @@ body:has(.game.playing) .ticker{display:none}
         </div>
       </div>
 
-      <div class="ov" id="ov-zone" hidden>
+      <div class="ov" id="ov-zone" hidden role="dialog" aria-labelledby="z-name">
         <div class="ov-in">
           <p class="k" id="z-k">Zona 1 / 5</p>
           <h3 id="z-name">Bosanski Novi</h3>
@@ -1062,9 +1078,9 @@ body:has(.game.playing) .ticker{display:none}
         </div>
       </div>
 
-      <div class="ov" id="ov-pause" hidden>
+      <div class="ov" id="ov-pause" hidden role="dialog" aria-labelledby="ov-pause-h">
         <div class="ov-in">
-          <h3 data-en="Paused">Pauza</h3>
+          <h3 id="ov-pause-h" data-en="Paused">Pauza</h3>
           <p class="en" data-en="Your run waits here.">Paused. Your run waits here.</p>
           <div class="ov-btns">
             <button class="ov-btn" id="btn-resume" type="button" data-en="Resume">Nastavi</button>
@@ -1073,10 +1089,10 @@ body:has(.game.playing) .ticker{display:none}
         </div>
       </div>
 
-      <div class="ov" id="ov-fail" hidden>
+      <div class="ov" id="ov-fail" hidden role="dialog" aria-labelledby="ov-fail-h">
         <div class="ov-in">
           <p class="k" id="f-k">Zona 1 / 5</p>
-          <h3>Ajme. Pao si.</h3>
+          <h3 id="ov-fail-h">Ajme. Pao si.</h3>
           <p class="bs-only">Limenke su prazne.</p>
           <p class="en" data-en="Ouch, you fell. You're out of cans. The zone restarts with the score you had when it began.">Out of cans. The zone restarts with the score you had when it began.</p>
           <div class="ov-btns">
@@ -1086,7 +1102,7 @@ body:has(.game.playing) .ticker{display:none}
         </div>
       </div>
 
-      <div class="ov" id="ov-end" hidden>
+      <div class="ov" id="ov-end" hidden role="dialog" aria-labelledby="e-rank">
         <div class="ov-in">
           <p class="tag" id="e-tag">Aferim!</p>
           <h3 id="e-rank">Majstor</h3>
@@ -1136,10 +1152,10 @@ body:has(.game.playing) .ticker{display:none}
           </article>
         </div>
 
-        <div class="ov ride-end" id="ride-end" hidden>
+        <div class="ov ride-end" id="ride-end" hidden role="dialog" aria-labelledby="ride-end-h">
           <div class="ov-in">
             <p class="tag" id="ride-e-line">Polahko, medo.</p>
-            <h3 data-en="The ride is over">Vožnja je gotova</h3>
+            <h3 id="ride-end-h" data-en="The ride is over">Vožnja je gotova</h3>
             <div class="ov-stats">
               <div><span data-en="Along the Una">Uz Unu</span><b><span id="ride-e-km">0</span><small id="ride-e-unit">m</small></b></div>
               <div><span data-en="Knocked over">Srušeno</span><b id="ride-e-knock">0</b></div>
@@ -1290,7 +1306,7 @@ body:has(.game.playing) .ticker{display:none}
   <div>
     <p class="halal">It's all yours.</p>
     <p>Free to play and free to share. No sign-up, no ads, no cookies. Your score only goes on the public board if you type a name after a run.</p>
-    <a class="kahva" data-tip href="https://ko-fi.com/zidbosna" target="_blank" rel="noopener" aria-label="Buy me a coffee (opens in a new tab)"><svg viewBox="0 0 40 44" aria-hidden="true"><path d="M8 40 L12 15 H26 L30 40 Z" fill="#B8632B" stroke="#1E1A14" stroke-width="2" stroke-linejoin="round"/><path d="M10.6 24 H27.4" stroke="#F2C14E" stroke-width="2"/><path d="M26 19 L38 13" stroke="#1E1A14" stroke-width="3" stroke-linecap="round"/><path d="M15 11 q-3 -4 0 -8 M21 11 q-3 -4 0 -8" fill="none" stroke="#1E1A14" stroke-width="1.5" stroke-linecap="round"/></svg><span><b>Buy me a coffee</b><small>keeps ZID going</small></span></a>
+    <a class="kahva" data-tip href="https://ko-fi.com/zidbosna" target="_blank" rel="noopener"><svg viewBox="0 0 40 44" aria-hidden="true"><path d="M8 40 L12 15 H26 L30 40 Z" fill="#B8632B" stroke="#1E1A14" stroke-width="2" stroke-linejoin="round"/><path d="M10.6 24 H27.4" stroke="#F2C14E" stroke-width="2"/><path d="M26 19 L38 13" stroke="#1E1A14" stroke-width="3" stroke-linecap="round"/><path d="M15 11 q-3 -4 0 -8 M21 11 q-3 -4 0 -8" fill="none" stroke="#1E1A14" stroke-width="1.5" stroke-linecap="round"/></svg><span><b>Buy me a coffee</b><span class="sr-only">: </span><small>keeps ZID going</small><span class="sr-only"> (opens in a new tab)</span></span></a>
     <p class="small">It's yours, no strings attached: <span lang="bs">halal ti bilo</span>. This is a game; real walls have owners: <span lang="bs">ovo je igra, pravi zidovi imaju vlasnike</span>.</p>
     <!-- Contact / feedback and social links go here once the owner provides them, e.g.
     <p class="small"><a href="mailto:…">Feedback</a> · <a href="https://…">Instagram</a> · <a href="https://…">TikTok</a></p> -->
