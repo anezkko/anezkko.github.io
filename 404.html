@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>This wall doesn't exist · ZID</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0A090D">
+<link rel="icon" type="image/png" href="/img/01.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400..900&family=Martian+Mono:wght@400;600&family=Sedgwick+Ave+Display&display=swap">
+<style>
+/* GitHub Pages serves this for any address that doesn't exist. Same wall world as the home page, one way back. */
+:root{--bg:#0A090D;--text:#ECEAF2;--soft:#A9A5B6;--pink:#FF4DC4;--lime:#B4F53A;--violet:#8B3DFF;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{min-height:100svh;display:grid;place-items:center;padding:24px 16px;background:radial-gradient(70% 55% at 50% 38%,rgba(139,61,255,.35),rgba(139,61,255,0) 70%),var(--bg);color:var(--text);font-family:"Archivo","Helvetica Neue",Arial,sans-serif;text-align:center}
+main{max-width:640px}
+.mark{display:block;width:112px;height:112px;margin:0 auto 26px;border-radius:28px;background:url("/img/02.webp") center/cover no-repeat;transform:rotate(-5deg);box-shadow:0 0 0 1px rgba(255,255,255,.14),0 24px 60px -18px rgba(255,77,196,.75)}
+.code{margin:0 0 8px;font:600 .8rem/1 "Martian Mono",monospace;letter-spacing:.16em;color:var(--pink)}
+h1{margin:0;font-weight:800;font-size:clamp(2.4rem,1.6rem + 4vw,4.4rem);line-height:.95;letter-spacing:-.04em;word-spacing:.12em;text-wrap:balance}
+.en{margin:14px 0 0;font:400 clamp(1rem,.9rem + .5vw,1.2rem)/1.4 "Martian Mono",monospace;color:var(--soft)}
+.tag{display:inline-block;margin:22px 0 0;font-family:"Sedgwick Ave Display",cursive;font-size:clamp(1.8rem,1.4rem + 1.6vw,2.6rem);line-height:1;color:var(--lime);transform:rotate(-4deg)}
+.go{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:34px}
+.btn{display:inline-flex;align-items:center;min-height:48px;padding:.85em 1.5em;border-radius:999px;font-weight:800;font-size:1.02rem;text-decoration:none;border:1px solid var(--lime);background:var(--lime);color:#0B0A0F}
+.btn.ghost{background:transparent;color:var(--text);border-color:rgba(255,255,255,.3)}
+.btn:hover{transform:translateY(-2px)}
+:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+small{display:block;font-size:.72em;font-weight:500;opacity:.8}
+@media (prefers-reduced-motion:reduce){.btn:hover{transform:none}}
+</style>
+</head>
+<body>
+<main>
+  <i class="mark" aria-hidden="true"></i>
+  <p class="code">404</p>
+  <h1 lang="bs">Ovaj zid ne postoji.</h1>
+  <p class="en">This wall doesn't exist.</p>
+  <p class="tag" lang="bs" aria-hidden="true">polahko, jarane</p>
+  <div class="go">
+    <a class="btn" href="/"><span><span lang="bs">Nazad na zid</span><small>Back to the wall</small></span></a>
+    <a class="btn ghost" href="/#igra"><span><span lang="bs">Igraj</span><small>Play Spray to Mostar</small></span></a>
+  </div>
+</main>
+</body>
+</html>
