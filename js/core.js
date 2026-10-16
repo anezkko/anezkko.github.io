@@ -2200,6 +2200,40 @@ function watchGame() {
   }, { rootMargin: '0px 0px 150px 0px' });   /* on most screens the game is under 800 px below the fold, so start once you scroll its way */
   io.observe(wrap);
 }
+/* ===== play fullscreen (phones) =====
+   The game and its pads cover the screen. Where the browser allows it, that's real fullscreen, turned sideways;
+   iPhones can't put a page fullscreen, so there it's the same cover-the-screen view with a hint to turn the phone.
+   Leaving fullscreen any way (the ×, the system back gesture) puts the page back as it was. */
+(() => {
+  const wrap = $('#game-wrap'), btn = $('#btn-full'), x = $('#btn-full-x');
+  if (!wrap || !btn || !x) return;
+  const html = document.documentElement;
+  function enter() {
+    wrap.classList.add('full'); html.classList.add('full-on');
+    loadGame().catch(() => {});
+    const fs = wrap.requestFullscreen || wrap.webkitRequestFullscreen;
+    if (fs) {
+      try {
+        Promise.resolve(fs.call(wrap, { navigationUI: 'hide' }))
+          .then(() => (screen.orientation && screen.orientation.lock ? screen.orientation.lock('landscape') : null))
+          .catch(() => { /* no fullscreen or no lock: the cover-the-screen view still works */ });
+      } catch (_) { /* old browsers throw instead of rejecting */ }
+    }
+    x.focus({ preventScroll: true });
+  }
+  function leave() {
+    if (!wrap.classList.contains('full')) return;
+    wrap.classList.remove('full'); html.classList.remove('full-on');
+    if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+    try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (_) { /* nothing locked */ }
+    btn.focus({ preventScroll: true });
+    btn.scrollIntoView({ block: 'center' });
+  }
+  btn.addEventListener('click', enter);
+  x.addEventListener('click', leave);
+  document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) leave(); });
+})();
+
 let booted = false;
 function boot(data) {
   if (booted) return;
