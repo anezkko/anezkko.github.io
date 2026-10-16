@@ -41,6 +41,10 @@
 if (!/(^|\.)zidbosna\.com$|^anezkko\.github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname)) document.documentElement.classList.add('demo');
 </script>
 <link rel="preload" href="fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<!-- the first screen: the wall texture (the largest paint) and the wall photo, fetched first -->
+<link rel="preload" href="img/tagwall.webp" as="image" type="image/webp" fetchpriority="high">
+<link rel="preload" as="image" type="image/avif" href="img/wall-768sq.avif" media="(max-width:760px) and (orientation:portrait)" fetchpriority="high">
+<link rel="preload" as="image" type="image/avif" imagesrcset="img/wall-640.avif 640w, img/wall-960.avif 960w, img/wall-1408.avif 1408w" imagesizes="(max-width:760px) 110vh, (max-width:1300px) 100vw, 1240px" media="(min-width:761px), (orientation:landscape)" fetchpriority="high">
 <style>
 /* Layout: a black wall of old tags under a magenta glow. Big bold type, neon numbers, stickers pasted on top. One dark world by design. */
 /* fonts: self-hosted (fonts/, OFL), one file each: Latin + Latin Extended + the symbols in use, built by
@@ -921,6 +925,9 @@ body:has(.game.playing) .ticker{display:none}
     <!-- the wall photo is the biggest thing on screen: AVIF where the browser takes it, sized to how wide it really
          shows (on a phone the wall is tall, so the photo is cropped from about 110vh of width) -->
     <picture>
+      <!-- a portrait phone only ever shows the middle of the photo: send just that square -->
+      <source media="(max-width:760px) and (orientation:portrait)" type="image/avif" srcset="img/wall-768sq.avif">
+      <source media="(max-width:760px) and (orientation:portrait)" type="image/webp" srcset="img/wall-768sq.webp">
       <source type="image/avif" srcset="img/wall-640.avif 640w, img/wall-960.avif 960w, img/wall-1408.avif 1408w" sizes="(max-width:760px) 110vh, (max-width:1300px) 100vw, 1240px">
       <source type="image/webp" srcset="img/wall-640.webp 640w, img/wall-960.webp 960w, img/wall-1408.webp 1408w" sizes="(max-width:760px) 110vh, (max-width:1300px) 100vw, 1240px">
       <img class="wall-photo" src="img/wall-1408.webp" alt="" width="1408" height="768" decoding="async" fetchpriority="high" onerror="this.remove()">
