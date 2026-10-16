@@ -797,26 +797,16 @@ body:has(.game.playing) .ticker{display:none}
 .law-ic{grid-column:3;grid-row:1 / span 3;width:clamp(64px,7vw,84px);height:auto;align-self:start;transform:rotate(5deg);filter:drop-shadow(0 12px 14px rgba(0,0,0,.55));transition:transform .25s cubic-bezier(.2,.8,.3,1)}
 .law:nth-child(even) .law-ic{transform:rotate(-4deg)}
 @media (hover:hover) and (prefers-reduced-motion:no-preference){.law:hover .law-ic{transform:rotate(0deg) scale(1.08)}}
-/* the finale: Stari Most, the diver, and one last Play */
-.finale{max-width:1240px;margin:clamp(72px,9vw,128px) auto 0;display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:clamp(20px,3vw,48px);align-items:center;padding-bottom:clamp(40px,5vw,72px)}
-.finale-art{display:block;width:100%;height:auto;border-radius:24px;background:#0E0C13;border:1px solid var(--line)}
-.fn-bank{fill:#1D1A24;stroke:rgba(236,234,242,.45);stroke-width:2.5;stroke-linejoin:round}
-.fn-stone path{fill:#2A2633;stroke:#ECEAF2;stroke-width:3;stroke-linejoin:round}
-.fn-stone .fn-line{fill:none;stroke-width:2.5}
-.fn-trail{fill:none;stroke:var(--pink);stroke-width:3;stroke-linecap:round;stroke-dasharray:2 9;opacity:.85}
-.fn-diver{fill:none;stroke:var(--pink);stroke-width:3.4;stroke-linecap:round}
-.fn-diver circle{fill:var(--pink)}
-.fn-river{fill:rgba(25,201,174,.2)}
-.fn-wave{fill:none;stroke:#19C9AE;stroke-width:2.5;stroke-linecap:round;opacity:.8}
+/* the finale: the Stari Most art across the page, the words and one last Play under it */
+.finale{max-width:1240px;margin:clamp(72px,9vw,128px) auto 0;display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:clamp(20px,3vw,40px) clamp(24px,4vw,64px);align-items:end;padding-bottom:clamp(40px,5vw,72px)}
+.finale-art{grid-column:1 / -1;display:block;width:100%;height:auto;border-radius:24px;border:1px solid var(--line);background:#120F1A;box-shadow:0 40px 80px -40px rgba(139,61,255,.55)}
 .finale h2{font-family:var(--f-display);font-weight:800;font-size:var(--step-3);line-height:.92;letter-spacing:-.045em;margin:0;text-wrap:balance}
-.finale-bs{font-family:var(--f-tag);font-size:clamp(1.8rem,1.2rem + 1.6vw,2.6rem);line-height:1;color:var(--pink);transform:rotate(-4deg);transform-origin:left center;margin:10px 0 14px}
-.finale-d{margin:0 0 22px;max-width:40ch;color:var(--text-mid)}
-@media (prefers-reduced-motion:no-preference){
-  .fn-diver{animation:fn-dive 5.5s cubic-bezier(.5,0,.75,.4) infinite}
-  @keyframes fn-dive{0%,12%{transform:translate(480px,100px);opacity:0}18%{opacity:1}62%{transform:translate(480px,214px);opacity:1}74%,100%{transform:translate(480px,300px);opacity:0}}
-}
+.finale-bs{font-family:var(--f-tag);font-size:clamp(1.8rem,1.2rem + 1.6vw,2.6rem);line-height:1;color:var(--pink);transform:rotate(-4deg);transform-origin:left center;margin:10px 0 0}
+.finale-d{margin:0 0 22px;max-width:48ch;color:var(--text-mid)}
 @media (max-width:760px){
   .finale{grid-template-columns:1fr}
+  /* on a phone the wide scene would be a thin strip: show the arch and the diver, bigger */
+  .finale-art{border-radius:16px;aspect-ratio:16/11;object-fit:cover;object-position:50% 50%}
 }
 
 /* ===== the intro: a spray of the logo, about a second and a half, once a visit ===== */
@@ -1228,30 +1218,13 @@ body:has(.game.playing) .ticker{display:none}
   </ol>
 </section>
 <section class="finale" aria-labelledby="finale-h">
-  <svg class="finale-art" viewBox="0 0 960 340" aria-hidden="true" focusable="false">
-    <defs><radialGradient id="fn-sky" cx="50%" cy="38%" r="55%"><stop offset="0" stop-color="#FF4DC4" stop-opacity=".42"/><stop offset=".45" stop-color="#8B3DFF" stop-opacity=".22"/><stop offset="1" stop-color="#8B3DFF" stop-opacity="0"/></radialGradient></defs>
-    <rect width="960" height="300" fill="url(#fn-sky)"/>
-    <g class="fn-town" fill="#1A1721" stroke="rgba(236,234,242,.35)" stroke-width="2" stroke-linejoin="round">
-      <path d="M0 236V200l18-12 18 12v-8l22-14 22 14v44Z"/><path d="M96 236V96l5-14 5 14v140Z"/><path d="M93 132h16"/>
-      <path d="M840 236v-34l20-13 20 13v-6l20-12 22 13 18-11 20 12v38Z"/>
-    </g>
-    <path class="fn-bank" d="M0 236H330L316 262 300 300H0Z"/><path class="fn-bank" d="M630 236H960V300H660L644 262Z"/>
-    <g class="fn-stone">
-      <path d="M164 300V92H256V300Z"/><path d="M158 92L210 60 262 92Z"/><path d="M200 130v18M222 130v18M210 200v20" stroke-linecap="round"/>
-      <path d="M708 300V128H808V300Z"/><path d="M702 128L758 98 814 128Z"/><path d="M748 160v18M770 160v18" stroke-linecap="round"/>
-      <path d="M250 186C320 160 400 98 480 98C560 98 640 160 710 186L710 236L630 236C630 160 560 128 480 128C400 128 330 160 330 236L250 236Z"/>
-      <path class="fn-line" d="M314 236C314 150 392 112 480 112C568 112 646 150 646 236"/>
-      <path class="fn-line" d="M250 176C320 150 400 88 480 88C560 88 640 150 710 176" stroke-width="2.5"/>
-    </g>
-    <path class="fn-trail" d="M480 92C474 120 486 150 480 182"/>
-    <g class="fn-diver" transform="translate(480 214)"><circle cx="0" cy="8" r="5"/><path d="M0 3V-18M0 -18L-3 -32M0 -18L3 -32M0 -6L-16 -14M0 -6L16 -14"/></g>
-    <rect class="fn-river" y="300" width="960" height="40"/>
-    <path class="fn-wave" d="M300 312q15-7 30 0t30 0 30 0 30 0 30 0 30 0 30 0 30 0 30 0 30 0 30 0 30 0M120 326q15-7 30 0t30 0 30 0 30 0M700 328q15-7 30 0t30 0 30 0 30 0"/>
-  </svg>
+  <img class="finale-art" src="img/finale-most-1200.webp" srcset="img/finale-most-1200.webp 1200w, img/finale-most-2400.webp 2400w" sizes="(max-width:1300px) 100vw, 1240px" width="2400" height="713" loading="lazy" decoding="async" alt="Stari Most at dusk: a diver falls under the arch towards the green Neretva, the towers and the old town glowing pink and violet">
   <div class="finale-copy">
     <p class="kicker">Zone 5 · Stari Most · 1566 / 2004</p>
     <h2 id="finale-h">Take the dive.</h2>
     <p class="finale-bs" lang="bs">Skoči.</p>
+  </div>
+  <div class="finale-go">
     <p class="finale-d">About 20 m from the top of the arch into the Neretva. Paint your way from Bosanski Novi and the bridge is yours.</p>
     <a class="btn" href="#igra" data-play>Play Spray to Mostar</a>
   </div>
