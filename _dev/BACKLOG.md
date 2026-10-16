@@ -33,3 +33,9 @@ Each idea is written as a prompt you can paste into a new Claude Code session. A
 > Draft a plan for a weekly public wall where players submit their painted hero wall: how submissions are
 > stored, how they're moderated before anything is public, how people can ask for removal, and what it costs.
 > No code until the owner approves the moderation plan.
+
+## A real screen-reader pass on phones
+> Claude's cloud sessions have no screen reader, so Phase 3 was checked with axe, the accessibility tree and a
+> keyboard-only run. Ask the owner (or a volunteer who uses one daily) to try VoiceOver on an iPhone and TalkBack
+> on Android: paint the hero wall, start a run, lose a can, finish, switch to Bosnian. Note anything read twice,
+> in the wrong language, or not at all, and fix those first.
