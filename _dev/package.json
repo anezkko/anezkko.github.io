@@ -1,0 +1,15 @@
+{
+  "name": "zid-dev",
+  "private": true,
+  "description": "Dev-only tools for ZID: a local server and the one-command check. Not published (GitHub Pages skips folders starting with _).",
+  "type": "module",
+  "scripts": {
+    "serve": "python3 serve.py",
+    "check": "node check.mjs"
+  },
+  "devDependencies": {
+    "axe-core": "4.14.0",
+    "lighthouse": "13.5.0",
+    "playwright": "1.56.1"
+  }
+}
