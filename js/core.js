@@ -401,6 +401,7 @@ function toast(html, ms = 3200) {
   const el = $('#toast');
   el.innerHTML = html;
   el.hidden = false;
+  announce(el.textContent);   /* a status that pops up hidden-then-shown is easy for screen readers to miss */
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { el.hidden = true; }, ms);
 }
@@ -1681,6 +1682,7 @@ const Hero = (() => {
     function say(text, withLink, card) {
       msg.hidden = false;
       msg.textContent = text;
+      announce(text);   /* the scoreboard's answer (your place, or why it didn't work) is read out too */
       if (withLink) {
         msg.append(' ');
         const a = document.createElement('a');
