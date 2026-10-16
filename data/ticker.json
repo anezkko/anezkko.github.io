@@ -1,0 +1,13 @@
+{
+  "_help": "Bosnia national team ticker. Edit on GitHub (pencil icon), then Commit. 'last.date' is the day it was played (YYYY-MM-DD): it shows for 45 days. 'next.kickoff' is the date and local time with the zone (+01:00 in winter, +02:00 in summer): on match day it says 'Match day!' and it disappears 3 hours after kickoff. Every text has a Bosnian (bs) and an English (en) version. To hide one line, delete its block; with neither, the ticker hides.",
+  "last": {
+    "date": "2026-10-05",
+    "score": { "bs": "BiH 1–0 Poljska", "en": "Bosnia 1–0 Poland" },
+    "note": { "bs": "5. okt · Zenica · Bašić 84′", "en": "5 Oct · Zenica · Bašić 84′" }
+  },
+  "next": {
+    "kickoff": "2026-11-14T20:45:00+01:00",
+    "team": { "bs": "Švedska (u gostima)", "en": "Sweden (away)" },
+    "note": { "bs": "14. nov · 20:45 · Liga nacija", "en": "14 Nov · 20:45 · Nations League" }
+  }
+}

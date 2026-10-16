@@ -1,7 +1,8 @@
 /* ZID offline helper: keeps a copy of the site on the device so the app opens without a connection.
    Online, it always fetches the newest upload first, so updates show straight away. */
-const CACHE = 'zid-v1';
-const CORE = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'icon-maskable.png'];
+const CACHE = 'zid-v2';
+const CORE = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'icon-maskable.png', 'apple-touch-icon.png',
+  'data/ticker.json', '404.html'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE)
