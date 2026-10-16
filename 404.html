@@ -8,11 +8,17 @@
 <meta name="theme-color" content="#0A090D">
 <link rel="icon" type="image/png" href="/img/01.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400..900&family=Martian+Mono:wght@400;600&family=Sedgwick+Ave+Display&display=swap">
+<link rel="preload" href="/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
 <style>
 /* GitHub Pages serves this for any address that doesn't exist. Same wall world as the home page, one way back. */
+/* fonts: self-hosted (fonts/, OFL), one file each: Latin + Latin Extended + the symbols in use, built by
+   _dev/build_fonts.py. The fallbacks are sized to match, so text doesn't jump when the real font arrives. */
+@font-face{font-family:"Archivo";src:url("/fonts/archivo.woff2") format("woff2");font-weight:400 900;font-style:normal;font-display:swap}
+@font-face{font-family:"Martian Mono";src:url("/fonts/martian-mono.woff2") format("woff2");font-weight:400 600;font-style:normal;font-display:swap}
+@font-face{font-family:"Sedgwick Ave Display";src:url("/fonts/sedgwick-ave-display.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Archivo Fallback";src:local("Arial"),local("Helvetica Neue"),local("Helvetica"),local("Liberation Sans");size-adjust:101.92%;ascent-override:86.14%;descent-override:20.60%;line-gap-override:0%}
+@font-face{font-family:"Martian Mono Fallback";src:local("Courier New"),local("Menlo"),local("Consolas"),local("Liberation Mono");size-adjust:116.65%;ascent-override:85.73%;descent-override:17.15%;line-gap-override:0%}
+
 :root{--bg:#0A090D;--text:#ECEAF2;--soft:#A9A5B6;--pink:#FF4DC4;--lime:#B4F53A;--violet:#8B3DFF;color-scheme:dark}
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%}

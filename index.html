@@ -35,12 +35,21 @@
 <script>/* pick the game language before first paint: a saved choice, else Bosnian for bs/hr/sr browsers, else English */
 (function () { var l = ''; try { l = JSON.parse(localStorage.getItem('zid.lang') || '""'); } catch (e) {}
   if (l !== 'en' && l !== 'bs') { var n = (navigator.languages && navigator.languages[0]) || navigator.language || ''; l = /^(bs|hr|sr|sh|cnr)\b/i.test(n) ? 'bs' : 'en'; }
-  document.documentElement.setAttribute('data-gl', l); })();</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Martian+Mono:wght@400;600&family=Sedgwick+Ave+Display&display=swap">
+  document.documentElement.setAttribute('data-gl', l); })();
+/* outside the real site the scoreboard runs on example scores and a banner says so: mark it now, so the banner's
+   space is there from the first paint (same hosts as LIVE in js/core.js) */
+if (!/(^|\.)zidbosna\.com$|^anezkko\.github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname)) document.documentElement.classList.add('demo');
+</script>
+<link rel="preload" href="fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
 <style>
 /* Layout: a black wall of old tags under a magenta glow. Big bold type, neon numbers, stickers pasted on top. One dark world by design. */
+/* fonts: self-hosted (fonts/, OFL), one file each: Latin + Latin Extended + the symbols in use, built by
+   _dev/build_fonts.py. The fallbacks are sized to match, so text doesn't jump when the real font arrives. */
+@font-face{font-family:"Archivo";src:url("fonts/archivo.woff2") format("woff2");font-weight:400 900;font-style:normal;font-display:swap}
+@font-face{font-family:"Martian Mono";src:url("fonts/martian-mono.woff2") format("woff2");font-weight:400 600;font-style:normal;font-display:swap}
+@font-face{font-family:"Sedgwick Ave Display";src:url("fonts/sedgwick-ave-display.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Archivo Fallback";src:local("Arial"),local("Helvetica Neue"),local("Helvetica"),local("Liberation Sans");size-adjust:101.92%;ascent-override:86.14%;descent-override:20.60%;line-gap-override:0%}
+@font-face{font-family:"Martian Mono Fallback";src:local("Courier New"),local("Menlo"),local("Consolas"),local("Liberation Mono");size-adjust:116.65%;ascent-override:85.73%;descent-override:17.15%;line-gap-override:0%}
 :root{
   --bg:#0A090D;
   --wall:#0E0C13;
@@ -57,10 +66,10 @@
   --paper:#F1EEF5; --paper-ink:#131118;
   --st-pink:#FF4DC4; --st-lime:#B4F53A; --st-black:#17151D; --st-violet:#6E2FE0;
   --st-ink-dark:#120F16; --st-ink-light:#F4F1FA;
-  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;
-  --f-body:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-display:"Archivo","Archivo Fallback","Helvetica Neue",Arial,sans-serif;
+  --f-body:"Archivo","Archivo Fallback","Helvetica Neue",Arial,sans-serif;
   --f-tag:"Sedgwick Ave Display","Marker Felt","Segoe Print",cursive;
-  --f-mono:"Martian Mono",ui-monospace,Menlo,Consolas,monospace;
+  --f-mono:"Martian Mono","Martian Mono Fallback",ui-monospace,Menlo,Consolas,monospace;
   --step--1:clamp(.76rem,.72rem + .2vw,.84rem);
   --step-0:clamp(.95rem,.9rem + .25vw,1.06rem);
   --step-1:clamp(1.2rem,1.05rem + .7vw,1.55rem);
@@ -68,6 +77,8 @@
   --gutter:clamp(16px,3.5vw,44px);
   --drip-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='36'%3E%3Crect width='260' height='5'/%3E%3Crect x='22' width='6' height='27' rx='3'/%3E%3Crect x='71' width='4' height='15' rx='2'/%3E%3Crect x='128' width='7' height='34' rx='3.5'/%3E%3Crect x='176' width='3' height='11' rx='1.5'/%3E%3Crect x='214' width='5' height='22' rx='2.5'/%3E%3C/svg%3E");
   color-scheme:dark;
+  /* the old-tags texture behind everything: drawn once from a fixed seed with the tag font and saved as a picture */
+  --tagwall:url("img/tagwall.webp");
 }
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
@@ -232,7 +243,7 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 
 .tray{display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px;padding:14px 18px;background:var(--panel);border:1px solid var(--line);border-radius:22px;color:var(--text)}
 .tray-l{font-family:var(--f-mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-soft);margin-right:-10px}
-.cans{display:flex;gap:6px 10px;flex-wrap:wrap}
+.cans{display:flex;gap:6px 10px;flex-wrap:wrap;min-height:66px;min-width:min(100%,502px)}   /* the cans are built by script: keep their room so nothing below jumps */
 .can{appearance:none;border:0;background:none;color:var(--text-soft);display:grid;justify-items:center;gap:7px;cursor:pointer;padding:6px 2px 2px;font-family:var(--f-mono);font-size:.56rem;letter-spacing:.06em;text-transform:uppercase;min-width:50px}
 .can .can-ic{display:block;width:28px;height:40px;overflow:visible;transform-origin:50% 80%;transition:transform .2s cubic-bezier(.3,1.5,.5,1),filter .2s ease;filter:drop-shadow(0 3px 2px rgba(0,0,0,.55))}
 @media (hover:hover){.can:hover .can-ic{transform:translateY(-2px) rotate(-3deg)}}
@@ -443,7 +454,9 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 /* outside zidbosna.com the board shows example scores, and says so */
 .demo-note{margin:0 auto;max-width:1240px;padding:9px 12px;font-family:var(--f-mono);font-size:.62rem;line-height:1.5;letter-spacing:.05em;text-align:center;color:#FFD23F;border-bottom:1px dashed rgba(255,210,63,.45)}
 .demo-note a{color:#FFD23F;text-underline-offset:3px}
-.demo-note[hidden],.board-ex[hidden]{display:none}
+.demo-note{display:none}
+.demo .demo-note{display:block}
+.board-ex[hidden]{display:none}
 .board-ex{margin:0 0 14px;padding:.65em 1em;border:1px dashed rgba(255,210,63,.55);border-radius:12px;font-family:var(--f-mono);font-size:var(--step--1);line-height:1.5;color:#FFD23F;max-width:72ch}
 /* the podium: #1 holds the wall, #2 and #3 stand beside it, everyone else below. Open places stay on show. */
 .board-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 10px}
@@ -649,7 +662,7 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
   .radio-btn{margin:-9px 0 -8px}
   .chip .lbl,.tray-l,.can .can-n{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
   .tray{gap:10px;padding:10px 12px 12px;border-radius:18px}
-  .cans{flex-wrap:nowrap;justify-content:space-between;width:100%;gap:0}
+  .cans{flex-wrap:nowrap;justify-content:space-between;width:100%;gap:0;min-height:52px}
   .can{padding:8px 4px 4px;min-width:0}
   .tray .seg button,.tray-btn{padding:.85em .95em}
   .tray .caps{display:grid;grid-template-columns:repeat(3,1fr);width:100%;border-radius:16px}
@@ -879,7 +892,7 @@ body:has(.game.playing) .ticker{display:none}
   <button class="tk-pause" id="tk-pause" type="button" aria-pressed="false" aria-label="Pause the ticker"><i aria-hidden="true"></i></button>
 </div>
 <div class="page">
-<p class="demo-note" id="demo-note" hidden>Preview copy · the scores here are examples · the real board is on <a href="https://zidbosna.com/" target="_blank" rel="noopener">zidbosna.com</a></p>
+<p class="demo-note" id="demo-note">Preview copy · the scores here are examples · the real board is on <a href="https://zidbosna.com/" target="_blank" rel="noopener">zidbosna.com</a></p>
 <header class="top">
   <div class="top-l">
     <a class="logo" href="#zid" aria-label="ZID, back to the wall"><i class="logo-mark" aria-hidden="true"></i><span class="logo-word">zid</span></a>
@@ -905,7 +918,13 @@ body:has(.game.playing) .ticker{display:none}
 <section class="hero" id="zid" aria-labelledby="hero-h">
   <div class="decal d-bih" style="--r:-7deg" aria-hidden="true"><b>BIH</b></div>
   <div class="wall" id="wall">
-    <img class="wall-photo" src="img/04.webp" alt="" width="1408" height="768" decoding="async" fetchpriority="high" onerror="this.remove()">
+    <!-- the wall photo is the biggest thing on screen: AVIF where the browser takes it, sized to how wide it really
+         shows (on a phone the wall is tall, so the photo is cropped from about 110vh of width) -->
+    <picture>
+      <source type="image/avif" srcset="img/wall-640.avif 640w, img/wall-960.avif 960w, img/wall-1408.avif 1408w" sizes="(max-width:760px) 110vh, (max-width:1300px) 100vw, 1240px">
+      <source type="image/webp" srcset="img/wall-640.webp 640w, img/wall-960.webp 960w, img/wall-1408.webp 1408w" sizes="(max-width:760px) 110vh, (max-width:1300px) 100vw, 1240px">
+      <img class="wall-photo" src="img/wall-1408.webp" alt="" width="1408" height="768" decoding="async" fetchpriority="high" onerror="this.remove()">
+    </picture>
     <div class="hero-copy">
       <p class="eyebrow">ZID · Sarajevo → Mostar</p>
       <h1 class="hero-h" id="hero-h"><span>This is a wall.</span> <span>Paint it.</span></h1>

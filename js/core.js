@@ -101,42 +101,6 @@ const CAN = (() => {
   return { markup, draw, TILT, VB };
 })();
 
-/* the page background: a dark wall covered in old tags, drawn once into a tile */
-function buildTagWall() {
-  try {
-    const S = 720, c = document.createElement('canvas');
-    c.width = c.height = S;
-    const x = c.getContext('2d');
-    const R = rng(1984);
-    const cols = ['#1A1720', '#1F1B27', '#16131C', '#241F2E'];
-    x.lineCap = 'round'; x.lineJoin = 'round';
-    for (let i = 0; i < 70; i++) {
-      x.strokeStyle = cols[(R() * cols.length) | 0];
-      x.lineWidth = 2 + R() * 4;
-      let px = R() * S, py = R() * S;
-      x.beginPath(); x.moveTo(px, py);
-      const n = 4 + ((R() * 8) | 0);
-      for (let k = 0; k < n; k++) {
-        const dx = 18 + R() * 46, dy = (R() - 0.5) * 70;
-        x.bezierCurveTo(px + dx * 0.2, py - 40 * R(), px + dx * 0.8, py + 40 * R(), px + dx, py + dy);
-        px += dx; py += dy;
-      }
-      x.stroke();
-    }
-    const words = ['raja', 'polahko', 'zid', 'ćejf', 'merak', 'jarane', 'bolan', 'sevdah', 'džaba', 'haman', 'bujrum', 'aferim'];
-    for (let i = 0; i < 26; i++) {
-      x.save();
-      x.translate(R() * S, R() * S); x.rotate((R() - 0.5) * 0.6);
-      x.font = `${Math.round(36 + R() * 90)}px "Sedgwick Ave Display", "Marker Felt", cursive`;
-      x.strokeStyle = cols[(R() * cols.length) | 0]; x.lineWidth = 2 + R() * 3;
-      x.strokeText(words[(R() * words.length) | 0], 0, 0);
-      x.restore();
-    }
-    for (let i = 0; i < 1600; i++) { x.fillStyle = `rgba(255,255,255,${(R() * 0.05).toFixed(3)})`; x.fillRect(R() * S, R() * S, 1.5, 1.5); }
-    document.documentElement.style.setProperty('--tagwall', `url(${c.toDataURL('image/png')})`);
-  } catch (_) { /* plain dark background is fine */ }
-}
-
 const Store = {
   get(k, d) { try { const v = localStorage.getItem('zid.' + k); return v === null ? d : JSON.parse(v); } catch (_) { return d; } },
   set(k, v) { try { localStorage.setItem('zid.' + k, JSON.stringify(v)); } catch (_) { /* storage blocked: keep going */ } },
@@ -2046,8 +2010,6 @@ function boot(data) {
     const a = e.target.closest && e.target.closest('[data-play]');
     if (a) { e.preventDefault(); loadGame().then(() => Game.play(), () => {}); }
   });
-  const tagFont = document.fonts && document.fonts.load ? document.fonts.load('40px "Sedgwick Ave Display"').catch(() => {}) : Promise.resolve();
-  Promise.race([tagFont, new Promise((r) => setTimeout(r, 1500))]).then(buildTagWall);
   const hot = window.claude && window.claude.hot;
   if (hot && typeof hot.snapshot === 'function') {
     try { hot.snapshot(() => ({ best: gameReady ? Game.best : undefined })); } catch (_) { /* hot reload is optional */ }
