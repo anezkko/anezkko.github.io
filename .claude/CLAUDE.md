@@ -7,14 +7,20 @@ scoreboard and Radio ZID (music generated in code). Owner: @anezkko. Goal: award
 Webby) without losing what makes it ZID.
 
 ## Files
-- `index.html` is the whole site (~1.1 MB): inline CSS (~70 KB) and one inline script (~950 KB) that holds the
-  pixel-art tables `PIXOBS`/`PIXSCN` and `GROWL_B64` audio. Tiny head scripts: language before first paint,
-  intro flag, config (`ZID_API`, `ZID_TIP`), service-worker registration.
-- `img/` sprites and art (WebP for the zone/law stickers and finale), `og-image.jpg`, icons, `manifest.json`,
-  `sw.js` (network-first cache `zid-v1`), `CNAME`.
+- `index.html`: the page, its CSS inline (~90 KB). Tiny head scripts: language before first paint, the preview
+  (`demo`) class, intro flag, config (`ZID_API`, `ZID_TIP`), service-worker registration.
+- `js/core.js` (deferred): everything the page needs straight away (helpers, sound, Radio ZID, language, the hero
+  wall, scoreboard, ticker, fullscreen). `js/game.js` (~820 KB, loaded on demand by `loadGame()`): the game, the
+  Bihać ride, the memos (with sources) and the pixel-art tables. They share top-level names; no modules.
+- `data/ticker.json` (match ticker) and `data/words.json` (which dictionary words have a recording in
+  `audio/words/`): owner-editable, each with a `_help` line.
+- `press/`: the press kit (`press/index.html`, six screenshots from `_dev/press-shots.mjs`, the logo PNG).
+- `img/`, `fonts/` (self-hosted WOFF2 + OFL), `audio/`, icons, `manifest.json`, `sw.js` (network-first cache,
+  version in `CACHE`), `404.html`, `robots.txt`, `sitemap.xml`, `CNAME`.
 - `_dev/` dev-only tools, never published (GitHub Pages skips `_` folders): `serve.py`, `check.mjs`,
-  `baseline/`. Don't add `.nojekyll`.
+  `build_fonts.py`, `press-shots.mjs`, `baseline/`, `BACKLOG.md`, `RECORDING.md`. Don't add `.nojekyll`.
 - `main` is the live site (GitHub Pages, DNS on Cloudflare).
+- Placeholders for the owner's own words use `.ph` / `.ph-card` / `.ph-sec`: shown on preview hosts only, never live.
 
 ## Rules
 1. Branches, small commits, PRs. Never push to `main`.
@@ -52,7 +58,11 @@ cd _dev && npm install          # once: playwright, axe-core, lighthouse (git-ig
 python3 serve.py                # http://zid.localhost:8137/ (gzip, 404.html, demo board)
 node check.mjs                  # lab metrics, Lighthouse, axe, console errors, screenshots → _dev/out/<time>/
 node check.mjs --no-lighthouse  # faster
+node qa.mjs                     # widths 360–2560, reduced motion, offline, links, social card, keyboard → out/qa/
+node press-shots.mjs            # the six press screenshots → press/img/
+node record.mjs                 # the ~25 s submission video → out/record/zid-recording.mp4
 ```
+The submission kit (texts, credits, checklist) is `_dev/awards/SUBMISSION.md`.
 Chromium is at `/opt/pw-browsers/chromium` in Claude's cloud sessions (set `CHROME_PATH` elsewhere). Compare
 against `_dev/baseline/README.md`. Re-run the check after every change and don't merge regressions. A sandbox
 with no internet can't load the Cloudflare beacon; that one failed request is expected there.

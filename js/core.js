@@ -194,6 +194,8 @@ const Sound = (() => {
     zone() { [523, 659, 784, 1046].forEach((f, i) => tone('triangle', f, f, 0.15, 0.06, i * 0.09)); },
     splash() { burst(0.9, 0.32, 1400); burst(0.45, 0.2, 380); },
     rattle() { burst(0.07, 0.05, 5200, 'bandpass'); },
+    /* the page's buttons: a quiet click, well under the game's sounds */
+    tick() { tone('triangle', 1500, 1100, 0.035, 0.016); },
     quack() { tone('sawtooth', 640, 420, 0.09, 0.03); tone('sawtooth', 600, 400, 0.11, 0.026, 0.13); },
     /* the bear: a full roar as it charges, a short snarl when it knocks you over */
     /* the charging bear: a real recorded growl (a short mp3 in the page); the synthesized roar is the fallback while it loads */
@@ -1099,6 +1101,8 @@ const Hero = (() => {
   };
   const capR = () => STYLES[cap].r;
   let travel = 0, nextRun = 60;
+  /* hand speed in px per ms, smoothed: a fast pass spreads the paint wider and thinner, a slow one lays it on thick */
+  let speed = 0, lastT = 0, shook = false;
   const isCoarse = () => document.documentElement.classList.contains('coarse');
 
   function stamp(hex, r) {
@@ -1139,12 +1143,15 @@ const Hero = (() => {
       c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.stroke();
       return;
     }
-    const gap = cap === 'mist' ? r * 0.22 : cap === 'splatter' ? r * 0.7 : r * 0.33;
+    const s = clamp(speed / 1.6, 0, 1);
+    const rr = Math.round(r * (1 + 0.3 * s)), k = 0.8 * (1 - 0.35 * s);   /* whole pixels, so the stamp cache stays small */
+    const gap = cap === 'mist' ? rr * 0.22 : cap === 'splatter' ? rr * 0.7 : rr * 0.33;
     const n = Math.max(1, Math.ceil(d / Math.max(1, gap)));
-    for (let i = 1; i <= n; i++) spray(lerp(x0, x1, i / n), lerp(y0, y1, i / n), hex, r, 0.8);
+    for (let i = 1; i <= n; i++) spray(lerp(x0, x1, i / n), lerp(y0, y1, i / n), hex, rr, k);
   }
   /* one puff of the current style */
   function spray(x, y, hex, r, k = 1) {
+    painted = true;
     if (cap === 'mist') { mist(x, y, hex, r, k); return; }
     if (cap === 'splatter') { splat(x, y, hex, r, k); return; }
     if (cap === 'marker') { c.globalAlpha = Math.min(1, k * 1.25); c.fillStyle = hex; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); c.globalAlpha = 1; return; }
@@ -1230,6 +1237,7 @@ const Hero = (() => {
     return { img: oc, w, h };
   }
   function putTag(t, x, y, rot, fill, animate) {
+    painted = true;
     const r = { t, x, y, rot, fill, p: 0, start: performance.now(), dur: animate && !REDUCED ? 650 : 0 };
     if (!r.dur) { drawSlice(r, 0, t.w); tagDrips(r); return r; }
     reveals.push(r);
@@ -1266,7 +1274,7 @@ const Hero = (() => {
   /* whitewash: a roller clears the wall */
   function whitewash() {
     hideHint();
-    drips.length = 0; reveals.length = 0;
+    drips.length = 0; reveals.length = 0; painted = false;
     if (REDUCED || !W) { c.clearRect(0, 0, W, H); toast('Prekrečeno. The wall is clean again.'); return; }
     wipe = { start: performance.now(), dur: 700, x: 0 };
     roller.hidden = false;
@@ -1312,6 +1320,19 @@ const Hero = (() => {
     requestAnimationFrame(step);
   }
 
+  /* the start of every spray: the first one of a visit shakes the can, then the hiss; a small tick on phones that can */
+  function startSpray() {
+    speed = 0; lastT = 0;
+    if (!shook && Sound.on) { shook = true; Sound.sfx.rattle(); setTimeout(() => Sound.sfx.rattle(), 110); }
+    Sound.hiss(STYLES[cap].hiss);
+    if (Sound.on && navigator.vibrate && isCoarse()) { try { navigator.vibrate(8); } catch (_) { /* haptics are optional */ } }
+  }
+  /* the hiss follows the hand: louder when the can moves fast */
+  function moveSpeed(d, t) {
+    if (lastT && t > lastT) speed = speed * 0.7 + (d / (t - lastT)) * 0.3;
+    lastT = t;
+    Sound.hiss(STYLES[cap].hiss * (0.75 + 0.4 * clamp(speed / 1.6, 0, 1)));
+  }
   function hideHint() { if (!hinted) { hinted = true; hint.classList.add('gone'); } }
   function setArmed(v) {
     armed = !!v;
@@ -1359,9 +1380,9 @@ const Hero = (() => {
         if (keyDown) return;
         keyDown = true; down = true; pid = 'keys';
         lx = kx; ly = ky; stillSince = performance.now();
+        startSpray();
         spray(lx, ly, paint.hex, capR());
         travel = 0;
-        Sound.hiss(STYLES[cap].hiss);
         hideHint();
         loop();
       } else if (e.key === ' ' || e.key === 'Enter') e.preventDefault();
@@ -1390,9 +1411,9 @@ const Hero = (() => {
       down = true; pid = e.pointerId;
       const p = pos(e);
       lx = p.x; ly = p.y; stillSince = performance.now();
+      startSpray();
       spray(lx, ly, paint.hex, capR());
       travel = 0;
-      Sound.hiss(STYLES[cap].hiss);
       hideHint();
       loop();
     });
@@ -1402,6 +1423,7 @@ const Hero = (() => {
       for (const ev of evs.length ? evs : [e]) {
         const p = pos(ev);
         const d = Math.hypot(p.x - lx, p.y - ly);
+        moveSpeed(d, ev.timeStamp);
         line(lx, ly, p.x, p.y, paint.hex, capR());
         const runs = STYLES[cap].every;
         if (runs && (travel += d) > nextRun) {
@@ -1434,8 +1456,130 @@ const Hero = (() => {
     stamps.clear();
   }
 
+  /* the plaster under the paint: the fine detail of the wall photo (its light minus a blurred copy of it), drawn as
+     a grey layer over the paint with CSS overlay blending, so paint sinks into the cracks and catches the bumps.
+     Made once, at half size, when the browser is idle; remade when the wall changes size. */
+  const tex = document.createElement('canvas');
+  tex.className = 'wall-tex'; tex.setAttribute('aria-hidden', 'true');
+  let texFor = '';
+  function photoRect(img, w, h) {
+    /* where the photo sits in the wall: object-fit cover, object-position 50% 30% (see .wall-photo) */
+    const k = Math.max(w / img.naturalWidth, h / img.naturalHeight);
+    const dw = img.naturalWidth * k, dh = img.naturalHeight * k;
+    return [(w - dw) * 0.5, (h - dh) * 0.3, dw, dh];
+  }
+  function buildTexture() {
+    const img = $('.wall-photo', wall);
+    if (!img || !img.complete || !img.naturalWidth || !W) return;
+    const w = Math.max(1, Math.round(W / 2)), h = Math.max(1, Math.round(H / 2));
+    const key = `${w}x${h}|${img.currentSrc}`;
+    if (key === texFor) return;
+    texFor = key;
+    tex.width = w; tex.height = h;
+    const x = tex.getContext('2d', { willReadFrequently: true });
+    x.drawImage(img, ...photoRect(img, w, h));
+    const im = x.getImageData(0, 0, w, h), d = im.data, n = w * h;
+    const lum = new Float32Array(n), tmp = new Float32Array(n), blur = new Float32Array(n);
+    for (let i = 0; i < n; i++) lum[i] = d[i * 4] * 0.299 + d[i * 4 + 1] * 0.587 + d[i * 4 + 2] * 0.114;
+    /* a box blur, across then down, with running sums so it costs the same for any radius */
+    const R = 5, span = R * 2 + 1;
+    for (let y = 0; y < h; y++) {
+      let acc = 0;
+      for (let i = -R; i <= R; i++) acc += lum[y * w + clamp(i, 0, w - 1)];
+      for (let xx = 0; xx < w; xx++) {
+        tmp[y * w + xx] = acc / span;
+        acc += lum[y * w + Math.min(w - 1, xx + R + 1)] - lum[y * w + Math.max(0, xx - R)];
+      }
+    }
+    for (let xx = 0; xx < w; xx++) {
+      let acc = 0;
+      for (let i = -R; i <= R; i++) acc += tmp[clamp(i, 0, h - 1) * w + xx];
+      for (let y = 0; y < h; y++) {
+        blur[y * w + xx] = acc / span;
+        acc += tmp[Math.min(h - 1, y + R + 1) * w + xx] - tmp[Math.max(0, y - R) * w + xx];
+      }
+    }
+    for (let i = 0; i < n; i++) {
+      const g = clamp(128 + (lum[i] - blur[i]) * 1.8, 0, 255);
+      d[i * 4] = d[i * 4 + 1] = d[i * 4 + 2] = g; d[i * 4 + 3] = 255;
+    }
+    x.putImageData(im, 0, 0);
+  }
+  /* the grain is only needed once someone paints, so it's made on the first touch of the wall (pointer, keys or a
+     sprayed word), not while the page is still loading; after that it follows the wall's size */
+  let wantTex = false;
+  function textureSoon() {
+    if (!wantTex) return;
+    const go = () => { try { buildTexture(); } catch (_) { /* no texture: the paint still works */ } };
+    if ('requestIdleCallback' in window) requestIdleCallback(go, { timeout: 600 }); else setTimeout(go, 200);
+  }
+  function textureNow() {
+    if (wantTex) return;
+    wantTex = true;
+    try { buildTexture(); } catch (_) { /* no texture: the paint still works */ }
+  }
+
+  /* save the wall: a 1080×1350 picture (the size phones share best) of the photo, the paint and its plaster grain,
+     with the ZID logo and the address underneath. Made on the device; nothing is uploaded. Phones get the share
+     sheet, everything else a download. */
+  let painted = false;
+  function loadImg(src) {
+    return new Promise((res) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = src; });
+  }
+  async function saveWall() {
+    if (!W || !H) return;
+    if (!painted) { toast('<span><b>Prvo ofarbaj zid.</b> Paint something first.</span>'); return; }
+    Sound.ensure(); Sound.sfx.rattle();
+    const OW = 1080, OH = 1350, BAND = 200, AH = OH - BAND;
+    const o = document.createElement('canvas'); o.width = OW; o.height = OH;
+    const x = o.getContext('2d');
+    x.fillStyle = '#0A090D'; x.fillRect(0, 0, OW, OH);
+    /* the middle of the wall, cut to fill the picture (like the photo's own object-fit: cover) */
+    const k = Math.max(OW / W, AH / H), sx = (W - OW / k) / 2, sy = (H - AH / k) / 2;
+    x.save();
+    x.beginPath(); x.rect(0, 0, OW, AH); x.clip();
+    x.setTransform(k, 0, 0, k, -sx * k, -sy * k);
+    const img = $('.wall-photo', wall);
+    if (img && img.complete && img.naturalWidth) x.drawImage(img, ...photoRect(img, W, H));
+    x.drawImage(cv, 0, 0, W, H);
+    try { buildTexture(); } catch (_) { /* no grain: still a good picture */ }
+    if (tex.width > 1) { x.globalCompositeOperation = 'overlay'; x.globalAlpha = 0.6; x.drawImage(tex, 0, 0, W, H); }
+    x.restore();
+    /* the band underneath: logo, a line in both languages, the address */
+    const logo = await loadImg('img/02.webp');
+    if (document.fonts && document.fonts.load) {
+      await Promise.all([document.fonts.load('800 44px "Archivo"'), document.fonts.load('600 30px "Martian Mono"')]).catch(() => {});
+    }
+    if (logo) {
+      x.save(); x.translate(56 + 64, AH + BAND / 2); x.rotate(-0.07);
+      x.beginPath(); if (x.roundRect) x.roundRect(-64, -64, 128, 128, 28); else x.rect(-64, -64, 128, 128); x.clip();
+      x.drawImage(logo, -64, -64, 128, 128); x.restore();
+    }
+    x.fillStyle = '#ECEAF2'; x.font = '800 44px "Archivo", Arial, sans-serif'; x.textBaseline = 'alphabetic';
+    x.fillText('Ovo je moj zid.', 224, AH + 92);
+    x.fillStyle = '#A9A5B6'; x.font = '400 28px "Martian Mono", "Courier New", monospace';
+    x.fillText('This is my wall.', 224, AH + 134);
+    x.fillStyle = '#B4F53A'; x.font = '600 30px "Martian Mono", "Courier New", monospace'; x.textAlign = 'right';
+    x.fillText('zidbosna.com', OW - 56, AH + 134);
+    const blob = await new Promise((res) => o.toBlob(res, 'image/jpeg', 0.9));
+    if (!blob) return;
+    const name = 'zid-moj-zid.jpg';
+    if (isCoarse() && navigator.canShare && window.File) {
+      const file = new File([blob], name, { type: 'image/jpeg' });
+      if (navigator.canShare({ files: [file] })) {
+        try { await navigator.share({ files: [file], title: 'ZID', text: 'Moj zid · my wall · zidbosna.com' }); return; }
+        catch (err) { if (err && err.name === 'AbortError') return; /* otherwise fall through to a download */ }
+      }
+    }
+    const url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    toast('<span><b>Sačuvano.</b> Your wall is saved as a picture.</span>');
+  }
+
   function sprayWord(word) {
     if (!W || !H) return;
+    textureNow();
     hideHint();
     Sound.ensure();
     const choices = PAINTS.filter((p) => p.id !== 'katran');
@@ -1478,11 +1622,16 @@ const Hero = (() => {
     });
     $$('[data-cap]').forEach((b) => b.addEventListener('click', () => setCap(b.dataset.cap)));
     $('#whitewash').addEventListener('click', whitewash);
+    $('#save-wall').addEventListener('click', () => { saveWall().catch(() => toast('<span><b>Nije uspjelo.</b> The picture couldn\u2019t be made.</span>')); });
     armBtn.addEventListener('click', () => setArmed(!armed));
     if (isCoarse()) hint.textContent = 'Dodirni boju pa farbaj · tap a colour, then paint';
+    cv.after(tex);
     resize();
-    if ('ResizeObserver' in window) new ResizeObserver(resize).observe(wall);
-    else window.addEventListener('resize', resize);
+    if ('ResizeObserver' in window) new ResizeObserver(() => { resize(); textureSoon(); }).observe(wall);
+    else window.addEventListener('resize', () => { resize(); textureSoon(); });
+    for (const ev of ['pointerenter', 'pointerdown', 'focus']) cv.addEventListener(ev, textureNow, { once: true, passive: true });
+    const photo = $('.wall-photo', wall);
+    if (photo && !photo.complete) photo.addEventListener('load', textureSoon, { once: true });   /* touched before the photo arrived */
     setCursor();
     bindPointer();
     bindKeys();
@@ -1873,6 +2022,33 @@ function buildStickers() {
     });
     box.appendChild(a);
   });
+  wordAudio();
+}
+/* pronunciation: the owner records the words (no synthetic voices) as audio/words/<word>.mp3 and lists them in
+   data/words.json; a word gets a "Hear it" button only once its recording is listed. See _dev/RECORDING.md. */
+const wordSlug = (w) => w.toLowerCase().replace(/\?/g, '').replace(/dž/g, 'dz').replace(/đ/g, 'dj').replace(/[čć]/g, 'c').replace(/š/g, 's').replace(/ž/g, 'z');
+function wordAudio() {
+  const go = () => fetch('data/words.json').then((r) => (r.ok ? r.json() : null)).then((d) => {
+    const have = new Set(d && Array.isArray(d.recorded) ? d.recorded : []);
+    if (!have.size) return;
+    $$('#stickers .sticker').forEach((a, i) => {
+      const s = SLANG[i], slug = wordSlug(s.w);
+      if (!s || !have.has(slug)) return;
+      const word = s.w.replace('?', '');
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'st-hear';
+      b.innerHTML = 'Hear it <span aria-hidden="true">♪</span>';
+      b.setAttribute('aria-label', `Hear it: ${word}`);
+      let clip = null;
+      b.addEventListener('click', () => {
+        if (!clip) clip = new Audio(`audio/words/${slug}.mp3`);
+        clip.currentTime = 0;
+        clip.play().catch(() => toast('<span>The recording couldn\u2019t play.</span>'));
+      });
+      a.querySelector('.st-spray').after(b);
+    });
+  }).catch(() => { /* no list: no buttons */ });
+  if ('requestIdleCallback' in window) requestIdleCallback(go, { timeout: 4000 }); else setTimeout(go, 2000);
 }
 
 function initSound() {
@@ -2061,6 +2237,47 @@ function watchGame() {
   }, { rootMargin: '0px 0px 150px 0px' });   /* on most screens the game is under 800 px below the fold, so start once you scroll its way */
   io.observe(wrap);
 }
+/* UI sounds: a quiet click for the page's buttons and switches. It listens after the buttons' own handlers, so
+   switching the sound off is silent, and like every sound it waits for the first tap and obeys the sound switch. */
+document.addEventListener('click', (e) => {
+  const b = e.target.closest && e.target.closest('.seg button, .tray-btn, .chip, .ov-btn, .st-spray, .st-hear, .full-x, .tk-pause');
+  if (b && Sound.on) Sound.sfx.tick();
+});
+
+/* ===== play fullscreen (phones) =====
+   The game and its pads cover the screen. Where the browser allows it, that's real fullscreen, turned sideways;
+   iPhones can't put a page fullscreen, so there it's the same cover-the-screen view with a hint to turn the phone.
+   Leaving fullscreen any way (the ×, the system back gesture) puts the page back as it was. */
+(() => {
+  const wrap = $('#game-wrap'), btn = $('#btn-full'), x = $('#btn-full-x');
+  if (!wrap || !btn || !x) return;
+  const html = document.documentElement;
+  function enter() {
+    wrap.classList.add('full'); html.classList.add('full-on');
+    loadGame().catch(() => {});
+    const fs = wrap.requestFullscreen || wrap.webkitRequestFullscreen;
+    if (fs) {
+      try {
+        Promise.resolve(fs.call(wrap, { navigationUI: 'hide' }))
+          .then(() => (screen.orientation && screen.orientation.lock ? screen.orientation.lock('landscape') : null))
+          .catch(() => { /* no fullscreen or no lock: the cover-the-screen view still works */ });
+      } catch (_) { /* old browsers throw instead of rejecting */ }
+    }
+    x.focus({ preventScroll: true });
+  }
+  function leave() {
+    if (!wrap.classList.contains('full')) return;
+    wrap.classList.remove('full'); html.classList.remove('full-on');
+    if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+    try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (_) { /* nothing locked */ }
+    btn.focus({ preventScroll: true });
+    btn.scrollIntoView({ block: 'center' });
+  }
+  btn.addEventListener('click', enter);
+  x.addEventListener('click', leave);
+  document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) leave(); });
+})();
+
 let booted = false;
 function boot(data) {
   if (booted) return;
