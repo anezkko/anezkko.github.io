@@ -61,8 +61,7 @@ section{margin-top:clamp(48px,7vw,88px)}
 .btn{display:inline-flex;align-items:center;min-height:48px;padding:.8em 1.5em;border-radius:999px;background:var(--lime);color:#0B0A0F;font-weight:800;text-decoration:none}
 .ph{display:none}
 .demo .ph{display:block;padding:10px 12px;border:1px dashed var(--pink);border-radius:10px;color:var(--pink);font-family:var(--f-mono);font-size:.85rem}
-.ph-sec{display:none}
-.demo .ph-sec{display:block}
+.sr-only{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 footer{margin-top:72px;padding-top:24px;border-top:1px solid var(--line-strong);color:var(--soft);font-size:.9rem}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
@@ -99,7 +98,7 @@ footer{margin-top:72px;padding-top:24px;border-top:1px solid var(--line-strong);
     <h2 id="facts-h">Fact sheet <span class="tr" lang="bs">· činjenice</span></h2>
     <dl class="facts">
       <div><dt>Name</dt><dd>ZID · zidbosna.com<span lang="bs">zid = wall</span></dd></div>
-      <div><dt>Made by</dt><dd>@anezkko · 2026</dd></div>
+      <div><dt>Made by</dt><dd>Anezkko · 2026<span>Instagram @anezkko</span></dd></div>
       <div><dt>Price</dt><dd>Free. No sign-up, no ads, no cookies.<span lang="bs">Džaba. Bez registracije, reklama i kolačića.</span></dd></div>
       <div><dt>Languages</dt><dd>Bosnian and English, switchable at any time<span lang="bs">bosanski i engleski</span></dd></div>
       <div><dt>The game</dt><dd>Sprej do Mostara / Spray to Mostar: 5 zones, Bosanski Novi → Stari Most</dd></div>
@@ -135,10 +134,10 @@ footer{margin-top:72px;padding-top:24px;border-top:1px solid var(--line-strong);
     <p class="lede">Please keep the logo as it is: the pink Z with the lime crown and drips, on its purple wall.</p>
   </section>
 
-  <!-- shown only on preview hosts until the owner adds a contact; then drop the ph-sec class -->
-  <section class="ph-sec" aria-labelledby="contact-h">
+  <section aria-labelledby="contact-h">
     <h2 id="contact-h">Contact <span class="tr" lang="bs">· kontakt</span></h2>
-    <p class="ph">[Your contact for press: an email address or a social handle.]</p>
+    <p class="lede">ZID is made by Anezkko. For press, write on Instagram: <a href="https://www.instagram.com/anezkko/" target="_blank" rel="noopener">@anezkko<span class="sr-only"> (opens in a new tab)</span></a>.</p>
+    <p class="lede tr" lang="bs">ZID potpisuje Anezkko. Za novinare: piši na Instagramu, @anezkko.</p>
   </section>
 </main>
 <footer>ZID · zidbosna.com · free, bilingual, no cookies. <a href="../">Back to the wall</a> · <span lang="bs"><a href="../">Nazad na zid</a></span></footer>

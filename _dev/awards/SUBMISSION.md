@@ -50,11 +50,11 @@ graffiti, street art, browser game, pixel art, runner, Bosnia and Herzegovina, S
 bilingual, culture, history, generative music, Web Audio, canvas, PWA, offline, accessibility, no cookies, free
 
 ## Credits
-- **Concept, design, code:** @anezkko **[your full name, if you want it shown]**
+- **Creator:** Anezkko (Instagram [@anezkko](https://www.instagram.com/anezkko/))
 - **Pixel art:** **[who made it, and how]**
 - **Illustrations** (Stari Most finale, street-law stickers, zone landmarks, stećci, share image): made with Google
   Gemini, then cut out and fitted to the page
-- **Wall photo** (the hero): **[who took it, where; needed before submitting]**
+- **The hero wall:** Anezkko
 - **Music:** Radio ZID, five stations composed in code (Web Audio); no samples, no licensed tracks
 - **Type:** Archivo (Omnibus-Type), Martian Mono (Evil Martians), Sedgwick Ave Display; all SIL Open Font License
 - **Facts:** 20 memos, each linked to its source (Wikipedia, UNESCO, N1, UN, nobelprize.org, UEFA, Berlinale);
@@ -92,8 +92,6 @@ bilingual, culture, history, generative music, Web Audio, canvas, PWA, offline, 
 
 ## Before you submit
 - [ ] Fill in the About section's **[your words]** and thanks (they show only on preview hosts until you do).
-- [ ] Add a press contact to `press/index.html` (preview-only until then) and the footer links.
-- [ ] Credit the wall photo, and confirm you're allowed to use it.
 - [ ] Proofread every Bosnian string (lists are in PRs #4, #5 and the Phase 4–6 PR).
 - [ ] Play it start to finish on a real iPhone (Safari), an Android phone (Chrome), and desktop Firefox, Safari and
       Edge. Claude's cloud checks only covered Chromium.
