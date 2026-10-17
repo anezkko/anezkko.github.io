@@ -1437,7 +1437,23 @@ const Game = (() => {
     updateRoute();
     updateHud(true);
   }
-  function show(name) { for (const k in OV) OV[k].hidden = k !== name; }
+  /* card to card (start → zone, pick → zone, end → start) cross-fades where the browser has View Transitions. A run
+     starting or stopping switches at once, and so does the pick card, which measures itself straight away. */
+  let vt = null;
+  function show(name) {
+    const swap = () => { for (const k in OV) OV[k].hidden = k !== name; };
+    /* only a real change from one card to another, with the game on screen: while a cross-fade runs the browser
+       holds the whole page still, so it must never start on its own (when the game loads, or off-screen) */
+    const fromCard = Object.keys(OV).some((k) => k !== name && !OV[k].hidden);
+    if (fromCard && OV[name] && OV[name].hidden && name !== 'pick' && !REDUCED && document.startViewTransition && frameInView()) {
+      try {
+        const t = vt = document.startViewTransition(swap);
+        t.finished.finally(() => { if (vt === t) vt = null; });
+        return;
+      } catch (_) { /* fall back to a plain swap */ }
+    }
+    swap();
+  }
   function frameInView() {
     const r = frame.getBoundingClientRect();
     const vis = Math.min(r.bottom, innerHeight) - Math.max(r.top, 0);
@@ -1446,8 +1462,24 @@ const Game = (() => {
   /* the card's button takes focus when the game is on screen, or when focus was on the card that just closed
      (a keyboard player pressing Start shouldn't be dropped back at the top of the page) */
   function focusBtn(sel) {
-    const b = $(sel), a = document.activeElement;
-    if (b && (frameInView() || frame.contains(a) || a === document.body)) { try { b.focus({ preventScroll: true }); } catch (_) { /* focus is optional */ } }
+    const go = () => {
+      const b = $(sel), a = document.activeElement;
+      if (b && (frameInView() || frame.contains(a) || a === document.body)) { try { b.focus({ preventScroll: true }); } catch (_) { /* focus is optional */ } }
+    };
+    /* during a cross-fade the new card isn't shown yet: focus its button once it is */
+    if (vt) vt.updateCallbackDone.then(go, go); else go();
+  }
+  /* the end screen's numbers count up from zero, quickly; with reduced motion they're just there */
+  function countUp(el, to, ms = 900) {
+    if (REDUCED || !to) { el.textContent = to; return; }
+    const t0 = performance.now();
+    const step = (now) => {
+      const p = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(to * e);
+      if (p < 1 && state === 'end') requestAnimationFrame(step); else el.textContent = to;
+    };
+    el.textContent = 0;
+    requestAnimationFrame(step);
   }
   /* ---------- the score to beat: this week's board and a friend's challenge (see Rivals) ---------- */
   const hudChase = $('#hud-chase'), zBeat = $('#z-beat'), sBeat = $('#s-beat');
@@ -6193,7 +6225,7 @@ const PIXCREW = (() => {
     $('#e-pieces').textContent = S.pieces;
     $('#e-resp').textContent = S.respect;
     $('#e-jump').textContent = S.dive;
-    $('#e-total').textContent = total;
+    countUp($('#e-total'), total);
     const isBest = total > best;
     if (isBest) { best = total; bestRank = rank; Store.set('best', best); Store.set('bestRank', bestRank); }
     lastEnd = { rank, res: fin.res, legend, isBest };

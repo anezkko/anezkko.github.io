@@ -194,6 +194,8 @@ const Sound = (() => {
     zone() { [523, 659, 784, 1046].forEach((f, i) => tone('triangle', f, f, 0.15, 0.06, i * 0.09)); },
     splash() { burst(0.9, 0.32, 1400); burst(0.45, 0.2, 380); },
     rattle() { burst(0.07, 0.05, 5200, 'bandpass'); },
+    /* the page's buttons: a quiet click, well under the game's sounds */
+    tick() { tone('triangle', 1500, 1100, 0.035, 0.016); },
     quack() { tone('sawtooth', 640, 420, 0.09, 0.03); tone('sawtooth', 600, 400, 0.11, 0.026, 0.13); },
     /* the bear: a full roar as it charges, a short snarl when it knocks you over */
     /* the charging bear: a real recorded growl (a short mp3 in the page); the synthesized roar is the fallback while it loads */
@@ -2200,6 +2202,13 @@ function watchGame() {
   }, { rootMargin: '0px 0px 150px 0px' });   /* on most screens the game is under 800 px below the fold, so start once you scroll its way */
   io.observe(wrap);
 }
+/* UI sounds: a quiet click for the page's buttons and switches. It listens after the buttons' own handlers, so
+   switching the sound off is silent, and like every sound it waits for the first tap and obeys the sound switch. */
+document.addEventListener('click', (e) => {
+  const b = e.target.closest && e.target.closest('.seg button, .tray-btn, .chip, .ov-btn, .st-spray, .full-x, .tk-pause');
+  if (b && Sound.on) Sound.sfx.tick();
+});
+
 /* ===== play fullscreen (phones) =====
    The game and its pads cover the screen. Where the browser allows it, that's real fullscreen, turned sideways;
    iPhones can't put a page fullscreen, so there it's the same cover-the-screen view with a hint to turn the phone.
