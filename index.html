@@ -1439,7 +1439,7 @@ body:has(.game.playing) .ticker{display:none}
 <script>window.ZID_API = "https://api.zidbosna.com"; window.ZID_TIP = "https://ko-fi.com/zidbosna";</script>
 <script src="js/core.js" defer></script>
 <script>
-if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || /(^|\.)localhost$/.test(location.hostname))) {   /* dev hosts like zid.localhost too, so offline can be tested on the demo board */
   addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
 }
 </script>

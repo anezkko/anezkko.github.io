@@ -58,7 +58,11 @@ cd _dev && npm install          # once: playwright, axe-core, lighthouse (git-ig
 python3 serve.py                # http://zid.localhost:8137/ (gzip, 404.html, demo board)
 node check.mjs                  # lab metrics, Lighthouse, axe, console errors, screenshots → _dev/out/<time>/
 node check.mjs --no-lighthouse  # faster
+node qa.mjs                     # widths 360–2560, reduced motion, offline, links, social card, keyboard → out/qa/
+node press-shots.mjs            # the six press screenshots → press/img/
+node record.mjs                 # the ~25 s submission video → out/record/zid-recording.mp4
 ```
+The submission kit (texts, credits, checklist) is `_dev/awards/SUBMISSION.md`.
 Chromium is at `/opt/pw-browsers/chromium` in Claude's cloud sessions (set `CHROME_PATH` elsewhere). Compare
 against `_dev/baseline/README.md`. Re-run the check after every change and don't merge regressions. A sandbox
 with no internet can't load the Cloudflare beacon; that one failed request is expected there.
