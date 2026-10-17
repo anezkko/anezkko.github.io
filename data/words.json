@@ -1,0 +1,4 @@
+{
+  "_help": "Words with a recording. Record each word as audio/words/<name>.mp3 (see _dev/RECORDING.md), then add its name here, e.g. \"recorded\": [\"polahko\", \"jarane\"]. Names: polahko jarane raja bolan aferim dzaba cejf merak haman kontas bujrum sevdah",
+  "recorded": []
+}

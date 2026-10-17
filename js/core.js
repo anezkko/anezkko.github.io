@@ -1505,9 +1505,18 @@ const Hero = (() => {
     }
     x.putImageData(im, 0, 0);
   }
+  /* the grain is only needed once someone paints, so it's made on the first touch of the wall (pointer, keys or a
+     sprayed word), not while the page is still loading; after that it follows the wall's size */
+  let wantTex = false;
   function textureSoon() {
+    if (!wantTex) return;
     const go = () => { try { buildTexture(); } catch (_) { /* no texture: the paint still works */ } };
-    if ('requestIdleCallback' in window) requestIdleCallback(go, { timeout: 3000 }); else setTimeout(go, 1200);
+    if ('requestIdleCallback' in window) requestIdleCallback(go, { timeout: 600 }); else setTimeout(go, 200);
+  }
+  function textureNow() {
+    if (wantTex) return;
+    wantTex = true;
+    try { buildTexture(); } catch (_) { /* no texture: the paint still works */ }
   }
 
   /* save the wall: a 1080×1350 picture (the size phones share best) of the photo, the paint and its plaster grain,
@@ -1570,6 +1579,7 @@ const Hero = (() => {
 
   function sprayWord(word) {
     if (!W || !H) return;
+    textureNow();
     hideHint();
     Sound.ensure();
     const choices = PAINTS.filter((p) => p.id !== 'katran');
@@ -1619,11 +1629,9 @@ const Hero = (() => {
     resize();
     if ('ResizeObserver' in window) new ResizeObserver(() => { resize(); textureSoon(); }).observe(wall);
     else window.addEventListener('resize', () => { resize(); textureSoon(); });
+    for (const ev of ['pointerenter', 'pointerdown', 'focus']) cv.addEventListener(ev, textureNow, { once: true, passive: true });
     const photo = $('.wall-photo', wall);
-    if (photo) {
-      if (photo.complete) { if (document.readyState === 'complete') textureSoon(); else addEventListener('load', textureSoon, { once: true }); }
-      else photo.addEventListener('load', textureSoon);
-    }
+    if (photo && !photo.complete) photo.addEventListener('load', textureSoon, { once: true });   /* touched before the photo arrived */
     setCursor();
     bindPointer();
     bindKeys();
@@ -2014,6 +2022,33 @@ function buildStickers() {
     });
     box.appendChild(a);
   });
+  wordAudio();
+}
+/* pronunciation: the owner records the words (no synthetic voices) as audio/words/<word>.mp3 and lists them in
+   data/words.json; a word gets a "Hear it" button only once its recording is listed. See _dev/RECORDING.md. */
+const wordSlug = (w) => w.toLowerCase().replace(/\?/g, '').replace(/dž/g, 'dz').replace(/đ/g, 'dj').replace(/[čć]/g, 'c').replace(/š/g, 's').replace(/ž/g, 'z');
+function wordAudio() {
+  const go = () => fetch('data/words.json').then((r) => (r.ok ? r.json() : null)).then((d) => {
+    const have = new Set(d && Array.isArray(d.recorded) ? d.recorded : []);
+    if (!have.size) return;
+    $$('#stickers .sticker').forEach((a, i) => {
+      const s = SLANG[i], slug = wordSlug(s.w);
+      if (!s || !have.has(slug)) return;
+      const word = s.w.replace('?', '');
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'st-hear';
+      b.innerHTML = 'Hear it <span aria-hidden="true">♪</span>';
+      b.setAttribute('aria-label', `Hear it: ${word}`);
+      let clip = null;
+      b.addEventListener('click', () => {
+        if (!clip) clip = new Audio(`audio/words/${slug}.mp3`);
+        clip.currentTime = 0;
+        clip.play().catch(() => toast('<span>The recording couldn\u2019t play.</span>'));
+      });
+      a.querySelector('.st-spray').after(b);
+    });
+  }).catch(() => { /* no list: no buttons */ });
+  if ('requestIdleCallback' in window) requestIdleCallback(go, { timeout: 4000 }); else setTimeout(go, 2000);
 }
 
 function initSound() {
@@ -2205,7 +2240,7 @@ function watchGame() {
 /* UI sounds: a quiet click for the page's buttons and switches. It listens after the buttons' own handlers, so
    switching the sound off is silent, and like every sound it waits for the first tap and obeys the sound switch. */
 document.addEventListener('click', (e) => {
-  const b = e.target.closest && e.target.closest('.seg button, .tray-btn, .chip, .ov-btn, .st-spray, .full-x, .tk-pause');
+  const b = e.target.closest && e.target.closest('.seg button, .tray-btn, .chip, .ov-btn, .st-spray, .st-hear, .full-x, .tk-pause');
   if (b && Sound.on) Sound.sfx.tick();
 });
 
