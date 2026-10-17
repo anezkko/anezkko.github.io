@@ -238,6 +238,27 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .wall-hint{position:absolute;left:16px;bottom:16px;z-index:3;margin:0;max-width:calc(100% - 32px);font-family:var(--f-mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;background:rgba(10,9,13,.76);border:1px solid rgba(255,255,255,.16);color:#F4F0E6;padding:.75em 1.1em;border-radius:999px;pointer-events:none;box-shadow:0 10px 26px -12px rgba(0,0,0,.7);transition:opacity .4s ease}
 .wall-hint.gone{opacity:0}
 .wall canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:crosshair;touch-action:pan-y;z-index:2}
+/* the living light: an afternoon on the wall. A warm patch of sun drifts across, leaf shadows slide and sway in the
+   wind, and now and then a cloud dims both. They sit right in the wall (no wrapper), so their blending reaches the
+   photo and the paint below; each one moves with the separate translate/rotate properties, so two motions share an
+   element. Paused by the button, off screen and with reduced motion. */
+.wl-sun,.wl-leaves{position:absolute;z-index:2;pointer-events:none;display:block}
+.wl-sun{inset:-35%;background:radial-gradient(30% 36% at 50% 50%,rgba(255,196,120,.95),rgba(255,196,120,.35) 45%,rgba(255,196,120,0) 74%);mix-blend-mode:soft-light;
+  animation:wl-sun 52s ease-in-out infinite alternate,wl-cloud 37s ease-in-out infinite}
+.wl-leaves{inset:-14%;background:center/cover no-repeat;mix-blend-mode:multiply;opacity:.62;transform-origin:85% -60%;
+  animation:wl-drift 64s ease-in-out infinite alternate,wl-sway 5.5s ease-in-out infinite alternate,wl-shade 37s ease-in-out infinite}
+.wall.lit .wl-leaves{background-image:url("img/leaves.webp")}   /* fetched after load, never in the way of the first paint */
+@keyframes wl-sun{from{translate:18% -8%}to{translate:-14% 6%}}
+@keyframes wl-drift{from{translate:3% -2%}to{translate:-4% 3%}}
+@keyframes wl-sway{from{rotate:-.5deg}to{rotate:.7deg}}
+@keyframes wl-cloud{0%,62%,100%{opacity:1}72%,84%{opacity:.25}}
+@keyframes wl-shade{0%,62%,100%{opacity:.62}72%,84%{opacity:.16}}
+.wall.still .wl-sun,.wall.still .wl-leaves,.wall.wl-off .wl-sun,.wall.wl-off .wl-leaves{animation-play-state:paused}
+.wall-still{position:absolute;z-index:4;right:14px;bottom:14px;width:40px;height:40px;border-radius:50%;border:1px solid var(--line-strong);background:rgba(10,9,13,.72);color:#F4F0E6;display:grid;place-items:center;cursor:pointer;transition:background var(--t-fast) var(--ease-out)}
+.wall-still:hover{background:rgba(10,9,13,.9)}
+.wall-still[hidden]{display:none}
+.wall-still i{display:block;width:10px;height:12px;border-left:3.5px solid currentColor;border-right:3.5px solid currentColor}
+.wall-still[aria-pressed="true"] i{width:0;height:0;border-style:solid;border-width:6px 0 6px 10px;border-color:transparent transparent transparent currentColor;margin-left:3px}
 .wall .wall-tex{z-index:2;pointer-events:none;mix-blend-mode:overlay;opacity:.6}   /* the plaster's grain over the paint (js: buildTexture) */
 .wall.armed canvas{touch-action:none}
 .roller{position:absolute;top:0;bottom:0;left:0;width:46px;z-index:2;transform:translateX(-80px);background:linear-gradient(90deg,transparent,rgba(255,77,196,.55) 35%,rgba(255,77,196,.55) 65%,transparent);pointer-events:none}
@@ -271,7 +292,8 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 /* touch targets: every control answers to at least 44×44 px. The smaller ones keep their look and get an invisible
    hit area around them, centred, so a thumb that lands just outside the pill still counts */
 .chip,.can,.seg button,.tray-btn,.st-spray,.st-hear,.ov-btn,.tk-pause,.music-btn,.pause-btn{position:relative}
-.chip::after,.can::after,.seg button::after,.tray-btn::after,.st-spray::after,.st-hear::after,.ov-btn::after,.tk-pause::after,.music-btn::after,.pause-btn::after{content:"";position:absolute;left:50%;top:50%;width:max(100%,44px);height:max(100%,44px);transform:translate(-50%,-50%)}
+.wall-still{position:absolute}   /* keeps its corner; the hit area below still centres on it */
+.chip::after,.can::after,.seg button::after,.tray-btn::after,.st-spray::after,.st-hear::after,.wall-still::after,.ov-btn::after,.tk-pause::after,.music-btn::after,.pause-btn::after{content:"";position:absolute;left:50%;top:50%;width:max(100%,44px);height:max(100%,44px);transform:translate(-50%,-50%)}
 .tray-btn{appearance:none;border:1px solid var(--line-strong);background:transparent;color:var(--text);font:600 .62rem/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:.9em 1.15em;border-radius:999px;cursor:pointer}
 .tray-btn:hover{border-color:var(--text)}
 .tray-btn.arm{display:none}
@@ -820,6 +842,7 @@ body:has(.game.playing) .ticker{display:none}
 @keyframes tk{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @media (max-width:560px){.tk-chip{padding:0 11px;font-size:.9rem}.ticker-set{font-size:.74rem}.tk-item b{font-size:.9rem}}
 /* with reduced motion it doesn't move at all: one static line, and nothing to pause */
+@media (prefers-reduced-motion:reduce){.wl-sun,.wl-leaves{animation:none}.wall-still{display:none!important}}   /* the light stays still: no button needed */
 @media (prefers-reduced-motion:reduce){.ticker-track{animation:none}.ticker-set + .ticker-set{display:none}.tk-view{-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}.tk-pause{display:none}}
 /* ===== Bihać, the chill ride (bihac/): it covers the game frame while it runs, with its own corner buttons and cards.
    The cards use the game's .ov look; these are only the ride's own parts. ===== */
@@ -1009,6 +1032,9 @@ body:has(.game.playing) .ticker{display:none}
     <canvas id="wall-canvas" tabindex="0" role="application" aria-roledescription="wall to paint" aria-label="Wall to paint" aria-describedby="wall-keys"></canvas>
     <p class="sr-only" id="wall-keys"><span lang="bs">Povuci po zidu i farbaj.</span> Drag across it to paint. With a keyboard: the arrow keys move the nozzle, Shift with an arrow moves it further, and holding Space sprays. Colours and paint styles are just below the wall.</p>
     <div class="roller" id="roller" hidden></div>
+    <!-- the living light: only the light moves; the wall and the paint stay put (js: the living-light block in core.js) -->
+    <i class="wl-sun" aria-hidden="true"></i><i class="wl-leaves" aria-hidden="true"></i>
+    <button class="wall-still" id="wall-still" type="button" aria-pressed="false" aria-label="Pause the light on the wall" hidden><i aria-hidden="true"></i></button>
     <p class="wall-hint" id="wall-hint">Drag to spray · <span lang="bs">povuci po zidu</span></p>
   </div>
   <div class="tray" role="group" aria-label="Spray tools">

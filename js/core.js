@@ -2240,9 +2240,33 @@ function watchGame() {
 /* UI sounds: a quiet click for the page's buttons and switches. It listens after the buttons' own handlers, so
    switching the sound off is silent, and like every sound it waits for the first tap and obeys the sound switch. */
 document.addEventListener('click', (e) => {
-  const b = e.target.closest && e.target.closest('.seg button, .tray-btn, .chip, .ov-btn, .st-spray, .st-hear, .full-x, .tk-pause');
+  const b = e.target.closest && e.target.closest('.seg button, .tray-btn, .chip, .ov-btn, .st-spray, .st-hear, .full-x, .tk-pause, .wall-still');
   if (b && Sound.on) Sound.sfx.tick();
 });
+
+/* ===== the living light on the hero wall =====
+   Sun and leaf shadows move across the wall (CSS, index.html). The leaf picture is fetched once the page has loaded;
+   the button pauses it all and the choice is remembered; it also rests while the wall is off screen. With reduced
+   motion the CSS keeps it still and hides the button. */
+(() => {
+  const wall = $('#wall'), btn = $('#wall-still');
+  if (!wall || !btn) return;
+  const set = (still) => {
+    wall.classList.toggle('still', still);
+    btn.setAttribute('aria-pressed', still ? 'true' : 'false');
+    const label = still ? L('Pokreni svjetlo na zidu', 'Play the light on the wall') : L('Zaustavi svjetlo na zidu', 'Pause the light on the wall');
+    btn.setAttribute('aria-label', label); btn.title = label;
+  };
+  set(Store.get('wallStill', false) === true);
+  btn.hidden = false;
+  btn.addEventListener('click', () => { const still = !wall.classList.contains('still'); set(still); Store.set('wallStill', still); });
+  Lang.on(() => set(wall.classList.contains('still')));   /* the label follows the language switch */
+  const lit = () => wall.classList.add('lit');
+  if (document.readyState === 'complete') lit(); else addEventListener('load', lit, { once: true });
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver((es) => { for (const e of es) wall.classList.toggle('wl-off', !e.isIntersecting); }).observe(wall);
+  }
+})();
 
 /* ===== play fullscreen (phones) =====
    The game and its pads cover the screen. Where the browser allows it, that's real fullscreen, turned sideways;
