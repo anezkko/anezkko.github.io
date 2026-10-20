@@ -18,7 +18,7 @@ Webby) without losing what makes it ZID.
 - `img/`, `fonts/` (self-hosted WOFF2 + OFL), `audio/`, icons, `manifest.json`, `sw.js` (network-first cache,
   version in `CACHE`), `404.html`, `robots.txt`, `sitemap.xml`, `CNAME`.
 - `_dev/` dev-only tools, never published (GitHub Pages skips `_` folders): `serve.py`, `check.mjs`,
-  `build_fonts.py`, `make_leaves.py` (the hero's leaf shadows), `press-shots.mjs`, `qa.mjs`, `record.mjs`, `baseline/`,
+  `build_fonts.py`, `make_leaves.py` (the hero's leaf shadows), `make_wolf.py` (the wolf companion, from `art/wolf/`), `press-shots.mjs`, `qa.mjs`, `record.mjs`, `baseline/`,
   `BACKLOG.md`, `RECORDING.md`, `awards/`. Don't add `.nojekyll`.
 - `main` is the live site (GitHub Pages, DNS on Cloudflare).
 - Placeholders for the owner's own words use `.ph` / `.ph-card` / `.ph-sec`: shown on preview hosts only, never live.
