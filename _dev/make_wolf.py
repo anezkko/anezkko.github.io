@@ -17,7 +17,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, 'art', 'wolf')
 OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, 'out', 'wolf')
 os.makedirs(OUT, exist_ok=True)
-SCALE = 1 / 5.9          # one art pixel = one game unit: the standing wolf comes out about 52 units tall (Grafiter is 78)
+SCALE = 1 / 4.8          # one art pixel = one game unit: the standing wolf comes out about 64 units tall (Grafiter is 78)
 COLOURS = 24
 
 
