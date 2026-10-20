@@ -65,17 +65,25 @@ def shrink(rgba):
 run = cut('run')
 ground = max(b for _, b in run)                      # the sheet's ground line: the lowest paw of the standing wolf
 lift = [round((ground - b) * SCALE * 0.3) for _, b in run]   # how high each frame floats, toned down: a gallop, not a hop
-# Gemini drew the last run frame about 15% bigger than the rest; even it out so the head doesn't pulse
-SIZE = {len(run) - 1: 0.87}
-sheets = {'run': [shrink(cv2.resize(f, None, fx=SIZE.get(j, 1), fy=SIZE.get(j, 1), interpolation=cv2.INTER_AREA)) for j, (f, _) in enumerate(run)]}
-target = np.median([f.shape[1] for f in sheets['run']])
-# the design and jump pictures are drawn bigger: bring each to the run frames' wolf length
-for n, share in (('design', 0.92), ('jump', 1.0)):
-    fr = []
-    for f, _ in cut(n):
-        k = (target * share) / (f.shape[1] * SCALE)
-        fr.append(shrink(cv2.resize(f, None, fx=k, fy=k, interpolation=cv2.INTER_AREA)))
-    sheets[n] = fr
+
+
+def bandana(f):
+    """how many pixels of pink bandana a frame shows: the one part that's the same size in every pose"""
+    rgb, a = f[:, :, :3].astype(np.int16), f[:, :, 3] > 0
+    return int((a & (rgb[:, :, 0] > 190) & (rgb[:, :, 1] < 130) & (rgb[:, :, 2] > 110)).sum())
+
+
+# Gemini draws each picture (and even single frames) at a slightly different size. Measuring by length doesn't work
+# (a leaping wolf is longer than a standing one), so every frame is sized to show the same amount of bandana as
+# the median running frame.
+pictures = {'run': [f for f, _ in run], 'design': [f for f, _ in cut('design')], 'jump': [f for f, _ in cut('jump')]}
+ref = float(np.median([bandana(f) for f in pictures['run']]))
+sheets = {}
+for n, fr in pictures.items():
+    sheets[n] = []
+    for f in fr:
+        k = (ref / max(1, bandana(f))) ** 0.5
+        sheets[n].append(shrink(cv2.resize(f, None, fx=k, fy=k, interpolation=cv2.INTER_AREA)))
 print({n: [f.shape[1::-1] for f in fr] for n, fr in sheets.items()}, 'lift', lift)
 
 # one palette for every frame (k-means over all solid pixels); purple fringe left over from the background is
