@@ -998,7 +998,8 @@ const Music = (() => {
   /* ---------- the stations ---------- */
   const STATIONS = [
     { id: 'sumrak', name: 'Sumrak', desc: 'Ambient dusk, no drums · 64 BPM', s16: 60 / 64 / 4, steps: 16, swing: 0, echo: 4, echoLvl: 0.18, verb: 0.75, level: 1.4,
-      arr: [['intro', 4], ['flow', 8], ['melody', 8], ['still', 4], ['melody2', 8]], play: sumrak },
+      /* no intro: the flute's melody starts straight away, then the harp's flow, the melody again, a still moment */
+      arr: [['intro', 0], ['melody', 8], ['flow', 8], ['melody2', 8], ['still', 4]], play: sumrak },
     { id: 'polahko', name: 'Polahko House', desc: 'Balkan house · 122 BPM', s16: 60 / 122 / 4, steps: 16, swing: 0.07, echo: 3, level: 1,
       arr: [['intro', 4], ['groove', 8], ['hook', 8], ['break', 4], ['hook2', 8]], play: polahko },
     { id: 'neretva', name: 'Neretva Nights', desc: 'Synthwave · 100 BPM', s16: 60 / 100 / 4, steps: 16, swing: 0, echo: 3, echoLvl: 0.2, verb: 0.55, gate: true, level: 1.8,
@@ -2264,7 +2265,7 @@ function initMusic() {
   });
   off.addEventListener('click', () => { Music.stop(); Store.set('radio', false); close(true); });
   /* the music starts by itself: browsers only let a page make sound after a tap or click, so Radio ZID fades in
-     softly on the visitor's first one, anywhere on the page. Not from the keyboard (music that starts by itself would
+     on the visitor's first one, anywhere on the page. Not from the keyboard (music that starts by itself would
      talk over a screen reader; the boombox is one Tab away), not for anyone who switched the radio or the sound off
      before (both remembered), and not when that first touch is on the radio or the sound switch, which decide it */
   const FIRST = ['pointerup', 'touchend', 'click'];
@@ -2279,7 +2280,7 @@ function initMusic() {
     tried = true;
     if (Music.playing || !Sound.on || Store.get('radio', true) === false) return;
     if (e.target && e.target.closest && e.target.closest('#music-toggle, #radio-menu, #sound-toggle')) return;
-    if (Music.start(undefined, true, 5)) {
+    if (Music.start(undefined, true, 1.5)) {
       toast(`<span><b>${Music.station.name}</b> · Radio ZID. ${L('Dodirni kasetofon da promijeniš stanicu ili ugasiš muziku.', 'Tap the boombox to change station or turn it off.')}</span>`, 5000);
     }
   }
