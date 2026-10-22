@@ -194,6 +194,8 @@ const Sound = (() => {
     zone() { [523, 659, 784, 1046].forEach((f, i) => tone('triangle', f, f, 0.15, 0.06, i * 0.09)); },
     splash() { burst(0.9, 0.32, 1400); burst(0.45, 0.2, 380); },
     rattle() { burst(0.07, 0.05, 5200, 'bandpass'); },
+    /* the wheels over a rail joint: two quick knocks */
+    clack() { burst(0.05, 0.07, 700); burst(0.05, 0.06, 760, 'lowpass'); setTimeout(() => burst(0.05, 0.05, 650), 90); },
     /* the page's buttons: a quiet click, well under the game's sounds */
     tick() { tone('triangle', 1500, 1100, 0.035, 0.016); },
     quack() { tone('sawtooth', 640, 420, 0.09, 0.03); tone('sawtooth', 600, 400, 0.11, 0.026, 0.13); },
@@ -1321,7 +1323,10 @@ const Hero = (() => {
   }
 
   /* the start of every spray: the first one of a visit shakes the can, then the hiss; a small tick on phones that can */
-  function startSpray() {
+  /* the train listens for the first spray, so it can stop (see the train block): how it started is passed on */
+  let onStart = null;
+  function startSpray(how) {
+    if (onStart) onStart(how);
     speed = 0; lastT = 0;
     if (!shook && Sound.on) { shook = true; Sound.sfx.rattle(); setTimeout(() => Sound.sfx.rattle(), 110); }
     Sound.hiss(STYLES[cap].hiss);
@@ -1339,6 +1344,7 @@ const Hero = (() => {
     wall.classList.toggle('armed', armed);
     armBtn.setAttribute('aria-pressed', armed ? 'true' : 'false');
     armBtn.textContent = armed ? 'Stop painting' : 'Start painting';
+    if (armed && onStart) onStart('arm');   /* on a phone the train waits for the finger, rather than the finger chasing it */
     if (!hinted) hint.textContent = armed ? 'Farbaj prstom · paint with your finger' : 'Dodirni boju pa farbaj · tap a colour, then paint';
   }
   function setCap(v) {
@@ -1350,7 +1356,7 @@ const Hero = (() => {
      Space or Enter sprays, through the same spray, line and drip code as a mouse or a finger */
   const nozzle = document.createElement('div');
   nozzle.className = 'nozzle'; nozzle.setAttribute('aria-hidden', 'true');
-  wall.appendChild(nozzle);
+  cv.parentElement.appendChild(nozzle);   /* beside the canvas, so it rides with the wagon */
   let kx = 0, ky = 0, keyDown = false;
   function placeNozzle() {
     nozzle.style.transform = `translate(${kx}px, ${ky}px)`;
@@ -1375,12 +1381,12 @@ const Hero = (() => {
         kx = nx; ky = ny; placeNozzle();
         return;
       }
-      if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) {
+      if ((e.key === ' ' || e.key === 'Enter') && !e.repeat && !wall.classList.contains('leaving')) {
         e.preventDefault();
         if (keyDown) return;
         keyDown = true; down = true; pid = 'keys';
         lx = kx; ly = ky; stillSince = performance.now();
-        startSpray();
+        startSpray('keys');
         spray(lx, ly, paint.hex, capR());
         travel = 0;
         hideHint();
@@ -1404,6 +1410,7 @@ const Hero = (() => {
   function pos(e) { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
   function bindPointer() {
     cv.addEventListener('pointerdown', (e) => {
+      if (wall.classList.contains('leaving')) return;   /* it's pulling away with someone's piece: wait for the next */
       if (e.pointerType === 'touch') { markCoarse(); armBtn.hidden = false; if (!armed) return; }
       if (e.pointerType === 'mouse' && e.button !== 0) return;
       e.preventDefault();
@@ -1411,7 +1418,7 @@ const Hero = (() => {
       down = true; pid = e.pointerId;
       const p = pos(e);
       lx = p.x; ly = p.y; stillSince = performance.now();
-      startSpray();
+      startSpray('pointer');
       spray(lx, ly, paint.hex, capR());
       travel = 0;
       hideHint();
@@ -1463,13 +1470,13 @@ const Hero = (() => {
   tex.className = 'wall-tex'; tex.setAttribute('aria-hidden', 'true');
   let texFor = '';
   function photoRect(img, w, h) {
-    /* where the photo sits in the wall: object-fit cover, object-position 50% 30% (see .wall-photo) */
+    /* where the picture sits under the canvas (cover; the wagon fills its box exactly, so this is a plain fit) */
     const k = Math.max(w / img.naturalWidth, h / img.naturalHeight);
     const dw = img.naturalWidth * k, dh = img.naturalHeight * k;
     return [(w - dw) * 0.5, (h - dh) * 0.3, dw, dh];
   }
   function buildTexture() {
-    const img = $('.wall-photo', wall);
+    const img = $('.paint-surface', wall);
     if (!img || !img.complete || !img.naturalWidth || !W) return;
     const w = Math.max(1, Math.round(W / 2)), h = Math.max(1, Math.round(H / 2));
     const key = `${w}x${h}|${img.currentSrc}`;
@@ -1528,22 +1535,32 @@ const Hero = (() => {
   }
   async function saveWall() {
     if (!W || !H) return;
-    if (!painted) { toast('<span><b>Prvo ofarbaj zid.</b> Paint something first.</span>'); return; }
+    if (!painted) { toast('<span><b>Prvo ofarbaj vagon.</b> Paint something first.</span>'); return; }
     Sound.ensure(); Sound.sfx.rattle();
     const OW = 1080, OH = 1350, BAND = 200, AH = OH - BAND;
     const o = document.createElement('canvas'); o.width = OW; o.height = OH;
     const x = o.getContext('2d');
     x.fillStyle = '#0A090D'; x.fillRect(0, 0, OW, OH);
-    /* the middle of the wall, cut to fill the picture (like the photo's own object-fit: cover) */
-    const k = Math.max(OW / W, AH / H), sx = (W - OW / k) / 2, sy = (H - AH / k) / 2;
+    /* the scene, cut to fill the top of the picture by height like on the page, with your wagon on its track */
     x.save();
     x.beginPath(); x.rect(0, 0, OW, AH); x.clip();
-    x.setTransform(k, 0, 0, k, -sx * k, -sy * k);
-    const img = $('.wall-photo', wall);
-    if (img && img.complete && img.naturalWidth) x.drawImage(img, ...photoRect(img, W, H));
-    x.drawImage(cv, 0, 0, W, H);
+    const scene = $('.scene-photo', wall);
+    if (scene && scene.complete && scene.naturalWidth) {
+      const sw = scene.naturalWidth * AH / scene.naturalHeight;
+      x.drawImage(scene, (OW - sw) / 2, 0, sw, AH);
+    }
+    /* the wagon: its picture, your paint and the grain, kept to the wagon's outline */
+    const img = $('.paint-surface', wall), car = document.createElement('canvas');
+    car.width = Math.round(W * 2); car.height = Math.round(H * 2);
+    const cx = car.getContext('2d'); cx.scale(2, 2);
+    const ok = img && img.complete && img.naturalWidth;
+    if (ok) cx.drawImage(img, 0, 0, W, H);
+    cx.drawImage(cv, 0, 0, W, H);
     try { buildTexture(); } catch (_) { /* no grain: still a good picture */ }
-    if (tex.width > 1) { x.globalCompositeOperation = 'overlay'; x.globalAlpha = 0.6; x.drawImage(tex, 0, 0, W, H); }
+    if (tex.width > 1) { cx.globalCompositeOperation = 'overlay'; cx.globalAlpha = 0.6; cx.drawImage(tex, 0, 0, W, H); cx.globalAlpha = 1; }
+    if (ok) { cx.globalCompositeOperation = 'destination-in'; cx.drawImage(img, 0, 0, W, H); }
+    const cw = OW - 60, ch = cw * H / W;
+    x.drawImage(car, 30, AH * 946 / 1184 - ch, cw, ch);
     x.restore();
     /* the band underneath: logo, a line in both languages, the address */
     const logo = await loadImg('img/02.webp');
@@ -1556,38 +1573,39 @@ const Hero = (() => {
       x.drawImage(logo, -64, -64, 128, 128); x.restore();
     }
     x.fillStyle = '#ECEAF2'; x.font = '800 44px "Archivo", Arial, sans-serif'; x.textBaseline = 'alphabetic';
-    x.fillText('Ovo je moj zid.', 224, AH + 92);
+    x.fillText('Ovo je moj voz.', 224, AH + 92);
     x.fillStyle = '#A9A5B6'; x.font = '400 28px "Martian Mono", "Courier New", monospace';
-    x.fillText('This is my wall.', 224, AH + 134);
+    x.fillText('This is my train.', 224, AH + 134);
     x.fillStyle = '#B4F53A'; x.font = '600 30px "Martian Mono", "Courier New", monospace'; x.textAlign = 'right';
     x.fillText('zidbosna.com', OW - 56, AH + 134);
     const blob = await new Promise((res) => o.toBlob(res, 'image/jpeg', 0.9));
     if (!blob) return;
-    const name = 'zid-moj-zid.jpg';
+    const name = 'zid-moj-voz.jpg';
     if (isCoarse() && navigator.canShare && window.File) {
       const file = new File([blob], name, { type: 'image/jpeg' });
       if (navigator.canShare({ files: [file] })) {
-        try { await navigator.share({ files: [file], title: 'ZID', text: 'Moj zid · my wall · zidbosna.com' }); return; }
+        try { await navigator.share({ files: [file], title: 'ZID', text: 'Moj voz · my train · zidbosna.com' }); return; }
         catch (err) { if (err && err.name === 'AbortError') return; /* otherwise fall through to a download */ }
       }
     }
     const url = URL.createObjectURL(blob), a = document.createElement('a');
     a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 4000);
-    toast('<span><b>Sačuvano.</b> Your wall is saved as a picture.</span>');
+    toast('<span><b>Sačuvano.</b> Your wagon is saved as a picture.</span>');
   }
 
   function sprayWord(word) {
     if (!W || !H) return;
+    if (onStart) onStart('word');
     textureNow();
     hideHint();
     Sound.ensure();
     const choices = PAINTS.filter((p) => p.id !== 'katran');
     const p = choices[(Math.random() * choices.length) | 0];
-    const size = Math.round(Math.min(H * 0.16, W * 0.12));
+    const size = Math.round(Math.min(H * 0.3, W * 0.1));
     const t = tagCanvas(word, size, p.hex, '#0B0A0F');
     const x = rand(W * 0.04, Math.max(W * 0.05, W - t.w - W * 0.04));
-    const y = rand(H * 0.06, Math.max(H * 0.08, H - t.h - H * 0.06));
+    const y = rand(H * 0.08, Math.max(H * 0.1, H * 0.74 - t.h));   /* on the body, above the wheels */
     putTag(t, x, y, rand(-0.12, 0.08), p.hex, true);
     if (!REDUCED) Sound.hiss(0.8);
   }
@@ -1630,8 +1648,8 @@ const Hero = (() => {
     if ('ResizeObserver' in window) new ResizeObserver(() => { resize(); textureSoon(); }).observe(wall);
     else window.addEventListener('resize', () => { resize(); textureSoon(); });
     for (const ev of ['pointerenter', 'pointerdown', 'focus']) cv.addEventListener(ev, textureNow, { once: true, passive: true });
-    const photo = $('.wall-photo', wall);
-    if (photo && !photo.complete) photo.addEventListener('load', textureSoon, { once: true });   /* touched before the photo arrived */
+    const photo = $('.paint-surface', wall);
+    if (photo) photo.addEventListener('load', textureSoon, { once: true });   /* the wagon's picture comes after the page (see the train) */
     setCursor();
     bindPointer();
     bindKeys();
@@ -1639,7 +1657,13 @@ const Hero = (() => {
     Promise.race([ready, new Promise((r) => setTimeout(r, 1800))]).then(() => resize());
   }
 
-  return { init, sprayWord };
+  /* a fresh wagon rolls in: whatever was painted left with the last one */
+  function reset() {
+    drips.length = 0; reveals.length = 0; wipe = null; roller.hidden = true; painted = false; down = false; pid = null;
+    if (W && H) c.clearRect(0, 0, W, H);
+  }
+
+  return { init, sprayWord, reset, get painted() { return painted; }, onStart(fn) { onStart = fn; } };
 })();
   /* ===== rivals: the scores to beat =====
      This week's top 10 from the scoreboard, plus a friend's score when the page was opened from a challenge link
@@ -2015,10 +2039,10 @@ function buildStickers() {
     ex.appendChild(document.createTextNode(s.en));
     const word = s.w.replace('?', '');
     const b = a.querySelector('.st-spray');
-    b.setAttribute('aria-label', `Spray it: ${word}, on the wall at the top of the page`);
+    b.setAttribute('aria-label', `Spray it: ${word}, on the train at the top of the page`);
     b.addEventListener('click', () => {
       Hero.sprayWord(word.toLowerCase());
-      toast(`<span><b>${word}</b> is on the wall.</span> <a href="#zid">See it ↑</a>`);
+      toast(`<span><b>${word}</b> is on the train.</span> <a href="#zid">See it ↑</a>`);
     });
     box.appendChild(a);
   });
@@ -2244,28 +2268,149 @@ document.addEventListener('click', (e) => {
   if (b && Sound.on) Sound.sfx.tick();
 });
 
-/* ===== the living light on the hero wall =====
-   Sun and leaf shadows move across the wall (CSS, index.html). The leaf picture is fetched once the page has loaded;
-   the button pauses it all and the choice is remembered; it also rests while the wall is off screen. With reduced
-   motion the CSS keeps it still and hides the button. */
+/* ===== the train on the hero =====
+   A train rolls slowly along the Neretva, wagon after wagon, and stops the moment someone starts painting: a stroke
+   brakes it where it is; the keys or a sprayed dictionary word bring the wagon fully into view. "Send it off" takes
+   it, and the piece, away to Mostar, and the next train rolls by. The paint sits on the wagon's own canvas.
+   The round button pauses the train (remembered); the headlight rests while the hero is off screen. With reduced
+   motion the train simply stands there, ready. */
 (() => {
-  const wall = $('#wall'), btn = $('#wall-still');
-  if (!wall || !btn) return;
-  const set = (still) => {
-    wall.classList.toggle('still', still);
-    btn.setAttribute('aria-pressed', still ? 'true' : 'false');
-    const label = still ? L('Pokreni svjetlo na zidu', 'Play the light on the wall') : L('Zaustavi svjetlo na zidu', 'Pause the light on the wall');
-    btn.setAttribute('aria-label', label); btn.title = label;
-  };
-  set(Store.get('wallStill', false) === true);
-  btn.hidden = false;
-  btn.addEventListener('click', () => { const still = !wall.classList.contains('still'); set(still); Store.set('wallStill', still); });
-  Lang.on(() => set(wall.classList.contains('still')));   /* the label follows the language switch */
-  const lit = () => wall.classList.add('lit');
-  if (document.readyState === 'complete') lit(); else addEventListener('load', lit, { once: true });
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver((es) => { for (const e of es) wall.classList.toggle('wl-off', !e.isIntersecting); }).observe(wall);
+  const wall = $('#wall'), train = $('#train'), btn = $('#wall-still'), send = $('#send-off');
+  if (!wall || !train || !btn || !send) return;
+  const car = $('.canvas-car', train);
+  let state = 'away', anim = null, firstPass = true;
+  /* where it stands to be painted: the wagon a little right of centre (centred on a phone), clear of the headline */
+  const stopX = () => wall.clientWidth * (wall.clientWidth < 700 ? 0.5 : 0.62) - (car.offsetLeft + car.offsetWidth / 2);
+  const offLeft = () => -(train.offsetWidth + 40), offRight = () => wall.clientWidth + 40;
+  const speed = () => Math.max(70, wall.clientWidth * 0.11);           /* a slow roll, in pixels a second */
+  const place = (x) => { train.style.transform = `translateX(${Math.round(x)}px)`; };
+  const nowX = () => new DOMMatrixReadOnly(getComputedStyle(train).transform).m41;
+  const still = () => wall.classList.contains('still');
+  function setState(s) {
+    state = s;
+    wall.classList.toggle('leaving', s === 'leaving');
+    wall.classList.toggle('rolling', s === 'rolling');
+    send.hidden = s !== 'stopped';
   }
+  /* every move is a Web Animation (it runs off the main thread, so a busy page can't make the train stutter) with a
+     cubic-bezier curve. Each one starts at exactly the speed the train already has, and on the very frame the last
+     one ended, so the roll, the braking and the pulling away join without a jolt */
+  const LINE = [1 / 3, 1 / 3, 2 / 3, 2 / 3];
+  let seg = null, carry = null;
+  function run(from, to, ms, curve, done) {
+    if (anim) anim.cancel();
+    if (REDUCED) { place(to); done(); return; }
+    anim = train.animate([{ transform: `translateX(${from}px)` }, { transform: `translateX(${to}px)` }],
+      { duration: ms, easing: `cubic-bezier(${curve.join()})`, fill: 'forwards' });
+    anim.startTime = carry !== null ? carry : document.timeline.currentTime;   /* no waiting a frame to begin */
+    seg = { from, to, ms, curve };
+    if (still()) anim.pause();
+    const a = anim;
+    a.onfinish = () => {
+      if (a !== anim) return;
+      place(to); anim = null;
+      carry = a.startTime === null ? null : a.startTime + ms;    /* a move that follows straight on starts where this one ended, to the millisecond */
+      done();
+      carry = null;
+      a.cancel();
+    };
+  }
+  /* from one place to another, starting at speed v0 and ending at v1 (pixels a second): a steady change of speed,
+     like a real train. Given a time instead, the smooth curve that fits it */
+  function glide(from, to, v0, v1, ms, done) {
+    const d = to - from || 1;
+    ms = ms || 2000 * Math.abs(d) / Math.max(1, v0 + v1);
+    run(from, to, ms, [1 / 3, v0 * ms / 3000 / d, 2 / 3, 1 - v1 * ms / 3000 / d], done);
+  }
+  /* how fast the train is going right now, read off the current curve */
+  function speedNow() {
+    if (!anim || !seg) return 0;
+    const [x1, y1, x2, y2] = seg.curve, u = Math.min(1, Math.max(0, anim.currentTime / seg.ms));
+    const B = (p, q, t) => 3 * p * t * (1 - t) ** 2 + 3 * q * t * t * (1 - t) + t ** 3;
+    const D = (p, q, t) => 3 * p * (1 - t) ** 2 + 6 * (q - p) * t * (1 - t) + 3 * (1 - q) * t * t;
+    let t = u;
+    for (let i = 0; i < 8; i++) t = Math.min(1, Math.max(0, t - (B(x1, x2, t) - u) / (D(x1, x2, t) || 1e-6)));
+    return (seg.to - seg.from) / seg.ms * 1000 * D(y1, y2, t) / (D(x1, x2, t) || 1e-6);
+  }
+  /* one train rolling through, end to end; then the next. The first one comes with its wagon already on the way in;
+     the next ones pull in at speed and slow steadily to the roll as their wagon comes into view, so nobody waits
+     on an empty track */
+  function roll() {
+    if (REDUCED) { place(stopX()); setState('stopped'); return; }
+    const mid = stopX() - wall.clientWidth * 0.4, to = offRight(), v = speed();
+    const cruise = () => run(mid, to, (to - mid) / v * 1000, LINE, () => { Hero.reset(); place(offLeft()); roll(); });
+    setState('rolling');
+    if (firstPass) { firstPass = false; cruise(); return; }
+    glide(offLeft(), mid, v * 6, v, 0, cruise);
+  }
+  /* someone started painting: brake, steadily, from whatever speed it has. A stroke stops it a little further on;
+     the keys or a sprayed word bring the wagon into full view first (gathering a little speed if it's far off) */
+  function halt(how) {
+    if (state !== 'rolling') return;
+    const x = nowX(), v0 = Math.max(speedNow(), speed() * 0.5), near = Math.round(x + v0 * 0.4);
+    const to = how === 'pointer' ? near : Math.max(near, Math.round(stopX()));
+    setState('braking');
+    glide(x, to, v0, 0, to === near ? 0 : Math.min(2000 * (to - x) / v0, 2800), () => setState('stopped'));
+  }
+  /* the wheels knock on the rail joints, quicker and quicker as it pulls away (only with sound on) */
+  function clack(ms) {
+    if (!Sound.on || REDUCED) return;
+    Sound.ensure();
+    for (let n = 0; n < 9; n++) setTimeout(() => { if (state === 'leaving') Sound.sfx.clack(); }, ms * 0.8 * Math.sqrt(n / 9));
+  }
+  /* it pulls away from a standstill, steadily faster, and is gone */
+  function leave() {
+    if (state !== 'stopped') return;
+    toast(Hero.painted ? '<span><b>Ide za Mostar.</b> Your piece is riding to Mostar.</span>' : '<span><b>Ode prazan.</b> It left clean. The next one is yours.</span>');
+    const x = nowX(), to = offRight(), v1 = speed() * 7;
+    setState('leaving');
+    clack(2000 * (to - x) / v1);
+    glide(x, to, 0, v1, 0, () => {
+      Hero.reset();
+      place(offLeft());
+      setTimeout(roll, REDUCED ? 0 : 500);
+    });
+  }
+  Hero.onStart(halt);
+  /* the pause button */
+  const set = (on) => {
+    wall.classList.toggle('still', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    const label = on ? L('Pokreni voz', 'Play the train') : L('Zaustavi voz', 'Pause the train');
+    btn.setAttribute('aria-label', label); btn.title = label;
+    if (anim) { if (on) anim.pause(); else anim.play(); }
+  };
+  set(Store.get('trainStill', false) === true);
+  btn.hidden = false;
+  btn.addEventListener('click', () => { const on = !still(); set(on); Store.set('trainStill', on); });
+  Lang.on(() => set(still()));   /* the label follows the language switch */
+  send.addEventListener('click', leave);
+  REDUCE_MQ.addEventListener('change', () => { if (REDUCED && anim) anim.finish(); });
+  /* off the track until it can roll: its pictures are fetched once the page itself has loaded (they aren't the
+     first thing to see, the scene is), and it rolls when they're here and the hero is on screen */
+  setState('away');
+  place(-100000);
+  const img = $('img', car);
+  const loaded = new Promise((r) => {
+    const fetchTrain = () => {
+      for (const el of $$('[data-srcset]', wall)) el.srcset = el.dataset.srcset;
+      for (const el of $$('img[data-src]', wall)) el.src = el.dataset.src;
+      if (img.complete && img.naturalWidth) r(); else { img.addEventListener('load', r, { once: true }); img.addEventListener('error', r, { once: true }); }
+    };
+    if (document.readyState === 'complete') fetchTrain(); else addEventListener('load', fetchTrain, { once: true });
+  });
+  let began = false;
+  const begin = () => { if (!began) { began = true; roll(); } };
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver((es) => {
+      for (const e of es) {
+        wall.classList.toggle('wl-off', !e.isIntersecting);
+        if (e.isIntersecting) loaded.then(begin);
+      }
+    }).observe(wall);
+  } else loaded.then(begin);
+  /* a new size: a standing train keeps its place */
+  if ('ResizeObserver' in window) new ResizeObserver(() => { if (state === 'stopped' && REDUCED) place(stopX()); }).observe(wall);
 })();
 
 /* ===== play fullscreen (phones) =====
