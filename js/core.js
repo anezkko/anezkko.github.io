@@ -2298,13 +2298,17 @@ document.addEventListener('click', (e) => {
     if (still()) anim.pause();
     anim.onfinish = () => { place(to); if (anim) anim.cancel(); anim = null; done(); };
   }
-  /* one train rolling through, end to end; then the next. The first one comes with its wagon already on the way in */
+  /* one train rolling through, end to end; then the next. The first one comes with its wagon already on the way in;
+     the next ones pull in briskly and ease down to the slow roll as their wagon comes into view, so nobody waits
+     on an empty track (the end of that ease matches the roll's speed, so there's no jolt) */
   function roll() {
     if (REDUCED) { place(stopX()); setState('stopped'); return; }
-    const from = firstPass ? stopX() - wall.clientWidth * 0.4 : offLeft(), to = offRight();
-    firstPass = false;
+    const mid = stopX() - wall.clientWidth * 0.4, to = offRight();
+    const cruise = () => run(mid, to, (to - mid) / speed() * 1000, 'linear', () => { Hero.reset(); place(offLeft()); roll(); });
     setState('rolling');
-    run(from, to, (to - from) / speed() * 1000, 'linear', () => { Hero.reset(); place(offLeft()); roll(); });
+    if (firstPass) { firstPass = false; cruise(); return; }
+    const from = offLeft();
+    run(from, mid, (mid - from) / speed() / 2.5 * 1000, 'cubic-bezier(.25,.6,.5,.8)', cruise);
   }
   /* someone started painting: brake. A stroke stops it where it is, a little further on; the keys or a sprayed word
      glide the wagon into full view first */
