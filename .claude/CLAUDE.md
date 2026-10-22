@@ -1,6 +1,7 @@
 # ZID (zidbosna.com)
 
-A free, bilingual (Bosnian/English) page about Bosnian street walls: a sprayable hero wall, the browser game
+A free, bilingual (Bosnian/English) page about Bosnian street walls: a sprayable train in the hero (it rolls in
+along the Neretva at dusk, you paint the wagon, "Send it off" takes it away; js: the train block in core.js), the browser game
 **Sprej do Mostara / Spray to Mostar** (5 zones, Bosanski Novi → the Stari Most dive) plus the **Mirna vožnja:
 Bihać** chill ride (20 history memos), a 12-word street dictionary, 4 street-law rules, a weekly/all-time
 scoreboard and Radio ZID (music generated in code). Owner: @anezkko. Goal: award-ready (Awwwards, CSSDA, FWA,
@@ -18,7 +19,7 @@ Webby) without losing what makes it ZID.
 - `img/`, `fonts/` (self-hosted WOFF2 + OFL), `audio/`, icons, `manifest.json`, `sw.js` (network-first cache,
   version in `CACHE`), `404.html`, `robots.txt`, `sitemap.xml`, `CNAME`.
 - `_dev/` dev-only tools, never published (GitHub Pages skips `_` folders): `serve.py`, `check.mjs`,
-  `build_fonts.py`, `make_leaves.py` (the hero's leaf shadows), `make_wolf.py` (the wolf companion, from `art/wolf/`), `press-shots.mjs`, `qa.mjs`, `record.mjs`, `baseline/`,
+  `build_fonts.py`, `make_train.py` (the train hero, from `art/train/`), `make_wolf.py` (the wolf companion, from `art/wolf/`), `press-shots.mjs`, `qa.mjs`, `record.mjs`, `baseline/`,
   `BACKLOG.md`, `RECORDING.md`, `awards/`. Don't add `.nojekyll`.
 - `main` is the live site (GitHub Pages, DNS on Cloudflare).
 - Placeholders for the owner's own words use `.ph` / `.ph-card` / `.ph-sec`: shown on preview hosts only, never live.

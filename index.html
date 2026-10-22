@@ -43,9 +43,7 @@ if (!/(^|\.)zidbosna\.com$|^anezkko\.github\.io$|^localhost$|^127\.0\.0\.1$/.tes
 </script>
 <link rel="preload" href="fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
 <!-- the first screen: the wall texture (the largest paint) and the wall photo, fetched first -->
-<link rel="preload" href="img/tagwall.webp" as="image" type="image/webp" fetchpriority="high">
-<link rel="preload" as="image" type="image/avif" href="img/wall-768sq.avif" media="(max-width:760px) and (orientation:portrait)" fetchpriority="high">
-<link rel="preload" as="image" type="image/avif" imagesrcset="img/wall-640.avif 640w, img/wall-960.avif 960w, img/wall-1408.avif 1408w" imagesizes="(max-width:760px) 110vh, (max-width:1300px) 100vw, 1240px" media="(min-width:761px), (orientation:landscape)" fetchpriority="high">
+<link rel="preload" as="image" type="image/avif" imagesrcset="img/train/scene-1200.avif 1200w, img/train/scene-1800.avif 1800w, img/train/scene-2400.avif 2400w" imagesizes="(max-width:760px) 182vh, min(165vw, 2050px)" fetchpriority="high">
 <style>
 /* Layout: a black wall of old tags under a magenta glow. Big bold type, neon numbers, stickers pasted on top. One dark world by design. */
 /* fonts: self-hosted (fonts/, OFL), one file each: Latin + Latin Extended + the symbols in use, built by
@@ -199,13 +197,10 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
   width:100%;aspect-ratio:1408/768;max-height:74vh;min-height:300px;
   background-color:var(--wall);
   background-image:
-    radial-gradient(55% 65% at 76% 46%,rgba(139,61,255,.40),transparent 70%),
-    linear-gradient(rgba(14,12,19,.45),rgba(14,12,19,.45)),
-    var(--tagwall,none);
-  background-size:auto,auto,720px 720px}
-.wall-photo{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%;display:block;user-select:none;-webkit-user-select:none;-webkit-user-drag:none;pointer-events:none}
-/* the headline sits on the wall, top left, over a dark fade so white text reads on the plaster; paint goes over it */
-.wall::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(80% 92% at 0% 0%,rgba(10,9,13,.9) 0%,rgba(10,9,13,.76) 34%,rgba(10,9,13,.36) 58%,rgba(10,9,13,0) 78%)}
+    radial-gradient(55% 65% at 76% 46%,rgba(139,61,255,.40),transparent 70%)}
+.scene-photo{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;object-position:50% 100%;display:block;user-select:none;-webkit-user-select:none;-webkit-user-drag:none;pointer-events:none}
+/* the headline sits top left over a dark fade so white text reads on the scene; the fade lies over the train too */
+.wall::before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(80% 92% at 0% 0%,rgba(10,9,13,.9) 0%,rgba(10,9,13,.76) 34%,rgba(10,9,13,.36) 58%,rgba(10,9,13,0) 78%)}
 .hero-copy{position:absolute;z-index:3;left:clamp(18px,3.6vw,52px);top:clamp(16px,2.6vw,34px);max-width:min(62%,660px);pointer-events:none}
 /* the main way in: a big Play button on the wall that opens the game at level 1 */
 .wall-play{pointer-events:auto;display:inline-flex;align-items:center;gap:14px;margin-top:clamp(16px,2vw,26px);padding:11px 26px 11px 11px;border-radius:999px;background:var(--lime);color:var(--ink);text-decoration:none;box-shadow:0 14px 34px -12px rgba(180,245,58,.75),0 0 0 1px rgba(0,0,0,.25);transition:transform var(--t-fast) var(--ease-out),box-shadow var(--t-fast) var(--ease-out)}
@@ -238,28 +233,41 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .wall-hint{position:absolute;left:16px;bottom:16px;z-index:3;margin:0;max-width:calc(100% - 32px);font-family:var(--f-mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;background:rgba(10,9,13,.76);border:1px solid rgba(255,255,255,.16);color:#F4F0E6;padding:.75em 1.1em;border-radius:999px;pointer-events:none;box-shadow:0 10px 26px -12px rgba(0,0,0,.7);transition:opacity .4s ease}
 .wall-hint.gone{opacity:0}
 .wall canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:crosshair;touch-action:pan-y;z-index:2}
-/* the living light: an afternoon on the wall. A warm patch of sun drifts across, leaf shadows slide and sway in the
-   wind, and now and then a cloud dims both. They sit right in the wall (no wrapper), so their blending reaches the
-   photo and the paint below; each one moves with the separate translate/rotate properties, so two motions share an
-   element. Paused by the button, off screen and with reduced motion. */
-.wl-sun,.wl-leaves{position:absolute;z-index:2;pointer-events:none;display:block}
-.wl-sun{inset:-35%;background:radial-gradient(30% 36% at 50% 50%,rgba(255,196,120,.95),rgba(255,196,120,.35) 45%,rgba(255,196,120,0) 74%);mix-blend-mode:soft-light;
-  animation:wl-sun 52s ease-in-out infinite alternate,wl-cloud 37s ease-in-out infinite}
-.wl-leaves{inset:-14%;background:center/cover no-repeat;mix-blend-mode:multiply;opacity:.62;transform-origin:85% -60%;
-  animation:wl-drift 64s ease-in-out infinite alternate,wl-sway 5.5s ease-in-out infinite alternate,wl-shade 37s ease-in-out infinite}
-.wall.lit .wl-leaves{background-image:url("img/leaves.webp")}   /* fetched after load, never in the way of the first paint */
-@keyframes wl-sun{from{translate:18% -8%}to{translate:-14% 6%}}
-@keyframes wl-drift{from{translate:3% -2%}to{translate:-4% 3%}}
-@keyframes wl-sway{from{rotate:-.5deg}to{rotate:.7deg}}
-@keyframes wl-cloud{0%,62%,100%{opacity:1}72%,84%{opacity:.25}}
-@keyframes wl-shade{0%,62%,100%{opacity:.62}72%,84%{opacity:.16}}
-.wall.still .wl-sun,.wall.still .wl-leaves,.wall.wl-off .wl-sun,.wall.wl-off .wl-leaves{animation-play-state:paused}
-.wall-still{position:absolute;z-index:4;right:14px;bottom:14px;width:40px;height:40px;border-radius:50%;border:1px solid var(--line-strong);background:rgba(10,9,13,.72);color:#F4F0E6;display:grid;place-items:center;cursor:pointer;transition:background var(--t-fast) var(--ease-out)}
+/* the train stands on the scene's track: the rail is 79.9% down the picture, so the train's bottom is 20.1% up, and its
+   height is a share of the box, so it keeps its place at any size. js moves it in and out with a transform. */
+.wall{--car:31%}   /* the train's height, a share of the box */
+.train{position:absolute;left:0;bottom:20.1%;height:var(--car);z-index:1;display:flex;align-items:flex-end;will-change:transform;pointer-events:none}
+.car{position:relative;height:100%;flex:none}
+.car.loco{height:102.8%}                                  /* the locomotive art is that much taller than the wagon */
+.car picture,.car img{display:block;height:100%;width:auto;aspect-ratio:1600/426}   /* the box is kept before the picture arrives */
+.car.loco picture,.car.loco img{aspect-ratio:1591/438}
+.canvas-car{pointer-events:auto}
+/* the paint only shows on the wagon itself, never on the sky between its wheels */
+.canvas-car canvas{-webkit-mask:url("img/train/wagon-mask.png") 0 0/100% 100% no-repeat;mask:url("img/train/wagon-mask.png") 0 0/100% 100% no-repeat}
+.wall.moving .canvas-car canvas{cursor:default}
+.headlight{position:absolute;left:95.7%;top:31%;width:13%;aspect-ratio:1;translate:-50% -50%;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(255,240,200,.95) 0,rgba(255,210,150,.5) 22%,rgba(255,170,120,0) 68%);mix-blend-mode:screen;animation:headlight 2.6s ease-in-out infinite alternate}
+@keyframes headlight{from{opacity:.75;scale:.92}to{opacity:1;scale:1.06}}
+.wall.still .headlight,.wall.wl-off .headlight{animation-play-state:paused}
+/* things standing in front of the track (a pole, a clump of grass): the train passes behind them */
+.front{position:absolute;inset:0;z-index:2;pointer-events:none}
+.fr{position:absolute;bottom:15.5%;display:block}
+.fr img{display:block;height:100%;width:auto}
+.fr-pole{left:2.5%;height:46%}
+.fr-grass{left:57%;height:9.5%}
+/* the train's two buttons ride just above the wagon's roof, on the right: they belong to the train */
+.train-ctl{position:absolute;z-index:4;right:14px;bottom:calc(20.1% + var(--car) + 12px);display:flex;align-items:center;gap:8px}
+.send-off{display:inline-flex;align-items:center;gap:.4em;min-height:44px;padding:0 18px;border:0;border-radius:999px;background:var(--lime);color:var(--ink);font:800 .95rem/1 var(--f-display);letter-spacing:-.01em;cursor:pointer;box-shadow:0 12px 28px -12px rgba(180,245,58,.75),0 0 0 1px rgba(0,0,0,.25);transition:transform var(--t-fast) var(--ease-out)}
+.send-off:hover{transform:translateY(-2px)}
+.send-off span[lang]{font-weight:600;opacity:.72}
+.send-off[hidden]{display:none}
+
+.wall-still{position:relative;flex:none;width:40px;height:40px;border-radius:50%;border:1px solid var(--line-strong);background:rgba(10,9,13,.72);color:#F4F0E6;display:grid;place-items:center;cursor:pointer;transition:background var(--t-fast) var(--ease-out)}
 .wall-still:hover{background:rgba(10,9,13,.9)}
 .wall-still[hidden]{display:none}
 .wall-still i{display:block;width:10px;height:12px;border-left:3.5px solid currentColor;border-right:3.5px solid currentColor}
 .wall-still[aria-pressed="true"] i{width:0;height:0;border-style:solid;border-width:6px 0 6px 10px;border-color:transparent transparent transparent currentColor;margin-left:3px}
-.wall .wall-tex{z-index:2;pointer-events:none;mix-blend-mode:overlay;opacity:.6}   /* the plaster's grain over the paint (js: buildTexture) */
+.wall .wall-tex{z-index:2;pointer-events:none;mix-blend-mode:overlay;opacity:.6;-webkit-mask:url("img/train/wagon-mask.png") 0 0/100% 100% no-repeat;mask:url("img/train/wagon-mask.png") 0 0/100% 100% no-repeat}   /* the wagon's own grain and rust over the paint (js: buildTexture) */
 .wall.armed canvas{touch-action:none}
 .roller{position:absolute;top:0;bottom:0;left:0;width:46px;z-index:2;transform:translateX(-80px);background:linear-gradient(90deg,transparent,rgba(255,77,196,.55) 35%,rgba(255,77,196,.55) 65%,transparent);pointer-events:none}
 .hero-front{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:18px 40px}
@@ -292,7 +300,6 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 /* touch targets: every control answers to at least 44×44 px. The smaller ones keep their look and get an invisible
    hit area around them, centred, so a thumb that lands just outside the pill still counts */
 .chip,.can,.seg button,.tray-btn,.st-spray,.st-hear,.ov-btn,.tk-pause,.music-btn,.pause-btn{position:relative}
-.wall-still{position:absolute}   /* keeps its corner; the hit area below still centres on it */
 .chip::after,.can::after,.seg button::after,.tray-btn::after,.st-spray::after,.st-hear::after,.wall-still::after,.ov-btn::after,.tk-pause::after,.music-btn::after,.pause-btn::after{content:"";position:absolute;left:50%;top:50%;width:max(100%,44px);height:max(100%,44px);transform:translate(-50%,-50%)}
 .tray-btn{appearance:none;border:1px solid var(--line-strong);background:transparent;color:var(--text);font:600 .62rem/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:.9em 1.15em;border-radius:999px;cursor:pointer}
 .tray-btn:hover{border-color:var(--text)}
@@ -706,6 +713,7 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
   #igra > .route-wrap{order:3;margin:30px 0 0}
 }
 @media (max-width:760px){
+  .wall .wall-beat{display:none!important}   /* on a phone the wagon needs that room: the score to beat still shows in the game */
   .sec-head,.foot{grid-template-columns:1fr}
   .laws{grid-template-columns:1fr}
 }
@@ -842,7 +850,7 @@ body:has(.game.playing) .ticker{display:none}
 @keyframes tk{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @media (max-width:560px){.tk-chip{padding:0 11px;font-size:.9rem}.ticker-set{font-size:.74rem}.tk-item b{font-size:.9rem}}
 /* with reduced motion it doesn't move at all: one static line, and nothing to pause */
-@media (prefers-reduced-motion:reduce){.wl-sun,.wl-leaves{animation:none}.wall-still{display:none!important}}   /* the light stays still: no button needed */
+@media (prefers-reduced-motion:reduce){.headlight{animation:none}.wall-still{display:none!important}}   /* the train just stands there: no button needed */
 @media (prefers-reduced-motion:reduce){.ticker-track{animation:none}.ticker-set + .ticker-set{display:none}.tk-view{-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}.tk-pause{display:none}}
 /* ===== Bihać, the chill ride (bihac/): it covers the game frame while it runs, with its own corner buttons and cards.
    The cards use the game's .ov look; these are only the ride's own parts. ===== */
@@ -1017,32 +1025,43 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
 <section class="hero" id="zid" aria-labelledby="hero-h">
   <div class="decal d-bih" style="--r:-7deg" aria-hidden="true"><b>BIH</b></div>
   <div class="wall" id="wall">
-    <!-- the wall photo is the biggest thing on screen: AVIF where the browser takes it, sized to how wide it really
-         shows (on a phone the wall is tall, so the photo is cropped from about 110vh of width) -->
+    <!-- the scene: dusk in the Neretva valley, the track 79.9% of the way down. It's cut to fill the box by height, so
+         its width on screen is the box height x 3.03 (about 182vh on a phone, 165vw on a wider screen) -->
     <picture>
-      <!-- a portrait phone only ever shows the middle of the photo: send just that square -->
-      <source media="(max-width:760px) and (orientation:portrait)" type="image/avif" srcset="img/wall-768sq.avif">
-      <source media="(max-width:760px) and (orientation:portrait)" type="image/webp" srcset="img/wall-768sq.webp">
-      <source type="image/avif" srcset="img/wall-640.avif 640w, img/wall-960.avif 960w, img/wall-1408.avif 1408w" sizes="(max-width:760px) 110vh, (max-width:1300px) 100vw, 1240px">
-      <source type="image/webp" srcset="img/wall-640.webp 640w, img/wall-960.webp 960w, img/wall-1408.webp 1408w" sizes="(max-width:760px) 110vh, (max-width:1300px) 100vw, 1240px">
-      <img class="wall-photo" src="img/wall-1408.webp" alt="" width="1408" height="768" decoding="async" fetchpriority="high" onerror="this.remove()">
+      <source type="image/avif" srcset="img/train/scene-1200.avif 1200w, img/train/scene-1800.avif 1800w, img/train/scene-2400.avif 2400w" sizes="(max-width:760px) 182vh, min(165vw, 2050px)">
+      <source type="image/webp" srcset="img/train/scene-1200.webp 1200w, img/train/scene-1800.webp 1800w, img/train/scene-2400.webp 2400w" sizes="(max-width:760px) 182vh, min(165vw, 2050px)">
+      <img class="scene-photo" src="img/train/scene-1800.webp" alt="" width="1800" height="595" decoding="async" fetchpriority="high">
     </picture>
     <div class="hero-copy">
       <p class="eyebrow">ZID · Sarajevo → Mostar</p>
-      <h1 class="hero-h" id="hero-h"><span>This is a wall.</span> <span>Paint it.</span></h1>
-      <p class="hero-en" lang="bs">Ovo je zid. Ofarbaj ga.</p>
+      <h1 class="hero-h" id="hero-h"><span>Here comes the train.</span> <span>Paint it.</span></h1>
+      <p class="hero-en" lang="bs">Evo voza. Ofarbaj ga.</p>
       <div class="wall-cta">
       <a class="wall-play" href="#igra" data-play><i class="wp-ico" aria-hidden="true"></i><span class="wp-txt"><b>Play Spray to Mostar</b><small>Free · no sign-up<span class="wp-ph"> · works on your phone</span></small></span></a>
       <p class="wall-beat" id="wall-beat" hidden><i class="wb-crown" aria-hidden="true"></i><span class="wb-t"><span class="wb-k" id="wb-k"></span> <span class="wb-v" id="wb-v"></span></span></p>
       </div>
     </div>
-    <canvas id="wall-canvas" tabindex="0" role="application" aria-roledescription="wall to paint" aria-label="Wall to paint" aria-describedby="wall-keys"></canvas>
-    <p class="sr-only" id="wall-keys"><span lang="bs">Povuci po zidu i farbaj.</span> Drag across it to paint. With a keyboard: the arrow keys move the nozzle, Shift with an arrow moves it further, and holding Space sprays. Colours and paint styles are just below the wall.</p>
-    <div class="roller" id="roller" hidden></div>
-    <!-- the living light: only the light moves; the wall and the paint stay put (js: the living-light block in core.js) -->
-    <i class="wl-sun" aria-hidden="true"></i><i class="wl-leaves" aria-hidden="true"></i>
-    <button class="wall-still" id="wall-still" type="button" aria-pressed="false" aria-label="Pause the light on the wall" hidden><i aria-hidden="true"></i></button>
-    <p class="wall-hint" id="wall-hint">Drag to spray · <span lang="bs">povuci po zidu</span></p>
+    <!-- the train: a spare wagon, the wagon you paint (the paint canvas sits on it and goes where it goes) and the
+         locomotive, standing on the scene's track (js: the train block in core.js) -->
+    <div class="train" id="train">
+      <div class="car spare" aria-hidden="true"><picture><source type="image/avif" data-srcset="img/train/wagon-red.avif"><img data-src="img/train/wagon-red.webp" alt="" width="1600" height="426" decoding="async"></picture></div>
+      <div class="car canvas-car">
+        <picture><source type="image/avif" data-srcset="img/train/wagon.avif"><img class="paint-surface" data-src="img/train/wagon.webp" alt="" width="1600" height="426" decoding="async"></picture>
+        <canvas id="wall-canvas" tabindex="0" role="application" aria-roledescription="wagon to paint" aria-label="Train wagon to paint" aria-describedby="wall-keys"></canvas>
+        <div class="roller" id="roller" hidden></div>
+      </div>
+      <div class="car loco" aria-hidden="true"><picture><source type="image/avif" data-srcset="img/train/loco.avif"><img data-src="img/train/loco.webp" alt="" width="1591" height="438" decoding="async"></picture><i class="headlight"></i></div>
+    </div>
+    <div class="front" aria-hidden="true">
+      <picture class="fr fr-pole"><source type="image/avif" data-srcset="img/train/front-0.avif"><img data-src="img/train/front-0.webp" alt="" width="155" height="614" decoding="async"></picture>
+      <picture class="fr fr-grass"><source type="image/avif" data-srcset="img/train/front-3.avif"><img data-src="img/train/front-3.webp" alt="" width="278" height="125" decoding="async"></picture>
+    </div>
+    <p class="sr-only" id="wall-keys"><span lang="bs">Povuci po vagonu i farbaj.</span> Drag across the wagon to paint. With a keyboard: the arrow keys move the nozzle, Shift with an arrow moves it further, and holding Space sprays. Colours and paint styles are just below the wall.</p>
+    <div class="train-ctl">
+      <button class="wall-still" id="wall-still" type="button" aria-pressed="false" aria-label="Pause the train" hidden><i aria-hidden="true"></i></button>
+      <button class="send-off" id="send-off" type="button" hidden>Send it off <span lang="bs">· pošalji ga</span> <span aria-hidden="true">→</span></button>
+    </div>
+    <p class="wall-hint" id="wall-hint">Drag across the wagon · <span lang="bs">povuci po vagonu</span></p>
   </div>
   <div class="tray" role="group" aria-label="Spray tools">
     <span class="tray-l" id="cans-label">Colour</span>
@@ -1056,8 +1075,8 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
       <button type="button" data-cap="marker" aria-pressed="false" title="A paint marker: hard, solid line">Marker</button>
     </div>
     <button type="button" class="tray-btn arm" id="arm-toggle" aria-pressed="false">Start painting</button>
-    <button type="button" class="tray-btn" id="save-wall" aria-label="Save the wall as a picture">Save<span class="cw-x"> the wall</span></button>
-    <button type="button" class="tray-btn" id="whitewash" aria-label="Clean the wall">Clean<span class="cw-x"> the wall</span></button>
+    <button type="button" class="tray-btn" id="save-wall" aria-label="Save the wagon as a picture">Save<span class="cw-x"> the wagon</span></button>
+    <button type="button" class="tray-btn" id="whitewash" aria-label="Clean the wagon">Clean<span class="cw-x"> the wagon</span></button>
   </div>
   <div class="hero-text">
     <div class="hero-front">

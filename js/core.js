@@ -194,6 +194,8 @@ const Sound = (() => {
     zone() { [523, 659, 784, 1046].forEach((f, i) => tone('triangle', f, f, 0.15, 0.06, i * 0.09)); },
     splash() { burst(0.9, 0.32, 1400); burst(0.45, 0.2, 380); },
     rattle() { burst(0.07, 0.05, 5200, 'bandpass'); },
+    /* the wheels over a rail joint: two quick knocks */
+    clack() { burst(0.05, 0.07, 700); burst(0.05, 0.06, 760, 'lowpass'); setTimeout(() => burst(0.05, 0.05, 650), 90); },
     /* the page's buttons: a quiet click, well under the game's sounds */
     tick() { tone('triangle', 1500, 1100, 0.035, 0.016); },
     quack() { tone('sawtooth', 640, 420, 0.09, 0.03); tone('sawtooth', 600, 400, 0.11, 0.026, 0.13); },
@@ -1350,7 +1352,7 @@ const Hero = (() => {
      Space or Enter sprays, through the same spray, line and drip code as a mouse or a finger */
   const nozzle = document.createElement('div');
   nozzle.className = 'nozzle'; nozzle.setAttribute('aria-hidden', 'true');
-  wall.appendChild(nozzle);
+  cv.parentElement.appendChild(nozzle);   /* beside the canvas, so it rides with the wagon */
   let kx = 0, ky = 0, keyDown = false;
   function placeNozzle() {
     nozzle.style.transform = `translate(${kx}px, ${ky}px)`;
@@ -1375,7 +1377,7 @@ const Hero = (() => {
         kx = nx; ky = ny; placeNozzle();
         return;
       }
-      if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) {
+      if ((e.key === ' ' || e.key === 'Enter') && !e.repeat && !wall.classList.contains('moving')) {
         e.preventDefault();
         if (keyDown) return;
         keyDown = true; down = true; pid = 'keys';
@@ -1404,6 +1406,7 @@ const Hero = (() => {
   function pos(e) { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
   function bindPointer() {
     cv.addEventListener('pointerdown', (e) => {
+      if (wall.classList.contains('moving')) return;   /* the train is rolling: wait for it to stop */
       if (e.pointerType === 'touch') { markCoarse(); armBtn.hidden = false; if (!armed) return; }
       if (e.pointerType === 'mouse' && e.button !== 0) return;
       e.preventDefault();
@@ -1463,13 +1466,13 @@ const Hero = (() => {
   tex.className = 'wall-tex'; tex.setAttribute('aria-hidden', 'true');
   let texFor = '';
   function photoRect(img, w, h) {
-    /* where the photo sits in the wall: object-fit cover, object-position 50% 30% (see .wall-photo) */
+    /* where the picture sits under the canvas (cover; the wagon fills its box exactly, so this is a plain fit) */
     const k = Math.max(w / img.naturalWidth, h / img.naturalHeight);
     const dw = img.naturalWidth * k, dh = img.naturalHeight * k;
     return [(w - dw) * 0.5, (h - dh) * 0.3, dw, dh];
   }
   function buildTexture() {
-    const img = $('.wall-photo', wall);
+    const img = $('.paint-surface', wall);
     if (!img || !img.complete || !img.naturalWidth || !W) return;
     const w = Math.max(1, Math.round(W / 2)), h = Math.max(1, Math.round(H / 2));
     const key = `${w}x${h}|${img.currentSrc}`;
@@ -1528,22 +1531,32 @@ const Hero = (() => {
   }
   async function saveWall() {
     if (!W || !H) return;
-    if (!painted) { toast('<span><b>Prvo ofarbaj zid.</b> Paint something first.</span>'); return; }
+    if (!painted) { toast('<span><b>Prvo ofarbaj vagon.</b> Paint something first.</span>'); return; }
     Sound.ensure(); Sound.sfx.rattle();
     const OW = 1080, OH = 1350, BAND = 200, AH = OH - BAND;
     const o = document.createElement('canvas'); o.width = OW; o.height = OH;
     const x = o.getContext('2d');
     x.fillStyle = '#0A090D'; x.fillRect(0, 0, OW, OH);
-    /* the middle of the wall, cut to fill the picture (like the photo's own object-fit: cover) */
-    const k = Math.max(OW / W, AH / H), sx = (W - OW / k) / 2, sy = (H - AH / k) / 2;
+    /* the scene, cut to fill the top of the picture by height like on the page, with your wagon on its track */
     x.save();
     x.beginPath(); x.rect(0, 0, OW, AH); x.clip();
-    x.setTransform(k, 0, 0, k, -sx * k, -sy * k);
-    const img = $('.wall-photo', wall);
-    if (img && img.complete && img.naturalWidth) x.drawImage(img, ...photoRect(img, W, H));
-    x.drawImage(cv, 0, 0, W, H);
+    const scene = $('.scene-photo', wall);
+    if (scene && scene.complete && scene.naturalWidth) {
+      const sw = scene.naturalWidth * AH / scene.naturalHeight;
+      x.drawImage(scene, (OW - sw) / 2, 0, sw, AH);
+    }
+    /* the wagon: its picture, your paint and the grain, kept to the wagon's outline */
+    const img = $('.paint-surface', wall), car = document.createElement('canvas');
+    car.width = Math.round(W * 2); car.height = Math.round(H * 2);
+    const cx = car.getContext('2d'); cx.scale(2, 2);
+    const ok = img && img.complete && img.naturalWidth;
+    if (ok) cx.drawImage(img, 0, 0, W, H);
+    cx.drawImage(cv, 0, 0, W, H);
     try { buildTexture(); } catch (_) { /* no grain: still a good picture */ }
-    if (tex.width > 1) { x.globalCompositeOperation = 'overlay'; x.globalAlpha = 0.6; x.drawImage(tex, 0, 0, W, H); }
+    if (tex.width > 1) { cx.globalCompositeOperation = 'overlay'; cx.globalAlpha = 0.6; cx.drawImage(tex, 0, 0, W, H); cx.globalAlpha = 1; }
+    if (ok) { cx.globalCompositeOperation = 'destination-in'; cx.drawImage(img, 0, 0, W, H); }
+    const cw = OW - 60, ch = cw * H / W;
+    x.drawImage(car, 30, AH * 946 / 1184 - ch, cw, ch);
     x.restore();
     /* the band underneath: logo, a line in both languages, the address */
     const logo = await loadImg('img/02.webp');
@@ -1556,25 +1569,25 @@ const Hero = (() => {
       x.drawImage(logo, -64, -64, 128, 128); x.restore();
     }
     x.fillStyle = '#ECEAF2'; x.font = '800 44px "Archivo", Arial, sans-serif'; x.textBaseline = 'alphabetic';
-    x.fillText('Ovo je moj zid.', 224, AH + 92);
+    x.fillText('Ovo je moj voz.', 224, AH + 92);
     x.fillStyle = '#A9A5B6'; x.font = '400 28px "Martian Mono", "Courier New", monospace';
-    x.fillText('This is my wall.', 224, AH + 134);
+    x.fillText('This is my train.', 224, AH + 134);
     x.fillStyle = '#B4F53A'; x.font = '600 30px "Martian Mono", "Courier New", monospace'; x.textAlign = 'right';
     x.fillText('zidbosna.com', OW - 56, AH + 134);
     const blob = await new Promise((res) => o.toBlob(res, 'image/jpeg', 0.9));
     if (!blob) return;
-    const name = 'zid-moj-zid.jpg';
+    const name = 'zid-moj-voz.jpg';
     if (isCoarse() && navigator.canShare && window.File) {
       const file = new File([blob], name, { type: 'image/jpeg' });
       if (navigator.canShare({ files: [file] })) {
-        try { await navigator.share({ files: [file], title: 'ZID', text: 'Moj zid · my wall · zidbosna.com' }); return; }
+        try { await navigator.share({ files: [file], title: 'ZID', text: 'Moj voz · my train · zidbosna.com' }); return; }
         catch (err) { if (err && err.name === 'AbortError') return; /* otherwise fall through to a download */ }
       }
     }
     const url = URL.createObjectURL(blob), a = document.createElement('a');
     a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 4000);
-    toast('<span><b>Sačuvano.</b> Your wall is saved as a picture.</span>');
+    toast('<span><b>Sačuvano.</b> Your wagon is saved as a picture.</span>');
   }
 
   function sprayWord(word) {
@@ -1584,10 +1597,10 @@ const Hero = (() => {
     Sound.ensure();
     const choices = PAINTS.filter((p) => p.id !== 'katran');
     const p = choices[(Math.random() * choices.length) | 0];
-    const size = Math.round(Math.min(H * 0.16, W * 0.12));
+    const size = Math.round(Math.min(H * 0.3, W * 0.1));
     const t = tagCanvas(word, size, p.hex, '#0B0A0F');
     const x = rand(W * 0.04, Math.max(W * 0.05, W - t.w - W * 0.04));
-    const y = rand(H * 0.06, Math.max(H * 0.08, H - t.h - H * 0.06));
+    const y = rand(H * 0.08, Math.max(H * 0.1, H * 0.74 - t.h));   /* on the body, above the wheels */
     putTag(t, x, y, rand(-0.12, 0.08), p.hex, true);
     if (!REDUCED) Sound.hiss(0.8);
   }
@@ -1630,8 +1643,8 @@ const Hero = (() => {
     if ('ResizeObserver' in window) new ResizeObserver(() => { resize(); textureSoon(); }).observe(wall);
     else window.addEventListener('resize', () => { resize(); textureSoon(); });
     for (const ev of ['pointerenter', 'pointerdown', 'focus']) cv.addEventListener(ev, textureNow, { once: true, passive: true });
-    const photo = $('.wall-photo', wall);
-    if (photo && !photo.complete) photo.addEventListener('load', textureSoon, { once: true });   /* touched before the photo arrived */
+    const photo = $('.paint-surface', wall);
+    if (photo) photo.addEventListener('load', textureSoon, { once: true });   /* the wagon's picture comes after the page (see the train) */
     setCursor();
     bindPointer();
     bindKeys();
@@ -1639,7 +1652,13 @@ const Hero = (() => {
     Promise.race([ready, new Promise((r) => setTimeout(r, 1800))]).then(() => resize());
   }
 
-  return { init, sprayWord };
+  /* a fresh wagon rolls in: whatever was painted left with the last one */
+  function reset() {
+    drips.length = 0; reveals.length = 0; wipe = null; roller.hidden = true; painted = false; down = false; pid = null;
+    if (W && H) c.clearRect(0, 0, W, H);
+  }
+
+  return { init, sprayWord, reset, get painted() { return painted; } };
 })();
   /* ===== rivals: the scores to beat =====
      This week's top 10 from the scoreboard, plus a friend's score when the page was opened from a challenge link
@@ -2015,10 +2034,10 @@ function buildStickers() {
     ex.appendChild(document.createTextNode(s.en));
     const word = s.w.replace('?', '');
     const b = a.querySelector('.st-spray');
-    b.setAttribute('aria-label', `Spray it: ${word}, on the wall at the top of the page`);
+    b.setAttribute('aria-label', `Spray it: ${word}, on the train at the top of the page`);
     b.addEventListener('click', () => {
       Hero.sprayWord(word.toLowerCase());
-      toast(`<span><b>${word}</b> is on the wall.</span> <a href="#zid">See it ↑</a>`);
+      toast(`<span><b>${word}</b> is on the train.</span> <a href="#zid">See it ↑</a>`);
     });
     box.appendChild(a);
   });
@@ -2244,28 +2263,97 @@ document.addEventListener('click', (e) => {
   if (b && Sound.on) Sound.sfx.tick();
 });
 
-/* ===== the living light on the hero wall =====
-   Sun and leaf shadows move across the wall (CSS, index.html). The leaf picture is fetched once the page has loaded;
-   the button pauses it all and the choice is remembered; it also rests while the wall is off screen. With reduced
-   motion the CSS keeps it still and hides the button. */
+/* ===== the train on the hero =====
+   A train rolls in along the Neretva and stops with its wagon in front of you. You paint it; "Send it off" takes it,
+   and your piece, away, and a clean one rolls in. Only the train moves: the paint sits on the wagon's own canvas.
+   The round button pauses the train (remembered); the headlight rests while the hero is off screen. With reduced
+   motion, or paused from the start, the train is simply standing there. */
 (() => {
-  const wall = $('#wall'), btn = $('#wall-still');
-  if (!wall || !btn) return;
-  const set = (still) => {
-    wall.classList.toggle('still', still);
-    btn.setAttribute('aria-pressed', still ? 'true' : 'false');
-    const label = still ? L('Pokreni svjetlo na zidu', 'Play the light on the wall') : L('Zaustavi svjetlo na zidu', 'Pause the light on the wall');
-    btn.setAttribute('aria-label', label); btn.title = label;
-  };
-  set(Store.get('wallStill', false) === true);
-  btn.hidden = false;
-  btn.addEventListener('click', () => { const still = !wall.classList.contains('still'); set(still); Store.set('wallStill', still); });
-  Lang.on(() => set(wall.classList.contains('still')));   /* the label follows the language switch */
-  const lit = () => wall.classList.add('lit');
-  if (document.readyState === 'complete') lit(); else addEventListener('load', lit, { once: true });
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver((es) => { for (const e of es) wall.classList.toggle('wl-off', !e.isIntersecting); }).observe(wall);
+  const wall = $('#wall'), train = $('#train'), btn = $('#wall-still'), send = $('#send-off');
+  if (!wall || !train || !btn || !send) return;
+  const car = $('.canvas-car', train);
+  let state = 'away', anim = null, began = false;
+  /* where the train stops: the paint wagon a little right of centre (centred on a phone), clear of the headline */
+  const stopX = () => wall.clientWidth * (wall.clientWidth < 700 ? 0.5 : 0.62) - (car.offsetLeft + car.offsetWidth / 2);
+  const offLeft = () => -(train.offsetWidth + 40), offRight = () => wall.clientWidth + 40;
+  const place = (x) => { train.style.transform = `translateX(${Math.round(x)}px)`; };
+  const still = () => wall.classList.contains('still');
+  function setState(s) {
+    state = s;
+    wall.classList.toggle('moving', s !== 'stopped');
+    send.hidden = s !== 'stopped';
   }
+  function run(from, to, ms, ease, done) {
+    if (anim) anim.cancel();
+    if (REDUCED) { place(to); done(); return; }
+    anim = train.animate([{ transform: `translateX(${from}px)` }, { transform: `translateX(${to}px)` }], { duration: ms, easing: ease, fill: 'forwards' });
+    if (still()) anim.pause();
+    anim.onfinish = () => { place(to); if (anim) anim.cancel(); anim = null; done(); };
+  }
+  function arrive() {
+    setState('arriving');
+    run(offLeft(), stopX(), 3400, 'cubic-bezier(.12,.6,.25,1)', () => setState('stopped'));
+  }
+  /* the wheels knock over the rail joints, quicker and quicker as it pulls away (only with sound on) */
+  function clack() {
+    if (!Sound.on || REDUCED) return;
+    Sound.ensure();
+    [0, 430, 780, 1060, 1300, 1500, 1680].forEach((t) => setTimeout(() => { if (state === 'leaving') Sound.sfx.clack(); }, t));
+  }
+  function leave() {
+    if (state !== 'stopped') return;
+    toast(Hero.painted ? '<span><b>Ide za Mostar.</b> Your piece is riding to Mostar.</span>' : '<span><b>Ode prazan.</b> It left clean. The next one is yours.</span>');
+    setState('leaving');
+    clack();
+    run(stopX(), offRight(), 2600, 'cubic-bezier(.5,0,.85,.35)', () => {
+      Hero.reset();
+      place(offLeft());
+      setTimeout(arrive, REDUCED ? 0 : 900);
+    });
+  }
+  function begin() {
+    if (began) return;
+    began = true;
+    if (REDUCED || still()) { place(stopX()); setState('stopped'); }
+    else { place(offLeft()); arrive(); }
+  }
+  /* the pause button */
+  const set = (on) => {
+    wall.classList.toggle('still', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    const label = on ? L('Pokreni voz', 'Play the train') : L('Zaustavi voz', 'Pause the train');
+    btn.setAttribute('aria-label', label); btn.title = label;
+    if (anim) { if (on) anim.pause(); else anim.play(); }
+  };
+  set(Store.get('trainStill', false) === true);
+  btn.hidden = false;
+  btn.addEventListener('click', () => { const on = !still(); set(on); Store.set('trainStill', on); });
+  Lang.on(() => set(still()));   /* the label follows the language switch */
+  send.addEventListener('click', leave);
+  REDUCE_MQ.addEventListener('change', () => { if (REDUCED && anim) anim.finish(); });
+  /* off the track until it can roll in: its pictures are fetched once the page itself has loaded (they aren't the
+     first thing to see, the scene is), and it rolls in when they're here and the hero is on screen */
+  setState('away');
+  place(-100000);
+  const img = $('img', car);
+  const loaded = new Promise((r) => {
+    const fetchTrain = () => {
+      for (const el of $$('[data-srcset]', wall)) el.srcset = el.dataset.srcset;
+      for (const el of $$('img[data-src]', wall)) el.src = el.dataset.src;
+      if (img.complete && img.naturalWidth) r(); else { img.addEventListener('load', r, { once: true }); img.addEventListener('error', r, { once: true }); }
+    };
+    if (document.readyState === 'complete') fetchTrain(); else addEventListener('load', fetchTrain, { once: true });
+  });
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver((es) => {
+      for (const e of es) {
+        wall.classList.toggle('wl-off', !e.isIntersecting);
+        if (e.isIntersecting) loaded.then(begin);
+      }
+    }).observe(wall);
+  } else loaded.then(begin);
+  /* a new size: the stopped train keeps its place */
+  if ('ResizeObserver' in window) new ResizeObserver(() => { if (state === 'stopped') place(stopX()); }).observe(wall);
 })();
 
 /* ===== play fullscreen (phones) =====

@@ -19,6 +19,9 @@ async function page(hash = '') {
   await p.goto(U + hash, { waitUntil: 'load' });
   await p.addStyleTag({ content: '.demo .demo-note{display:none!important} .ticker{display:none!important} html{scroll-behavior:auto!important}' });
   await p.waitForTimeout(1500);
+  /* the hero's train rolls in first: wait until it has stopped */
+  await p.waitForFunction(() => !document.getElementById('wall').classList.contains('moving'), null, { timeout: 15000 }).catch(() => {});
+  await p.waitForTimeout(300);
   return { ctx, p };
 }
 const shot = (p, name) => p.screenshot({ path: path.join(OUT, name), type: 'jpeg', quality: 86 });

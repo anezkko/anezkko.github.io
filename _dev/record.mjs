@@ -31,6 +31,8 @@ await p.goto(U, { waitUntil: 'load' });
 await p.addStyleTag({ content: '.demo .demo-note,.ticker,.wall-hint{display:none!important} html{scroll-behavior:auto!important}' });
 await p.waitForTimeout(1500);
 await p.evaluate(() => { try { Sound.ensure(); } catch (e) {} });
+/* the hero's train rolls in on its own (before the fake clock takes over): wait until it has stopped */
+await p.waitForFunction(() => !document.getElementById('wall').classList.contains('moving'), null, { timeout: 15000 }).catch(() => {});
 await p.clock.install(); await p.clock.pauseAt(Date.now() + 1000);
 let n = 0;
 const frame = async () => { await p.clock.runFor(DT); await p.screenshot({ path: path.join(FR, `f${String(n++).padStart(4, '0')}.jpg`), type: 'jpeg', quality: 90 }); };
