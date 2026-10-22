@@ -1344,6 +1344,7 @@ const Hero = (() => {
     wall.classList.toggle('armed', armed);
     armBtn.setAttribute('aria-pressed', armed ? 'true' : 'false');
     armBtn.textContent = armed ? 'Stop painting' : 'Start painting';
+    if (armed && onStart) onStart('arm');   /* on a phone the train waits for the finger, rather than the finger chasing it */
     if (!hinted) hint.textContent = armed ? 'Farbaj prstom · paint with your finger' : 'Dodirni boju pa farbaj · tap a colour, then paint';
   }
   function setCap(v) {
@@ -2291,50 +2292,83 @@ document.addEventListener('click', (e) => {
     wall.classList.toggle('rolling', s === 'rolling');
     send.hidden = s !== 'stopped';
   }
-  function run(from, to, ms, ease, done) {
+  /* every move is a Web Animation (it runs off the main thread, so a busy page can't make the train stutter) with a
+     cubic-bezier curve. Each one starts at exactly the speed the train already has, and on the very frame the last
+     one ended, so the roll, the braking and the pulling away join without a jolt */
+  const LINE = [1 / 3, 1 / 3, 2 / 3, 2 / 3];
+  let seg = null, carry = null;
+  function run(from, to, ms, curve, done) {
     if (anim) anim.cancel();
     if (REDUCED) { place(to); done(); return; }
-    anim = train.animate([{ transform: `translateX(${from}px)` }, { transform: `translateX(${to}px)` }], { duration: ms, easing: ease, fill: 'forwards' });
+    anim = train.animate([{ transform: `translateX(${from}px)` }, { transform: `translateX(${to}px)` }],
+      { duration: ms, easing: `cubic-bezier(${curve.join()})`, fill: 'forwards' });
+    anim.startTime = carry !== null ? carry : document.timeline.currentTime;   /* no waiting a frame to begin */
+    seg = { from, to, ms, curve };
     if (still()) anim.pause();
-    anim.onfinish = () => { place(to); if (anim) anim.cancel(); anim = null; done(); };
+    const a = anim;
+    a.onfinish = () => {
+      if (a !== anim) return;
+      place(to); anim = null;
+      carry = a.startTime === null ? null : a.startTime + ms;    /* a move that follows straight on starts where this one ended, to the millisecond */
+      done();
+      carry = null;
+      a.cancel();
+    };
+  }
+  /* from one place to another, starting at speed v0 and ending at v1 (pixels a second): a steady change of speed,
+     like a real train. Given a time instead, the smooth curve that fits it */
+  function glide(from, to, v0, v1, ms, done) {
+    const d = to - from || 1;
+    ms = ms || 2000 * Math.abs(d) / Math.max(1, v0 + v1);
+    run(from, to, ms, [1 / 3, v0 * ms / 3000 / d, 2 / 3, 1 - v1 * ms / 3000 / d], done);
+  }
+  /* how fast the train is going right now, read off the current curve */
+  function speedNow() {
+    if (!anim || !seg) return 0;
+    const [x1, y1, x2, y2] = seg.curve, u = Math.min(1, Math.max(0, anim.currentTime / seg.ms));
+    const B = (p, q, t) => 3 * p * t * (1 - t) ** 2 + 3 * q * t * t * (1 - t) + t ** 3;
+    const D = (p, q, t) => 3 * p * (1 - t) ** 2 + 6 * (q - p) * t * (1 - t) + 3 * (1 - q) * t * t;
+    let t = u;
+    for (let i = 0; i < 8; i++) t = Math.min(1, Math.max(0, t - (B(x1, x2, t) - u) / (D(x1, x2, t) || 1e-6)));
+    return (seg.to - seg.from) / seg.ms * 1000 * D(y1, y2, t) / (D(x1, x2, t) || 1e-6);
   }
   /* one train rolling through, end to end; then the next. The first one comes with its wagon already on the way in;
-     the next ones pull in briskly and ease down to the slow roll as their wagon comes into view, so nobody waits
-     on an empty track (the end of that ease matches the roll's speed, so there's no jolt) */
+     the next ones pull in at speed and slow steadily to the roll as their wagon comes into view, so nobody waits
+     on an empty track */
   function roll() {
     if (REDUCED) { place(stopX()); setState('stopped'); return; }
-    const mid = stopX() - wall.clientWidth * 0.4, to = offRight();
-    const cruise = () => run(mid, to, (to - mid) / speed() * 1000, 'linear', () => { Hero.reset(); place(offLeft()); roll(); });
+    const mid = stopX() - wall.clientWidth * 0.4, to = offRight(), v = speed();
+    const cruise = () => run(mid, to, (to - mid) / v * 1000, LINE, () => { Hero.reset(); place(offLeft()); roll(); });
     setState('rolling');
     if (firstPass) { firstPass = false; cruise(); return; }
-    const from = offLeft();
-    run(from, mid, (mid - from) / speed() / 2.5 * 1000, 'cubic-bezier(.25,.6,.5,.8)', cruise);
+    glide(offLeft(), mid, v * 6, v, 0, cruise);
   }
-  /* someone started painting: brake. A stroke stops it where it is, a little further on; the keys or a sprayed word
-     glide the wagon into full view first */
+  /* someone started painting: brake, steadily, from whatever speed it has. A stroke stops it a little further on;
+     the keys or a sprayed word bring the wagon into full view first (gathering a little speed if it's far off) */
   function halt(how) {
     if (state !== 'rolling') return;
-    const x = nowX(), v = speed();
-    const to = how === 'pointer' ? x + v * 0.3 : Math.max(x + v * 0.3, stopX());
+    const x = nowX(), v0 = Math.max(speedNow(), speed() * 0.5), near = Math.round(x + v0 * 0.4);
+    const to = how === 'pointer' ? near : Math.max(near, Math.round(stopX()));
     setState('braking');
-    run(x, to, Math.min(2200, 600 + (to - x) / v * 700), 'cubic-bezier(.2,.75,.3,1)', () => setState('stopped'));
+    glide(x, to, v0, 0, to === near ? 0 : Math.min(2000 * (to - x) / v0, 2800), () => setState('stopped'));
   }
   /* the wheels knock on the rail joints, quicker and quicker as it pulls away (only with sound on) */
-  function clack() {
+  function clack(ms) {
     if (!Sound.on || REDUCED) return;
     Sound.ensure();
-    [0, 430, 780, 1060, 1300, 1500, 1680].forEach((t) => setTimeout(() => { if (state === 'leaving') Sound.sfx.clack(); }, t));
+    for (let n = 0; n < 9; n++) setTimeout(() => { if (state === 'leaving') Sound.sfx.clack(); }, ms * 0.8 * Math.sqrt(n / 9));
   }
+  /* it pulls away from a standstill, steadily faster, and is gone */
   function leave() {
     if (state !== 'stopped') return;
     toast(Hero.painted ? '<span><b>Ide za Mostar.</b> Your piece is riding to Mostar.</span>' : '<span><b>Ode prazan.</b> It left clean. The next one is yours.</span>');
-    const x = nowX();
+    const x = nowX(), to = offRight(), v1 = speed() * 7;
     setState('leaving');
-    clack();
-    run(x, offRight(), 2600, 'cubic-bezier(.5,0,.85,.35)', () => {
+    clack(2000 * (to - x) / v1);
+    glide(x, to, 0, v1, 0, () => {
       Hero.reset();
       place(offLeft());
-      setTimeout(roll, REDUCED ? 0 : 700);
+      setTimeout(roll, REDUCED ? 0 : 500);
     });
   }
   Hero.onStart(halt);
