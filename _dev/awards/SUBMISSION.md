@@ -32,7 +32,7 @@ opens on a real wall you can spray, with eight colours, six paint styles and pai
 comes Spray to Mostar, a pixel-art game across five zones from Bosanski Novi to the Stari Most: paint the concrete,
 leave the old stone and the stećci alone, jump the bears, and finish with a dive into the Neretva. Mirna vožnja:
 Bihać is a calm ride along the Una with twenty short memos on history, the war and Bosnian talent, each linked to its
-source. Radio ZID plays five stations composed in code, with no licensed music. The page works on any phone or
+source. Radio ZID plays six stations composed in code, with no licensed music. The page works on any phone or
 computer, works offline once loaded, installs as an app, and asks for nothing: no sign-up, no ads, no cookies. The
 weekly scoreboard is optional: your name only goes up if you type one.
 
@@ -40,7 +40,7 @@ weekly scoreboard is optional: your name only goes up if you type one.
 zidom koji možeš farbati: osam boja, šest vrsta spreja i boja koja se upija u malter. Zatim dolazi Sprej do Mostara,
 piksel-art igra kroz pet zona od Bosanskog Novog do Starog mosta: farbaj beton, ne diraj stari kamen i stećke,
 preskači medvjede i na kraju skoči u Neretvu. Mirna vožnja: Bihać je lagana vožnja uz Unu sa dvadeset kratkih
-bilješki o historiji, ratu i bosanskim talentima, svaka s linkom na izvor. Radio ZID svira pet stanica napisanih kao
+bilješki o historiji, ratu i bosanskim talentima, svaka s linkom na izvor. Radio ZID svira šest stanica napisanih kao
 kod, bez licencirane muzike. Stranica radi na svakom telefonu i računaru, radi i bez interneta kad se jednom učita,
 instalira se kao aplikacija i ništa ne traži: bez registracije, bez reklama, bez kolačića. Sedmična tabela je
 neobavezna: tvoje ime ide gore samo ako ga upišeš.
@@ -55,7 +55,7 @@ bilingual, culture, history, generative music, Web Audio, canvas, PWA, offline, 
 - **Illustrations** (Stari Most finale, street-law stickers, zone landmarks, stećci, share image): made with Google
   Gemini, then cut out and fitted to the page
 - **The hero wall:** Anezkko
-- **Music:** Radio ZID, five stations composed in code (Web Audio); no samples, no licensed tracks
+- **Music:** Radio ZID, six stations composed in code (Web Audio), with the calm Sumrak fading in on the first tap; no samples, no licensed tracks
 - **Type:** Archivo (Omnibus-Type), Martian Mono (Evil Martians), Sedgwick Ave Display; all SIL Open Font License
 - **Facts:** 20 memos, each linked to its source (Wikipedia, UNESCO, N1, UN, nobelprize.org, UEFA, Berlinale);
   checked October 2026
@@ -69,7 +69,7 @@ bilingual, culture, history, generative music, Web Audio, canvas, PWA, offline, 
 - Game: a hand-written Canvas 2D engine with pixel-art sprites, five zones, an aim-and-dive finale, a weekly and
   all-time scoreboard (optional name), and a separate calm ride with 20 sourced memos. Loads on demand, so the first
   visit doesn't pay for it.
-- Sound: everything synthesised with Web Audio, including five full music stations; the only recording is the
+- Sound: everything synthesised with Web Audio, including six full music stations; the only recording is the
   bear's growl.
 - Speed (lab: 412 px phone, 4× CPU, 1.6 Mbps): Lighthouse mobile Performance 95–96, Accessibility 100, SEO 100;
   LCP 0.8 s lab / 2.7 s Lighthouse-simulated; CLS 0.03; first visit 15 requests, ~300 KB.

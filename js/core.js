@@ -412,16 +412,18 @@ function toast(html, ms = 3200) {
   /* ===== sprites from the Gemini art: bear gallop (6 frames, one stride, and a 7th standing; bearwork/gallop_cut.py), mallard and duckling waddle (4 each), weeping willow =====
      Made by gem/cut.py from gem/sheet.jpg: cut out, lined up on the ground, shrunk, snapped to one palette per sprite.
      One art pixel is one game unit. Each frame is a string, one character per pixel ('.' is clear). */
-/* ===== music: Radio ZID, four original stations composed in code =====
+/* ===== music: Radio ZID, six original stations composed in code =====
    No samples and no recordings: every sound is made live with Web Audio, so there is nothing to license.
+   Sumrak          the page's own: ambient dusk, 64 BPM, no drums; warm pads, a harp-like ripple, a kaval, the river.
    Polahko House   Balkan house, 122 BPM, A Hijaz, a darbuka pattern under four-on-the-floor drums.
    Neretva Nights  synthwave, 100 BPM, D harmonic minor: gated snare, rolling octave bass, a tambura-like arp.
    Čoček Turbo     a Balkan brass dance in 9/8 (2+2+2+3), E Hijaz: tuba bass on the beat, accordion stabs off it.
-   Sevdah Deep     deep house, 118 BPM: electric-piano chords and a kaval-like flute in D harmonic minor. */
+   Sevdah Deep     deep house, 118 BPM: electric-piano chords and a kaval-like flute in D harmonic minor.
+   Bihać Slow      very chill, 72 BPM: slow pads and a soft flute, for the Una ride. */
 const Music = (() => {
   const mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
   const VOL = 0.41;
-  let ac = null, master = null, noise = null, hallBuf = null, gateBuf = null, timer = 0, trim = null, trimV = 1;
+  let ac = null, master = null, noise = null, brown = null, hallBuf = null, gateBuf = null, timer = 0, trim = null, trimV = 1;
   let playing = false, wanted = false, nextT = 0, step = 0, bar = 0, S = 0.125;
   let st = null, fx = null, out = null;
   const listeners = [];
@@ -729,6 +731,55 @@ const Music = (() => {
     g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.12, t + dur); g.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.05);
     s.connect(f); f.connect(g); g.connect(out); s.start(t); s.stop(t + dur + 0.1);
   }
+  /* Sumrak's pad: soft sines and triangles that swell in slowly and fade out over the next chord, spread wide */
+  function warmPad(t, chord, dur, lvl) {
+    const end = t + dur + 2.1, lp = ac.createBiquadFilter(), g = ac.createGain();
+    lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(700, t); lp.frequency.linearRampToValueAtTime(1300, t + dur * 0.5); lp.frequency.linearRampToValueAtTime(800, end);
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(lvl, t + 1.6);
+    g.gain.setValueAtTime(lvl, t + dur); g.gain.linearRampToValueAtTime(0.0001, t + dur + 2);
+    lp.connect(g); g.connect(out); if (fx.verb) g.connect(fx.verb);
+    chord.forEach((m, i) => {
+      for (const side of [-1, 1]) {
+        const o = osc(i ? 'triangle' : 'sine', mtof(m), t, end, side * 6), pn = ac.createStereoPanner();
+        pn.pan.value = side * (i % 2 ? 0.55 : 0.3); o.connect(pn); pn.connect(lp);
+      }
+    });
+  }
+  /* a low drone under Sumrak: no attack to speak of, it swells in and hands over to the next one */
+  function drone(t, m, dur, lvl) {
+    const f = mtof(m), end = t + dur + 2, g = ac.createGain(), lp = ac.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = 320;
+    osc('sine', f, t, end).connect(g); osc('triangle', f * 2, t, end, 4).connect(lp); lp.connect(g);
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(lvl, t + 1.4);
+    g.gain.setValueAtTime(lvl, t + dur); g.gain.linearRampToValueAtTime(0.0001, t + dur + 1.8);
+    g.connect(out);
+  }
+  /* harp-like pluck: a round tone with a glassy octave that fades first, ringing on into the hall */
+  function harp(t, m, lvl = 0.04) {
+    const f = mtof(m), g = ac.createGain(), b = ac.createGain();
+    osc('sine', f, t, t + 2.6).connect(g); osc('triangle', f * 2, t, t + 0.6).connect(b);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(lvl, t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + 2.5);
+    b.gain.setValueAtTime(0.0001, t); b.gain.exponentialRampToValueAtTime(lvl * 0.3, t + 0.004); b.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+    for (const x of [g, b]) { x.connect(out); x.connect(fx.echo); if (fx.verb) x.connect(fx.verb); }
+  }
+  /* the river: brown noise (deeper than white, like water over stones) that swells and settles, bar into bar */
+  function river(t, dur, lvl = 0.05) {
+    if (!brown) {
+      brown = ac.createBuffer(1, Math.ceil(ac.sampleRate * 4.3), ac.sampleRate);
+      const d = brown.getChannelData(0);
+      let last = 0;
+      for (let i = 0; i < d.length; i++) { last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02; d[i] = last * 3.5; }
+    }
+    const end = t + dur + 1.2, src = ac.createBufferSource(), hp = ac.createBiquadFilter(), lp = ac.createBiquadFilter(), g = ac.createGain();
+    src.buffer = brown; src.loop = true;
+    hp.type = 'highpass'; hp.frequency.value = 140;
+    lp.type = 'lowpass'; lp.frequency.setValueAtTime(700, t); lp.frequency.linearRampToValueAtTime(1100, t + dur * 0.5); lp.frequency.linearRampToValueAtTime(700, end);
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(lvl, t + 1.2);
+    g.gain.setValueAtTime(lvl, t + dur); g.gain.linearRampToValueAtTime(0.0001, end);
+    src.connect(hp); hp.connect(lp); lp.connect(g); g.connect(out);
+    src.start(t, Math.random() * 4); src.stop(end + 0.05);
+  }
   /* a third (two scale steps) below, inside a scale given as pitch classes */
   function below(m, scale, steps) {
     let x = m;
@@ -914,8 +965,40 @@ const Music = (() => {
     }
   }
 
+  /* ---------- 6 · Sumrak (dusk on the Neretva: the page's own calm, for painting the train; no drums at all) ---------- */
+  const SM = {
+    CHORDS: [[50, 57, 60, 64, 65], [46, 53, 57, 60, 62], [41, 53, 57, 60, 64], [48, 55, 57, 62, 64]], // Dm9, Bbmaj9, Fmaj7, C6/9
+    ROOTS: [38, 34, 41, 36],
+    ARP: { 0: 1, 3: 2, 6: 3, 8: 4, 11: 3, 14: 2 },     // step: which chord note the harp plays, a slow ripple up and back
+    MEL: [
+      [[2, 69, 5], [8, 72, 3], [12, 74, 4]],
+      [[0, 77, 6], [8, 74, 2], [10, 72, 6]],
+      [[2, 72, 5], [8, 69, 2], [10, 67, 6]],
+      [[0, 69, 10], [12, 64, 4]],
+    ],
+  };
+  function sumrak(s, p, t) {
+    const n = p.name, ci = p.pos % 4, ch = SM.CHORDS[ci], quiet = n === 'intro' || n === 'still';
+    if (s === 0) {
+      warmPad(t, ch, 16 * S, quiet ? 0.042 : 0.036);
+      river(t, 16 * S, quiet ? 0.07 : 0.05);
+      if (n !== 'intro') drone(t, SM.ROOTS[ci] + 12, 16 * S, 0.05);
+    }
+    const a = SM.ARP[s];
+    /* the harp stays under everything, and steps back further when the flute sings */
+    if (a && n !== 'intro' && (n !== 'still' || s % 6 === 0)) harp(t, ch[a] + 12, n === 'flow' ? 0.022 : 0.016);
+    if (n === 'melody' || n === 'melody2') {
+      for (const [at, m, len] of SM.MEL[p.i % 4]) if (at === s) {
+        flute(t, m, len * S, 0.055);
+        if (n === 'melody2') flute(t, m - 12, len * S, 0.02);
+      }
+    }
+  }
+
   /* ---------- the stations ---------- */
   const STATIONS = [
+    { id: 'sumrak', name: 'Sumrak', desc: 'Ambient dusk, no drums · 64 BPM', s16: 60 / 64 / 4, steps: 16, swing: 0, echo: 4, echoLvl: 0.18, verb: 0.75, level: 1.4,
+      arr: [['intro', 4], ['flow', 8], ['melody', 8], ['still', 4], ['melody2', 8]], play: sumrak },
     { id: 'polahko', name: 'Polahko House', desc: 'Balkan house · 122 BPM', s16: 60 / 122 / 4, steps: 16, swing: 0.07, echo: 3, level: 1,
       arr: [['intro', 4], ['groove', 8], ['hook', 8], ['break', 4], ['hook2', 8]], play: polahko },
     { id: 'neretva', name: 'Neretva Nights', desc: 'Synthwave · 100 BPM', s16: 60 / 100 / 4, steps: 16, swing: 0, echo: 3, echoLvl: 0.2, verb: 0.55, gate: true, level: 1.8,
@@ -928,7 +1011,7 @@ const Music = (() => {
       arr: [['intro', 4], ['groove', 8], ['melody', 8], ['break', 4], ['melody2', 8]], play: bihac },
   ];
   const byId = (id) => STATIONS.find((x) => x.id === id) || STATIONS[0];
-  st = byId(Store.get('station', 'polahko'));
+  st = byId(Store.get('station', 'sumrak'));
 
   /* where bar b falls in the station's arrangement; after the last section it loops back to the second */
   function part(b) {
@@ -949,18 +1032,19 @@ const Music = (() => {
     }
   }
   /* a fresh start plays the intro; a switch drops straight into the groove */
-  function begin(at, skipIntro) {
+  function begin(at, skipIntro, fade = 0.9) {
     S = st.s16; step = 0; bar = skipIntro ? st.arr[0][1] : 0; nextT = at; nrPrev = 0;
     fx = session(); out = fx.g;
-    fx.g.gain.setValueAtTime(0.0001, at - 0.02); fx.g.gain.linearRampToValueAtTime(st.level, at + 0.9);
+    fx.g.gain.setValueAtTime(0.0001, at - 0.02); fx.g.gain.linearRampToValueAtTime(st.level, at + fade);
   }
-  function start(id, remember = true) {
+  /* fade: how slowly it comes up, in seconds (the music that starts by itself takes its time) */
+  function start(id, remember = true, fade) {
     if (id) { st = byId(id); if (remember) Store.set('station', st.id); }
     if (playing) return true;
     if (!ac && !build()) return false;
     if (ac.state === 'suspended') ac.resume().catch(() => {});
     playing = true; wanted = true;
-    begin(ac.currentTime + 0.08);
+    begin(ac.currentTime + 0.08, false, fade);
     clearInterval(timer);
     timer = setInterval(() => tick(), 25);
     tick();
@@ -2082,6 +2166,7 @@ function initSound() {
     btn.setAttribute('aria-pressed', on ? 'true' : 'false');
     lbl.textContent = on ? 'Sound: on' : 'Sound: off';
     Store.set('sound', on);
+    if (!on && Music.playing) Music.stop();                     /* "Sound: off" means everything, the radio too */
     document.dispatchEvent(new CustomEvent('zid:sound'));      /* the game's music follows */
   };
   /* the game's music button turns the sound back on */
@@ -2111,7 +2196,7 @@ function initMusic() {
     return b;
   });
   /* where each station sits on the dial, left to right */
-  const needle = (st) => rd.style.setProperty('--n', String(0.14 + 0.24 * Math.max(0, ids.indexOf(st.id))));
+  const needle = (st) => rd.style.setProperty('--n', String(0.08 + 0.84 * Math.max(0, ids.indexOf(st.id)) / (ids.length - 1)));
   let loop = 0;
   const ease = 'cubic-bezier(.2,.7,.3,1)';
   function bounce(k) {
@@ -2170,13 +2255,35 @@ function initMusic() {
   }
   btn.addEventListener('click', (e) => {
     if (!Music.playing) {
+      Store.set('radio', true);
       if (Music.start()) announce(true);
       else toast('Music can’t play in this browser.');
       return;
     }
     if (menu.hidden) open(e.detail === 0); else close(false);
   });
-  off.addEventListener('click', () => { Music.stop(); close(true); });
+  off.addEventListener('click', () => { Music.stop(); Store.set('radio', false); close(true); });
+  /* the music starts by itself: browsers only let a page make sound after a tap or click, so Radio ZID fades in
+     softly on the visitor's first one, anywhere on the page. Not from the keyboard (music that starts by itself would
+     talk over a screen reader; the boombox is one Tab away), not for anyone who switched the radio or the sound off
+     before (both remembered), and not when that first touch is on the radio or the sound switch, which decide it */
+  const FIRST = ['pointerup', 'touchend', 'click'];
+  let tried = false;
+  function first(e) {
+    if (e.type === 'click' && e.detail === 0) return;      /* a click made with Enter or Space */
+    /* every touch also wakes the sound, in case the browser didn't count the one before (a swipe that scrolled);
+       once it's running, there's nothing left to listen for */
+    const ac = Sound.on ? Sound.context() : null;
+    if (!ac || ac.state === 'running') FIRST.forEach((type) => removeEventListener(type, first, true));
+    if (tried) return;
+    tried = true;
+    if (Music.playing || !Sound.on || Store.get('radio', true) === false) return;
+    if (e.target && e.target.closest && e.target.closest('#music-toggle, #radio-menu, #sound-toggle')) return;
+    if (Music.start(undefined, true, 5)) {
+      toast(`<span><b>${Music.station.name}</b> · Radio ZID. ${L('Dodirni kasetofon da promijeniš stanicu ili ugasiš muziku.', 'Tap the boombox to change station or turn it off.')}</span>`, 5000);
+    }
+  }
+  FIRST.forEach((type) => addEventListener(type, first, true));
   document.addEventListener('pointerdown', (e) => { if (!menu.hidden && !menu.contains(e.target) && !btn.contains(e.target)) close(false); });
   menu.addEventListener('keydown', (e) => {
     const all = [...items, off], i = all.indexOf(document.activeElement);
