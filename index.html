@@ -244,7 +244,7 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .canvas-car{pointer-events:auto}
 /* the paint only shows on the wagon itself, never on the sky between its wheels */
 .canvas-car canvas{-webkit-mask:url("img/train/wagon-mask.png") 0 0/100% 100% no-repeat;mask:url("img/train/wagon-mask.png") 0 0/100% 100% no-repeat}
-.wall.moving .canvas-car canvas{cursor:default}
+.wall.leaving .canvas-car canvas{cursor:default}
 .headlight{position:absolute;left:95.7%;top:31%;width:13%;aspect-ratio:1;translate:-50% -50%;border-radius:50%;pointer-events:none;
   background:radial-gradient(circle,rgba(255,240,200,.95) 0,rgba(255,210,150,.5) 22%,rgba(255,170,120,0) 68%);mix-blend-mode:screen;animation:headlight 2.6s ease-in-out infinite alternate}
 @keyframes headlight{from{opacity:.75;scale:.92}to{opacity:1;scale:1.06}}
@@ -1034,8 +1034,8 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
     </picture>
     <div class="hero-copy">
       <p class="eyebrow">ZID · Sarajevo → Mostar</p>
-      <h1 class="hero-h" id="hero-h"><span>Here comes the train.</span> <span>Paint it.</span></h1>
-      <p class="hero-en" lang="bs">Evo voza. Ofarbaj ga.</p>
+      <h1 class="hero-h" id="hero-h" lang="bs"><span>Halal bilo.</span></h1>
+      <p class="hero-en">It's yours. Paint the train.</p>
       <div class="wall-cta">
       <a class="wall-play" href="#igra" data-play><i class="wp-ico" aria-hidden="true"></i><span class="wp-txt"><b>Play Spray to Mostar</b><small>Free · no sign-up<span class="wp-ph"> · works on your phone</span></small></span></a>
       <p class="wall-beat" id="wall-beat" hidden><i class="wb-crown" aria-hidden="true"></i><span class="wb-t"><span class="wb-k" id="wb-k"></span> <span class="wb-v" id="wb-v"></span></span></p>
@@ -1061,7 +1061,7 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
       <button class="wall-still" id="wall-still" type="button" aria-pressed="false" aria-label="Pause the train" hidden><i aria-hidden="true"></i></button>
       <button class="send-off" id="send-off" type="button" hidden>Send it off <span lang="bs">· pošalji ga</span> <span aria-hidden="true">→</span></button>
     </div>
-    <p class="wall-hint" id="wall-hint">Drag across the wagon · <span lang="bs">povuci po vagonu</span></p>
+    <p class="wall-hint" id="wall-hint">Spray the wagon and it stops · <span lang="bs">ofarbaj ga i voz stane</span></p>
   </div>
   <div class="tray" role="group" aria-label="Spray tools">
     <span class="tray-l" id="cans-label">Colour</span>

@@ -6,6 +6,14 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 const OUT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'press', 'img');
 const U = 'http://zid.localhost:8137/';
+/* wait until the hero train's wagon is fully in view, then press its pause button so it stays there */
+async function inView(p) {
+  await p.waitForFunction(() => {
+    const w = document.getElementById('wall').getBoundingClientRect(), c = document.querySelector('.canvas-car').getBoundingClientRect();
+    return c.width > 0 && c.left > w.left + w.width * 0.2 && c.right < w.right - 8;
+  }, null, { timeout: 40000 }).catch(() => {});
+  await p.evaluate(() => { const b = document.getElementById('wall-still'); if (b && b.getAttribute('aria-pressed') !== 'true') b.click(); });
+}
 const b = await chromium.launch({ executablePath: process.env.CHROME_PATH || '/opt/pw-browsers/chromium' });
 const SEED = Number(process.env.SEED || 11);
 async function page(hash = '') {
@@ -19,8 +27,8 @@ async function page(hash = '') {
   await p.goto(U + hash, { waitUntil: 'load' });
   await p.addStyleTag({ content: '.demo .demo-note{display:none!important} .ticker{display:none!important} html{scroll-behavior:auto!important}' });
   await p.waitForTimeout(1500);
-  /* the hero's train rolls in first: wait until it has stopped */
-  await p.waitForFunction(() => !document.getElementById('wall').classList.contains('moving'), null, { timeout: 15000 }).catch(() => {});
+  /* the hero's train keeps rolling until someone paints: wait for its wagon to be in view, then pause it there */
+  await inView(p);
   await p.waitForTimeout(300);
   return { ctx, p };
 }

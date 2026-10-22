@@ -12,6 +12,14 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(HERE, 'out', 'record'), FR = path.join(OUT, 'frames');
 fs.rmSync(FR, { recursive: true, force: true }); fs.mkdirSync(FR, { recursive: true });
 const U = 'http://zid.localhost:8137/', DT = 32;
+/* wait until the hero train's wagon is fully in view, then press its pause button so it stays there */
+async function inView(p) {
+  await p.waitForFunction(() => {
+    const w = document.getElementById('wall').getBoundingClientRect(), c = document.querySelector('.canvas-car').getBoundingClientRect();
+    return c.width > 0 && c.left > w.left + w.width * 0.2 && c.right < w.right - 8;
+  }, null, { timeout: 40000 }).catch(() => {});
+  await p.evaluate(() => { const b = document.getElementById('wall-still'); if (b && b.getAttribute('aria-pressed') !== 'true') b.click(); });
+}
 const b = await chromium.launch({ executablePath: process.env.CHROME_PATH || '/opt/pw-browsers/chromium' });
 /* no service worker: it would fetch js/game.js itself, past the route that adds the handle */
 const ctx = await b.newContext({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1.5, serviceWorkers: 'block' });
@@ -31,8 +39,9 @@ await p.goto(U, { waitUntil: 'load' });
 await p.addStyleTag({ content: '.demo .demo-note,.ticker,.wall-hint{display:none!important} html{scroll-behavior:auto!important}' });
 await p.waitForTimeout(1500);
 await p.evaluate(() => { try { Sound.ensure(); } catch (e) {} });
-/* the hero's train rolls in on its own (before the fake clock takes over): wait until it has stopped */
-await p.waitForFunction(() => !document.getElementById('wall').classList.contains('moving'), null, { timeout: 15000 }).catch(() => {});
+/* the hero's train keeps rolling until someone paints (and before the fake clock takes over): pause it with its
+   wagon in view */
+await inView(p);
 await p.clock.install(); await p.clock.pauseAt(Date.now() + 1000);
 let n = 0;
 const frame = async () => { await p.clock.runFor(DT); await p.screenshot({ path: path.join(FR, `f${String(n++).padStart(4, '0')}.jpg`), type: 'jpeg', quality: 90 }); };

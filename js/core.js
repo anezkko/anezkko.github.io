@@ -1323,7 +1323,10 @@ const Hero = (() => {
   }
 
   /* the start of every spray: the first one of a visit shakes the can, then the hiss; a small tick on phones that can */
-  function startSpray() {
+  /* the train listens for the first spray, so it can stop (see the train block): how it started is passed on */
+  let onStart = null;
+  function startSpray(how) {
+    if (onStart) onStart(how);
     speed = 0; lastT = 0;
     if (!shook && Sound.on) { shook = true; Sound.sfx.rattle(); setTimeout(() => Sound.sfx.rattle(), 110); }
     Sound.hiss(STYLES[cap].hiss);
@@ -1377,12 +1380,12 @@ const Hero = (() => {
         kx = nx; ky = ny; placeNozzle();
         return;
       }
-      if ((e.key === ' ' || e.key === 'Enter') && !e.repeat && !wall.classList.contains('moving')) {
+      if ((e.key === ' ' || e.key === 'Enter') && !e.repeat && !wall.classList.contains('leaving')) {
         e.preventDefault();
         if (keyDown) return;
         keyDown = true; down = true; pid = 'keys';
         lx = kx; ly = ky; stillSince = performance.now();
-        startSpray();
+        startSpray('keys');
         spray(lx, ly, paint.hex, capR());
         travel = 0;
         hideHint();
@@ -1406,7 +1409,7 @@ const Hero = (() => {
   function pos(e) { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
   function bindPointer() {
     cv.addEventListener('pointerdown', (e) => {
-      if (wall.classList.contains('moving')) return;   /* the train is rolling: wait for it to stop */
+      if (wall.classList.contains('leaving')) return;   /* it's pulling away with someone's piece: wait for the next */
       if (e.pointerType === 'touch') { markCoarse(); armBtn.hidden = false; if (!armed) return; }
       if (e.pointerType === 'mouse' && e.button !== 0) return;
       e.preventDefault();
@@ -1414,7 +1417,7 @@ const Hero = (() => {
       down = true; pid = e.pointerId;
       const p = pos(e);
       lx = p.x; ly = p.y; stillSince = performance.now();
-      startSpray();
+      startSpray('pointer');
       spray(lx, ly, paint.hex, capR());
       travel = 0;
       hideHint();
@@ -1592,6 +1595,7 @@ const Hero = (() => {
 
   function sprayWord(word) {
     if (!W || !H) return;
+    if (onStart) onStart('word');
     textureNow();
     hideHint();
     Sound.ensure();
@@ -1658,7 +1662,7 @@ const Hero = (() => {
     if (W && H) c.clearRect(0, 0, W, H);
   }
 
-  return { init, sprayWord, reset, get painted() { return painted; } };
+  return { init, sprayWord, reset, get painted() { return painted; }, onStart(fn) { onStart = fn; } };
 })();
   /* ===== rivals: the scores to beat =====
      This week's top 10 from the scoreboard, plus a friend's score when the page was opened from a challenge link
@@ -2264,23 +2268,27 @@ document.addEventListener('click', (e) => {
 });
 
 /* ===== the train on the hero =====
-   A train rolls in along the Neretva and stops with its wagon in front of you. You paint it; "Send it off" takes it,
-   and your piece, away, and a clean one rolls in. Only the train moves: the paint sits on the wagon's own canvas.
+   A train rolls slowly along the Neretva, wagon after wagon, and stops the moment someone starts painting: a stroke
+   brakes it where it is; the keys or a sprayed dictionary word bring the wagon fully into view. "Send it off" takes
+   it, and the piece, away to Mostar, and the next train rolls by. The paint sits on the wagon's own canvas.
    The round button pauses the train (remembered); the headlight rests while the hero is off screen. With reduced
-   motion, or paused from the start, the train is simply standing there. */
+   motion the train simply stands there, ready. */
 (() => {
   const wall = $('#wall'), train = $('#train'), btn = $('#wall-still'), send = $('#send-off');
   if (!wall || !train || !btn || !send) return;
   const car = $('.canvas-car', train);
-  let state = 'away', anim = null, began = false;
-  /* where the train stops: the paint wagon a little right of centre (centred on a phone), clear of the headline */
+  let state = 'away', anim = null, firstPass = true;
+  /* where it stands to be painted: the wagon a little right of centre (centred on a phone), clear of the headline */
   const stopX = () => wall.clientWidth * (wall.clientWidth < 700 ? 0.5 : 0.62) - (car.offsetLeft + car.offsetWidth / 2);
   const offLeft = () => -(train.offsetWidth + 40), offRight = () => wall.clientWidth + 40;
+  const speed = () => Math.max(70, wall.clientWidth * 0.11);           /* a slow roll, in pixels a second */
   const place = (x) => { train.style.transform = `translateX(${Math.round(x)}px)`; };
+  const nowX = () => new DOMMatrixReadOnly(getComputedStyle(train).transform).m41;
   const still = () => wall.classList.contains('still');
   function setState(s) {
     state = s;
-    wall.classList.toggle('moving', s !== 'stopped');
+    wall.classList.toggle('leaving', s === 'leaving');
+    wall.classList.toggle('rolling', s === 'rolling');
     send.hidden = s !== 'stopped';
   }
   function run(from, to, ms, ease, done) {
@@ -2290,11 +2298,24 @@ document.addEventListener('click', (e) => {
     if (still()) anim.pause();
     anim.onfinish = () => { place(to); if (anim) anim.cancel(); anim = null; done(); };
   }
-  function arrive() {
-    setState('arriving');
-    run(offLeft(), stopX(), 3400, 'cubic-bezier(.12,.6,.25,1)', () => setState('stopped'));
+  /* one train rolling through, end to end; then the next. The first one comes with its wagon already on the way in */
+  function roll() {
+    if (REDUCED) { place(stopX()); setState('stopped'); return; }
+    const from = firstPass ? stopX() - wall.clientWidth * 0.4 : offLeft(), to = offRight();
+    firstPass = false;
+    setState('rolling');
+    run(from, to, (to - from) / speed() * 1000, 'linear', () => { Hero.reset(); place(offLeft()); roll(); });
   }
-  /* the wheels knock over the rail joints, quicker and quicker as it pulls away (only with sound on) */
+  /* someone started painting: brake. A stroke stops it where it is, a little further on; the keys or a sprayed word
+     glide the wagon into full view first */
+  function halt(how) {
+    if (state !== 'rolling') return;
+    const x = nowX(), v = speed();
+    const to = how === 'pointer' ? x + v * 0.3 : Math.max(x + v * 0.3, stopX());
+    setState('braking');
+    run(x, to, Math.min(2200, 600 + (to - x) / v * 700), 'cubic-bezier(.2,.75,.3,1)', () => setState('stopped'));
+  }
+  /* the wheels knock on the rail joints, quicker and quicker as it pulls away (only with sound on) */
   function clack() {
     if (!Sound.on || REDUCED) return;
     Sound.ensure();
@@ -2303,20 +2324,16 @@ document.addEventListener('click', (e) => {
   function leave() {
     if (state !== 'stopped') return;
     toast(Hero.painted ? '<span><b>Ide za Mostar.</b> Your piece is riding to Mostar.</span>' : '<span><b>Ode prazan.</b> It left clean. The next one is yours.</span>');
+    const x = nowX();
     setState('leaving');
     clack();
-    run(stopX(), offRight(), 2600, 'cubic-bezier(.5,0,.85,.35)', () => {
+    run(x, offRight(), 2600, 'cubic-bezier(.5,0,.85,.35)', () => {
       Hero.reset();
       place(offLeft());
-      setTimeout(arrive, REDUCED ? 0 : 900);
+      setTimeout(roll, REDUCED ? 0 : 700);
     });
   }
-  function begin() {
-    if (began) return;
-    began = true;
-    if (REDUCED || still()) { place(stopX()); setState('stopped'); }
-    else { place(offLeft()); arrive(); }
-  }
+  Hero.onStart(halt);
   /* the pause button */
   const set = (on) => {
     wall.classList.toggle('still', on);
@@ -2331,8 +2348,8 @@ document.addEventListener('click', (e) => {
   Lang.on(() => set(still()));   /* the label follows the language switch */
   send.addEventListener('click', leave);
   REDUCE_MQ.addEventListener('change', () => { if (REDUCED && anim) anim.finish(); });
-  /* off the track until it can roll in: its pictures are fetched once the page itself has loaded (they aren't the
-     first thing to see, the scene is), and it rolls in when they're here and the hero is on screen */
+  /* off the track until it can roll: its pictures are fetched once the page itself has loaded (they aren't the
+     first thing to see, the scene is), and it rolls when they're here and the hero is on screen */
   setState('away');
   place(-100000);
   const img = $('img', car);
@@ -2344,6 +2361,8 @@ document.addEventListener('click', (e) => {
     };
     if (document.readyState === 'complete') fetchTrain(); else addEventListener('load', fetchTrain, { once: true });
   });
+  let began = false;
+  const begin = () => { if (!began) { began = true; roll(); } };
   if ('IntersectionObserver' in window) {
     new IntersectionObserver((es) => {
       for (const e of es) {
@@ -2352,8 +2371,8 @@ document.addEventListener('click', (e) => {
       }
     }).observe(wall);
   } else loaded.then(begin);
-  /* a new size: the stopped train keeps its place */
-  if ('ResizeObserver' in window) new ResizeObserver(() => { if (state === 'stopped') place(stopX()); }).observe(wall);
+  /* a new size: a standing train keeps its place */
+  if ('ResizeObserver' in window) new ResizeObserver(() => { if (state === 'stopped' && REDUCED) place(stopX()); }).observe(wall);
 })();
 
 /* ===== play fullscreen (phones) =====
