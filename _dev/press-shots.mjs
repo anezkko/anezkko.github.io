@@ -38,7 +38,7 @@ const shot = (p, name) => p.screenshot({ path: path.join(OUT, name), type: 'jpeg
   // 2 · the same wall, painted: two dictionary words and a few strokes
   await p.evaluate(() => { try { Sound.ensure(); } catch (e) {} });   /* the sound engine draws its noise with Math.random: start it first */
   /* two words, placed by hand: the random numbers sprayWord asks for are colour, across, down, tilt */
-  for (const [i, r] of [[0, [0, 0.66, 0.62, 0.55]], [4, [0.33, 0.6, 0.27, 0.35]]]) {
+  for (const [i, r] of [[0, [0, 0.06, 0.12, 0.5]], [4, [0.33, 0.62, 0.3, 0.42]]]) {
     await p.evaluate(([i, r]) => {
       const keep = Math.random, q = [...r];
       Math.random = () => (q.length ? q.shift() : keep());
@@ -49,8 +49,8 @@ const shot = (p, name) => p.screenshot({ path: path.join(OUT, name), type: 'jpeg
   }
   await p.evaluate(() => { scrollTo(0, 0); document.querySelectorAll('.can')[1].click(); });
   const box = await (await p.$('#wall-canvas')).boundingBox();
-  await p.mouse.move(box.x + box.width * 0.5, box.y + box.height * 0.84); await p.mouse.down();
-  for (let i = 0; i < 40; i++) { await p.mouse.move(box.x + box.width * (0.5 + i * 0.011), box.y + box.height * (0.84 - Math.sin(i / 6) * 0.06)); await p.waitForTimeout(16); }
+  await p.mouse.move(box.x + box.width * 0.1, box.y + box.height * 0.62); await p.mouse.down();
+  for (let i = 0; i < 40; i++) { await p.mouse.move(box.x + box.width * (0.1 + i * 0.011), box.y + box.height * (0.62 - Math.sin(i / 6) * 0.05)); await p.waitForTimeout(16); }
   await p.mouse.up(); await p.waitForTimeout(2500);
   await shot(p, '2-painted.jpg'); await ctx.close(); }
 // 3 · the game, zone 1, running
