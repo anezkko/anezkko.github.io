@@ -115,6 +115,17 @@ const Store = {
 function markCoarse() { document.documentElement.classList.add('coarse'); }
 if (matchMedia('(pointer: coarse)').matches) markCoarse();
 
+/* ---- the body text font ----
+   The first screen is headlines (Bricolage Grotesque), labels (Martian Mono) and the scene, so Archivo, the body
+   text, waits until the page has loaded instead of competing with the picture. Until it arrives the text shows in a
+   fallback sized to match, so nothing moves. On later visits it comes from the cache, so it loads straight away. */
+(() => {
+  if (!('FontFace' in window) || !document.fonts) return;
+  const add = () => new FontFace('Archivo', 'url(fonts/archivo.woff2) format("woff2")', { weight: '400 900', display: 'swap' })
+    .load().then((f) => { document.fonts.add(f); Store.set('fontsSeen', true); }).catch(() => {});
+  if (Store.get('fontsSeen', false) || document.readyState === 'complete') add(); else addEventListener('load', add, { once: true });
+})();
+
 /* ---- sound: built with Web Audio, starts only after a tap or key ---- */
 const Sound = (() => {
   let ac = null, master = null, noise = null, hissGain = null, on = true, level = 0;
@@ -1650,14 +1661,14 @@ const Hero = (() => {
     /* the band underneath: logo, a line in both languages, the address */
     const logo = await loadImg('img/02.webp');
     if (document.fonts && document.fonts.load) {
-      await Promise.all([document.fonts.load('800 44px "Archivo"'), document.fonts.load('600 30px "Martian Mono"')]).catch(() => {});
+      await Promise.all([document.fonts.load('800 44px "Bricolage Grotesque"'), document.fonts.load('600 30px "Martian Mono"')]).catch(() => {});
     }
     if (logo) {
       x.save(); x.translate(56 + 64, AH + BAND / 2); x.rotate(-0.07);
       x.beginPath(); if (x.roundRect) x.roundRect(-64, -64, 128, 128, 28); else x.rect(-64, -64, 128, 128); x.clip();
       x.drawImage(logo, -64, -64, 128, 128); x.restore();
     }
-    x.fillStyle = '#ECEAF2'; x.font = '800 44px "Archivo", Arial, sans-serif'; x.textBaseline = 'alphabetic';
+    x.fillStyle = '#ECEAF2'; x.font = '800 44px "Bricolage Grotesque", Arial, sans-serif'; x.textBaseline = 'alphabetic';
     x.fillText('Ovo je moj voz.', 224, AH + 92);
     x.fillStyle = '#A9A5B6'; x.font = '400 28px "Martian Mono", "Courier New", monospace';
     x.fillText('This is my train.', 224, AH + 134);
