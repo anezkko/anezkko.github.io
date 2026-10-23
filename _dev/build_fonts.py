@@ -5,9 +5,10 @@ font arrives.
 
     pip install fonttools brotli
     python3 _dev/build_fonts.py <folder with the .ttf sources>      # writes fonts/*.woff2
+    python3 _dev/build_fonts.py <folder> bricolage-grotesque         # just the families named
 
 Sources: github.com/google/fonts ofl/archivo/Archivo[wdth,wght].ttf, ofl/martianmono/MartianMono[wdth,wght].ttf,
-ofl/sedgwickavedisplay/SedgwickAveDisplay-Regular.ttf
+ofl/sedgwickavedisplay/SedgwickAveDisplay-Regular.ttf, ofl/bricolagegrotesque/BricolageGrotesque[opsz,wdth,wght].ttf
 """
 import io
 import os
@@ -33,7 +34,12 @@ FAMILIES = [
     ('MartianMono[wdth,wght].ttf', 'martian-mono', {'wdth': 100, 'wght': (400, 600)},
      ('Martian Mono Fallback', ['Courier New', 'Menlo', 'Consolas', 'Liberation Mono'], (2048, 1229, 1705, 615, 0))),
     ('SedgwickAveDisplay-Regular.ttf', 'sedgwick-ave-display', None, None),
+    # the headlines: optical size pinned to its display cut (72), which keeps the file at half the size; small
+    # buttons in it still read well
+    ('BricolageGrotesque[opsz,wdth,wght].ttf', 'bricolage-grotesque', {'wdth': 100, 'wght': (400, 800), 'opsz': 72},
+     ('Bricolage Fallback', ['Arial', 'Helvetica Neue', 'Helvetica', 'Liberation Sans'], (2048, 904, 1854, 434, 67))),
 ]
+ONLY = sys.argv[2:]
 
 
 def avg_width(font):
@@ -46,6 +52,8 @@ def avg_width(font):
 
 
 for src, name, axes, fb in FAMILIES:
+    if ONLY and name not in ONLY:
+        continue
     font = TTFont(os.path.join(SRC, src))
     if axes:
         font = instancer.instantiateVariableFont(font, axes)

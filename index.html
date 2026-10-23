@@ -41,16 +41,19 @@
    space is there from the first paint (same hosts as LIVE in js/core.js) */
 if (!/(^|\.)zidbosna\.com$|^anezkko\.github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname)) document.documentElement.classList.add('demo');
 </script>
-<link rel="preload" href="fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
 <!-- the first screen: the wall texture (the largest paint) and the wall photo, fetched first -->
 <link rel="preload" as="image" type="image/avif" imagesrcset="img/train/scene-1200.avif 1200w, img/train/scene-1800.avif 1800w, img/train/scene-2400.avif 2400w" imagesizes="(max-width:760px) 182vh, min(165vw, 2050px)" fetchpriority="high">
 <style>
 /* Layout: a black wall of old tags under a magenta glow. Big bold type, neon numbers, stickers pasted on top. One dark world by design. */
 /* fonts: self-hosted (fonts/, OFL), one file each: Latin + Latin Extended + the symbols in use, built by
    _dev/build_fonts.py. The fallbacks are sized to match, so text doesn't jump when the real font arrives. */
-@font-face{font-family:"Archivo";src:url("fonts/archivo.woff2") format("woff2");font-weight:400 900;font-style:normal;font-display:swap}
+@font-face{font-family:"Bricolage Grotesque";src:url("fonts/bricolage-grotesque.woff2") format("woff2");font-weight:400 800;font-style:normal;font-display:swap}
+/* Archivo (the body text) has no rule here on purpose: js/core.js loads it once the page has, so it doesn't compete
+   with the scene and the headline font on the first screen. Until then the text is in its matched fallback. */
 @font-face{font-family:"Martian Mono";src:url("fonts/martian-mono.woff2") format("woff2");font-weight:400 600;font-style:normal;font-display:swap}
 @font-face{font-family:"Sedgwick Ave Display";src:url("fonts/sedgwick-ave-display.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Bricolage Fallback";src:local("Arial"),local("Helvetica Neue"),local("Helvetica"),local("Liberation Sans");size-adjust:104.18%;ascent-override:89.27%;descent-override:25.92%;line-gap-override:0%}
 @font-face{font-family:"Archivo Fallback";src:local("Arial"),local("Helvetica Neue"),local("Helvetica"),local("Liberation Sans");size-adjust:101.92%;ascent-override:86.14%;descent-override:20.60%;line-gap-override:0%}
 @font-face{font-family:"Martian Mono Fallback";src:local("Courier New"),local("Menlo"),local("Consolas"),local("Liberation Mono");size-adjust:116.65%;ascent-override:85.73%;descent-override:17.15%;line-gap-override:0%}
 :root{
@@ -69,7 +72,7 @@ if (!/(^|\.)zidbosna\.com$|^anezkko\.github\.io$|^localhost$|^127\.0\.0\.1$/.tes
   --paper:#F1EEF5; --paper-ink:#131118;
   --st-pink:#FF4DC4; --st-lime:#B4F53A; --st-black:#17151D; --st-violet:#6E2FE0;
   --st-ink-dark:#120F16; --st-ink-light:#F4F1FA;
-  --f-display:"Archivo","Archivo Fallback","Helvetica Neue",Arial,sans-serif;
+  --f-display:"Bricolage Grotesque","Bricolage Fallback","Helvetica Neue",Arial,sans-serif;
   --f-body:"Archivo","Archivo Fallback","Helvetica Neue",Arial,sans-serif;
   --f-tag:"Sedgwick Ave Display","Marker Felt","Segoe Print",cursive;
   /* one motion system: every hover, card and button uses these, so the whole page moves with the same hand */
@@ -1433,8 +1436,8 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
     </article>
     <article class="about-card">
       <h3>The code <span lang="bs">· kod</span></h3>
-      <p>One HTML page with plain CSS and JavaScript: no framework, no build step, hosted for free on GitHub Pages. Once it has loaded it works offline, and it installs as an app. Type: Archivo, Martian Mono and Sedgwick Ave Display, all under the SIL Open Font License.</p>
-      <p lang="bs">Jedna HTML stranica, običan CSS i JavaScript: bez frameworka i bez build koraka, besplatno na GitHub Pagesu. Kad se jednom učita, radi i bez interneta i može se instalirati kao aplikacija. Pisma: Archivo, Martian Mono i Sedgwick Ave Display, sva pod SIL Open Font License.</p>
+      <p>One HTML page with plain CSS and JavaScript: no framework, no build step, hosted for free on GitHub Pages. Once it has loaded it works offline, and it installs as an app. Type: Bricolage Grotesque, Archivo, Martian Mono and Sedgwick Ave Display, all under the SIL Open Font License.</p>
+      <p lang="bs">Jedna HTML stranica, običan CSS i JavaScript: bez frameworka i bez build koraka, besplatno na GitHub Pagesu. Kad se jednom učita, radi i bez interneta i može se instalirati kao aplikacija. Pisma: Bricolage Grotesque, Archivo, Martian Mono i Sedgwick Ave Display, sva pod SIL Open Font License.</p>
       <p class="ph">[Thanks: friends, testers, anyone who helped.]</p>
     </article>
     <article class="about-card about-facts">
