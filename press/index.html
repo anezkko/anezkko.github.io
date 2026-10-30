@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#0A090D">
 <link rel="icon" type="image/png" href="../img/01.png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
-<link rel="preload" href="../fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
 <script>
 /* the same preview check as the home page: on any host but the live ones, the owner's still-to-write lines show */
 if (!/(^|\.)zidbosna\.com$|^anezkko\.github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname)) document.documentElement.classList.add('demo');
@@ -17,13 +17,15 @@ if (!/(^|\.)zidbosna\.com$|^anezkko\.github\.io$|^localhost$|^127\.0\.0\.1$/.tes
 <style>
 /* The press kit: one plain page, same wall world as the home page. Everything a journalist or an awards jury
    needs to write about ZID without asking: what it is in 50 and 150 words, the facts, pictures and the logo. */
+@font-face{font-family:"Bricolage Grotesque";src:url("../fonts/bricolage-grotesque.woff2") format("woff2");font-weight:400 800;font-style:normal;font-display:swap}
 @font-face{font-family:"Archivo";src:url("../fonts/archivo.woff2") format("woff2");font-weight:400 900;font-style:normal;font-display:swap}
 @font-face{font-family:"Martian Mono";src:url("../fonts/martian-mono.woff2") format("woff2");font-weight:400 600;font-style:normal;font-display:swap}
 @font-face{font-family:"Sedgwick Ave Display";src:url("../fonts/sedgwick-ave-display.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Bricolage Fallback";src:local("Arial"),local("Helvetica Neue"),local("Helvetica"),local("Liberation Sans");size-adjust:104.18%;ascent-override:89.27%;descent-override:25.92%;line-gap-override:0%}
 @font-face{font-family:"Archivo Fallback";src:local("Arial"),local("Helvetica Neue"),local("Helvetica"),local("Liberation Sans");size-adjust:101.92%;ascent-override:86.14%;descent-override:20.60%;line-gap-override:0%}
 @font-face{font-family:"Martian Mono Fallback";src:local("Courier New"),local("Menlo"),local("Consolas"),local("Liberation Mono");size-adjust:116.65%;ascent-override:85.73%;descent-override:17.15%;line-gap-override:0%}
 :root{--bg:#0A090D;--panel:#15131B;--text:#ECEAF2;--mid:#CBC7D6;--soft:#A9A5B6;--line:rgba(255,255,255,.10);--line-strong:rgba(255,255,255,.22);--pink:#FF4DC4;--lime:#B4F53A;--violet:#8B3DFF;
-  --f-display:"Archivo","Archivo Fallback","Helvetica Neue",Arial,sans-serif;--f-mono:"Martian Mono","Martian Mono Fallback",ui-monospace,monospace;color-scheme:dark}
+  --f-display:"Bricolage Grotesque","Bricolage Fallback","Helvetica Neue",Arial,sans-serif;--f-mono:"Martian Mono","Martian Mono Fallback",ui-monospace,monospace;color-scheme:dark}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;background:radial-gradient(60% 40% at 80% 0%,rgba(139,61,255,.22),rgba(139,61,255,0) 70%),var(--bg);color:var(--text);font:400 1rem/1.6 var(--f-display)}

@@ -30,6 +30,33 @@ function hexA(hex, a) {
   const n = parseInt(hex.slice(1), 16);
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
 }
+/* the sevdah strings of the share pictures: six thin strings across a canvas, each one vibrating, the swell rising
+   and falling along the line, with a soft glow under them. y is the middle of the bundle; seed keeps it the same. */
+function sevdahStrings(x, w, y, seed) {
+  const r = rng(seed || 7);
+  const S = [[-30, 520, 22, 1.4, '#B57BFF', 0.55], [-18, 390, 18, 2.2, '#FF4DC4', 0.85], [-6, 640, 30, 3, '#FF4DC4', 1],
+    [6, 300, 12, 1.6, '#B4F53A', 0.5], [18, 460, 20, 2, '#8B3DFF', 0.75], [30, 780, 15, 1.2, '#FF7FD6', 0.45]];
+  const swell = (t) => 0.18 + 0.82 * Math.pow(Math.abs(Math.sin(Math.PI * t / 1400 + 0.35)), 1.6);
+  const line = ([dy, lam, amp], ph) => {
+    x.beginPath();
+    for (let t = -20; t <= w + 20; t += 8) {
+      const yy = y + dy + amp * swell(t) * Math.sin(TAU * t / lam + ph) * (0.8 + 0.2 * Math.sin(t / 170));
+      if (t === -20) x.moveTo(t, yy); else x.lineTo(t, yy);
+    }
+  };
+  const phase = S.map(() => r() * TAU);
+  x.save();
+  x.lineCap = 'round';
+  for (const pass of [0, 1]) {
+    x.filter = pass ? 'none' : 'blur(9px)';
+    S.forEach((s, i) => {
+      line(s, phase[i]);
+      x.strokeStyle = s[4]; x.lineWidth = s[3]; x.globalAlpha = s[5] * (pass ? 1 : 0.7);
+      x.stroke();
+    });
+  }
+  x.restore();
+}
 
 /* Spray colours are named after Bosnian things. They are paint, so they stay the same by day and by night. */
 const PAINTS = [
@@ -114,6 +141,17 @@ const Store = {
 
 function markCoarse() { document.documentElement.classList.add('coarse'); }
 if (matchMedia('(pointer: coarse)').matches) markCoarse();
+
+/* ---- the body text font ----
+   The first screen is headlines (Bricolage Grotesque), labels (Martian Mono) and the scene, so Archivo, the body
+   text, waits until the page has loaded instead of competing with the picture. Until it arrives the text shows in a
+   fallback sized to match, so nothing moves. On later visits it comes from the cache, so it loads straight away. */
+(() => {
+  if (!('FontFace' in window) || !document.fonts) return;
+  const add = () => new FontFace('Archivo', 'url(fonts/archivo.woff2) format("woff2")', { weight: '400 900', display: 'swap' })
+    .load().then((f) => { document.fonts.add(f); Store.set('fontsSeen', true); }).catch(() => {});
+  if (Store.get('fontsSeen', false) || document.readyState === 'complete') add(); else addEventListener('load', add, { once: true });
+})();
 
 /* ---- sound: built with Web Audio, starts only after a tap or key ---- */
 const Sound = (() => {
@@ -1647,22 +1685,31 @@ const Hero = (() => {
     const cw = OW - 60, ch = cw * H / W;
     x.drawImage(car, 30, AH * 946 / 1184 - ch, cw, ch);
     x.restore();
-    /* the band underneath: logo, a line in both languages, the address */
+    /* the band underneath, in the look of the ZID carousels: the wall at night, the sevdah strings along its top
+       edge, the logo, a bold pink line in both languages and the address */
     const logo = await loadImg('img/02.webp');
     if (document.fonts && document.fonts.load) {
-      await Promise.all([document.fonts.load('800 44px "Archivo"'), document.fonts.load('600 30px "Martian Mono"')]).catch(() => {});
+      await Promise.all([document.fonts.load('800 50px "Bricolage Grotesque"'), document.fonts.load('600 30px "Martian Mono"')]).catch(() => {});
     }
+    x.fillStyle = '#060508'; x.fillRect(0, AH, OW, BAND);
+    const fade = x.createLinearGradient(0, AH - 90, 0, AH);
+    fade.addColorStop(0, 'rgba(6,5,8,0)'); fade.addColorStop(1, 'rgba(6,5,8,.85)');
+    x.fillStyle = fade; x.fillRect(0, AH - 90, OW, 90);
+    sevdahStrings(x, OW, AH - 4, 21);
     if (logo) {
-      x.save(); x.translate(56 + 64, AH + BAND / 2); x.rotate(-0.07);
-      x.beginPath(); if (x.roundRect) x.roundRect(-64, -64, 128, 128, 28); else x.rect(-64, -64, 128, 128); x.clip();
-      x.drawImage(logo, -64, -64, 128, 128); x.restore();
+      x.save(); x.translate(56 + 56, AH + 112); x.rotate(-0.07);
+      x.shadowColor = 'rgba(255,77,196,.45)'; x.shadowBlur = 28;
+      x.beginPath(); if (x.roundRect) x.roundRect(-56, -56, 112, 112, 26); else x.rect(-56, -56, 112, 112); x.clip();
+      x.drawImage(logo, -56, -56, 112, 112); x.restore();
     }
-    x.fillStyle = '#ECEAF2'; x.font = '800 44px "Archivo", Arial, sans-serif'; x.textBaseline = 'alphabetic';
-    x.fillText('Ovo je moj voz.', 224, AH + 92);
-    x.fillStyle = '#A9A5B6'; x.font = '400 28px "Martian Mono", "Courier New", monospace';
-    x.fillText('This is my train.', 224, AH + 134);
+    x.fillStyle = '#FF4DC4'; x.font = '800 50px "Bricolage Grotesque", "Bricolage Fallback", Arial, sans-serif'; x.textBaseline = 'alphabetic';
+    if ('letterSpacing' in x) x.letterSpacing = '-1.5px';
+    x.fillText('OVO JE MOJ VOZ.', 206, AH + 110);
+    if ('letterSpacing' in x) x.letterSpacing = '0px';
+    x.fillStyle = '#E4DFEC'; x.font = '400 26px "Martian Mono", "Courier New", monospace';
+    x.fillText('This is my train.', 208, AH + 152);
     x.fillStyle = '#B4F53A'; x.font = '600 30px "Martian Mono", "Courier New", monospace'; x.textAlign = 'right';
-    x.fillText('zidbosna.com', OW - 56, AH + 134);
+    x.fillText('zidbosna.com', OW - 56, AH + 152);
     const blob = await new Promise((res) => o.toBlob(res, 'image/jpeg', 0.9));
     if (!blob) return;
     const name = 'zid-moj-voz.jpg';
