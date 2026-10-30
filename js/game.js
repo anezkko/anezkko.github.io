@@ -1231,6 +1231,7 @@ const Game = (() => {
   const TAGF = '"Sedgwick Ave Display", "Marker Felt", cursive';
   const STENF = '"Archivo", "Helvetica Neue", Arial, sans-serif';
   const MONOF = '"Martian Mono", ui-monospace, Menlo, monospace';
+  const DISPF = '"Bricolage Grotesque", "Bricolage Fallback", Arial, sans-serif';
   let LW = 960, PX = 230, scale = 1, dpr = 1, rf = 1;
 
   const ZONES = [
@@ -5035,16 +5036,6 @@ const PIXCREW = (() => {
     x.moveTo(rx + r, ry); x.arcTo(rx + w, ry, rx + w, ry + h, r); x.arcTo(rx + w, ry + h, rx, ry + h, r);
     x.arcTo(rx, ry + h, rx, ry, r); x.arcTo(rx, ry, rx + w, ry, r); x.closePath();
   }
-  function scText(x, s, cx, y, font, fill, stroke, sw, track) {
-    x.save();
-    x.font = font; x.textAlign = 'center'; x.textBaseline = 'alphabetic';
-    if ('letterSpacing' in x) x.letterSpacing = (track || 0) + 'px';
-    /* letter spacing also trails the last letter: shift by half so the line stays centred */
-    const sx = cx + (track && 'letterSpacing' in x ? track / 2 : 0);
-    if (stroke) { x.lineJoin = 'round'; x.lineWidth = sw; x.strokeStyle = stroke; x.strokeText(s, sx, y); }
-    x.fillStyle = fill; x.fillText(s, sx, y);
-    x.restore();
-  }
   /* the biggest size, up to px, at which a line fits maxW */
   function cardFit(x, s, font, px, maxW, track) {
     x.save();
@@ -5054,6 +5045,36 @@ const PIXCREW = (() => {
     x.restore();
     return w > maxW ? Math.floor((px * maxW) / w) : px;
   }
+  /* a line set from the left, with optional tracking and a dark halo so it reads over the bridge */
+  function lText(x, s, lx, y, font, fill, track, shadow) {
+    x.save();
+    x.font = font; x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+    if ('letterSpacing' in x) x.letterSpacing = (track || 0) + 'px';
+    if (shadow) { x.shadowColor = '#060508'; x.shadowBlur = shadow; }
+    x.fillStyle = fill; x.fillText(s, lx, y);
+    x.restore();
+  }
+  /* break a headline into at most two lines that fit maxW, as big as it can go up to px */
+  function cardLines(x, s, font, px, maxW, track) {
+    const words = s.split(' ');
+    for (let size = px; size > 40; size -= 4) {
+      x.save(); x.font = font(size);
+      if ('letterSpacing' in x) x.letterSpacing = (track || 0) + 'px';
+      const lines = [];
+      let cur = '';
+      for (const w of words) {
+        const t = cur ? cur + ' ' + w : w;
+        if (x.measureText(t).width <= maxW || !cur) cur = t; else { lines.push(cur); cur = w; }
+      }
+      lines.push(cur);
+      const fits = lines.length <= 2 && lines.every((l) => x.measureText(l).width <= maxW);
+      x.restore();
+      if (fits) return { size, lines };
+    }
+    return { size: 40, lines: [s] };
+  }
+  /* The card wears the look of the ZID carousels: the wall at night, a pink headline, the score in lime, the sevdah
+     strings across it and the Old Bridge faded in underneath. Everything that matters sits in the middle 1080×1350. */
   async function drawCard(r) {
     const tag = TAGS[r.rank] || ['', ''], rk = rankName(r.rank), total = String(r.total);
     const labels = [L('Zidovi', 'Walls'), L('Komadi', 'Pieces'), L('Poštovanje', 'Respect'), L('Skok', 'Dive')];
@@ -5061,101 +5082,116 @@ const PIXCREW = (() => {
     const f = r.friend, who = f ? f.name || L('Prijatelj', 'My friend') : '';
     const brag = f && r.total > f.total ? L(`${who}: ${f.total}. Oboreno!`, `${who}’s ${f.total}: beaten!`) : '';
     const title = L('SPREJ DO MOSTARA', 'SPRAY TO MOSTAR'), ask = L('Možeš li bolje?', 'Can you beat it?'), site = 'zidbosna.com';
+    const yours = L('TVOJ REZULTAT', 'YOUR SCORE'), shout = tag[0].toUpperCase();
     if (document.fonts && document.fonts.load) {
       await Promise.all([
-        document.fonts.load(`900 100px ${STENF}`, total + site),
-        document.fonts.load(`800 100px ${STENF}`, rk + ask + vals.join('')),
-        document.fonts.load(`100px ${TAGF}`, tag[0]),
-        document.fonts.load(`600 30px ${MONOF}`, title + labels.join('') + tag[1] + brag),
+        document.fonts.load(`800 100px ${DISPF}`, shout + total + ask + site + vals.join('')),
+        document.fonts.load(`600 30px ${MONOF}`, title + yours + labels.join('') + tag[1] + brag + rk),
       ]).catch(() => {});
     }
     const logo = await cardLogo();
     const c = document.createElement('canvas');
     c.width = CARD_W; c.height = CARD_H;
     const x = c.getContext('2d');
+    const LX = 84, RX = CARD_W - 84, TOP = (CARD_H - 1350) / 2;
 
-    /* the Old Bridge at dusk, five screen pixels to an art pixel, cropped to the arch */
+    /* the wall at night: near black, a little violet light up top, darker at the edges */
+    x.fillStyle = '#060508'; x.fillRect(0, 0, CARD_W, CARD_H);
+    const glow = x.createRadialGradient(CARD_W * 0.25, TOP + 120, 0, CARD_W * 0.25, TOP + 120, 900);
+    glow.addColorStop(0, 'rgba(139,61,255,.16)'); glow.addColorStop(1, 'rgba(139,61,255,0)');
+    x.fillStyle = glow; x.fillRect(0, 0, CARD_W, CARD_H);
+
+    /* the Old Bridge at dusk, five screen pixels to an art pixel, faded in from below like the train in the carousels */
     const im = SCN.most, P = PIXSCN.most;
     if (im && im.complete && im.naturalWidth && P) {
+      const art = document.createElement('canvas'); art.width = CARD_W; art.height = CARD_H;
+      const ax = art.getContext('2d');
       const k = CARD_H / P.h, sw = Math.round(CARD_W / k), sx = Math.round(clamp((P.deck ? P.deck.cx : P.w / 2) - sw / 2, 0, P.w - sw));
-      x.imageSmoothingEnabled = false;
-      x.drawImage(im, sx, 0, sw, P.h, 0, 0, CARD_W, CARD_H);
-      x.imageSmoothingEnabled = true;
-    } else {
-      const gr = x.createLinearGradient(0, 0, 0, CARD_H);
-      gr.addColorStop(0, '#2A1340'); gr.addColorStop(0.55, '#7A3A5C'); gr.addColorStop(1, '#0E3B3A');
-      x.fillStyle = gr; x.fillRect(0, 0, CARD_W, CARD_H);
+      ax.imageSmoothingEnabled = false;
+      /* lowered so the arch sits behind the strings and the dare, under the score */
+      ax.drawImage(im, sx, 0, sw, P.h, 0, 380, CARD_W, CARD_H);
+      const m = ax.createLinearGradient(0, TOP + 560, 0, CARD_H);
+      m.addColorStop(0, 'rgba(0,0,0,0)'); m.addColorStop(0.3, 'rgba(0,0,0,.5)'); m.addColorStop(1, 'rgba(0,0,0,.7)');
+      ax.globalCompositeOperation = 'destination-in'; ax.fillStyle = m; ax.fillRect(0, 0, CARD_W, CARD_H);
+      x.drawImage(art, 0, 0);
     }
-    /* shade the sky and bridge behind the text; leave the river bright */
-    const sh = x.createLinearGradient(0, 0, 0, CARD_H);
-    sh.addColorStop(0, 'rgba(11,10,15,.46)'); sh.addColorStop(0.2, 'rgba(11,10,15,.30)'); sh.addColorStop(0.45, 'rgba(11,10,15,.36)');
-    sh.addColorStop(0.68, 'rgba(11,10,15,.50)'); sh.addColorStop(0.86, 'rgba(11,10,15,.20)'); sh.addColorStop(1, 'rgba(11,10,15,.40)');
-    x.fillStyle = sh; x.fillRect(0, 0, CARD_W, CARD_H);
+    /* a soft vignette so the corners fall away */
+    const vig = x.createRadialGradient(CARD_W / 2, CARD_H / 2, CARD_W * 0.35, CARD_W / 2, CARD_H / 2, CARD_H * 0.75);
+    vig.addColorStop(0, 'rgba(6,5,8,0)'); vig.addColorStop(1, 'rgba(6,5,8,.7)');
+    x.fillStyle = vig; x.fillRect(0, 0, CARD_W, CARD_H);
 
-    const C = CARD_W / 2;
-    /* the logo, stuck on like a sticker */
+    /* the logo and the game's name, and the rank in a white pill like the carousel's counter */
+    let y = TOP + 40;
     if (logo) {
       x.save();
-      x.translate(C, 378); x.rotate(-0.07);
-      x.shadowColor = 'rgba(0,0,0,.55)'; x.shadowBlur = 34; x.shadowOffsetY = 16;
-      cardRound(x, -100, -100, 200, 200, 32); x.fillStyle = '#F4F2F6'; x.fill();
-      x.shadowColor = 'transparent';
-      cardRound(x, -90, -90, 180, 180, 24); x.clip();
-      x.drawImage(logo, -90, -90, 180, 180);
+      x.translate(LX + 40, y + 40); x.rotate(-0.07);
+      x.shadowColor = 'rgba(255,77,196,.45)'; x.shadowBlur = 30;
+      cardRound(x, -40, -40, 80, 80, 18); x.clip();
+      x.drawImage(logo, -40, -40, 80, 80);
       x.restore();
     }
-    scText(x, title, C, 546, `600 30px ${MONOF}`, 'rgba(244,240,230,.88)', null, 0, 7);
-    /* the shout, sprayed on at a tilt, and the rank under it */
+    lText(x, title, LX + 108, y + 52, `600 26px ${MONOF}`, '#E4DFEC', 4);
     x.save();
-    x.translate(C, 684); x.rotate(-0.06);
-    const shoutPx = cardFit(x, tag[0], (p) => `${p}px ${TAGF}`, 112, 860);
-    scText(x, tag[0], 0, 0, `${shoutPx}px ${TAGF}`, '#FF4DC4', '#0B0A0F', 14);
+    x.font = `600 26px ${MONOF}`;
+    const pw = x.measureText(rk).width + 56;
+    cardRound(x, RX - pw, y + 12, pw, 58, 29); x.fillStyle = '#F4F0FA'; x.fill();
     x.restore();
-    if (Lang.en && tag[1]) scText(x, tag[1], C, 742, `600 28px ${MONOF}`, 'rgba(244,240,230,.85)', 'rgba(11,10,15,.6)', 6);
-    const rankPx = cardFit(x, rk, (p) => `800 ${p}px ${STENF}`, 128, 920, -3);
-    scText(x, rk, C, 856, `800 ${rankPx}px ${STENF}`, '#F4F0E6', '#0B0A0F', 14, -3);
-    const totPx = cardFit(x, total, (p) => `900 ${p}px ${STENF}`, 300, 940, -10);
-    scText(x, total, C, 1124, `900 ${totPx}px ${STENF}`, '#B4F53A', '#0B0A0F', 22, -10);
+    lText(x, rk, RX - pw + 28, y + 51, `600 26px ${MONOF}`, '#0E0C13');
 
-    /* walls, pieces, respect and the dive, on a dark band */
-    x.save();
-    cardRound(x, 96, 1170, 888, 156, 28);
-    x.fillStyle = 'rgba(11,10,15,.66)'; x.fill();
-    x.lineWidth = 2; x.strokeStyle = 'rgba(244,240,230,.2)'; x.stroke();
-    x.restore();
+    /* the shout, big, bold and pink, and what it means underneath */
+    const sh = cardLines(x, shout, (p) => `800 ${p}px ${DISPF}`, 132, RX - LX, -4);
+    y = TOP + 160;
+    sh.lines.forEach((ln) => { y += sh.size * 0.92; lText(x, ln, LX, y, `800 ${sh.size}px ${DISPF}`, '#FF4DC4', -4, 18); });
+    if (Lang.en && tag[1]) { y += 52; lText(x, tag[1], LX, y, `400 30px ${MONOF}`, '#E4DFEC', 0, 10); }
+
+    /* the score, the four numbers behind it */
+    y = Math.max(TOP + 520, y + 90);
+    lText(x, yours, LX, y, `600 24px ${MONOF}`, '#A9A3B4', 4);
+    const totPx = cardFit(x, total, (p) => `800 ${p}px ${DISPF}`, 270, RX - LX, -10);
+    lText(x, total, LX - 8, y + totPx * 0.8, `800 ${totPx}px ${DISPF}`, '#B4F53A', -10, 30);
+    y += totPx * 0.8 + 90;
+    const colW = (RX - LX) / 4;
     for (let i = 0; i < 4; i++) {
-      const cx = 96 + 111 + i * 222;
-      const lp = cardFit(x, labels[i], (p) => `600 ${p}px ${MONOF}`, 24, 200, 1);
-      scText(x, labels[i], cx, 1222, `600 ${lp}px ${MONOF}`, 'rgba(244,240,230,.72)', null, 0, 1);
-      scText(x, vals[i], cx, 1296, `800 64px ${STENF}`, '#F4F0E6', null, 0, -1);
+      const cx = LX + i * colW;
+      if (i) { x.fillStyle = 'rgba(244,240,250,.16)'; x.fillRect(cx - 18, y - 30, 2, 92); }
+      const lp = cardFit(x, labels[i], (p) => `600 ${p}px ${MONOF}`, 22, colW - 36, 1);
+      lText(x, labels[i].toUpperCase(), cx, y - 2, `600 ${lp}px ${MONOF}`, '#A9A3B4', 1);
+      lText(x, vals[i], cx, y + 58, `800 56px ${DISPF}`, '#F4F0FA', -1);
     }
-    let y = 1376;
+
+    /* the strings, running right across the card */
+    sevdahStrings(x, CARD_W, y + 150, r.total);
+
+    /* a beaten friend, with the crown from the game's challenge lines */
+    y += 236;
     if (brag) {
       x.save();
-      const bp = cardFit(x, brag, (p) => `600 ${p}px ${MONOF}`, 30, 760);
+      const bp = cardFit(x, brag, (p) => `600 ${p}px ${MONOF}`, 28, 820);
       x.font = `600 ${bp}px ${MONOF}`;
-      const bw = Math.min(900, x.measureText(brag).width + 132);
-      cardRound(x, C - bw / 2, y, bw, 76, 38);
-      x.fillStyle = 'rgba(30,24,8,.82)'; x.fill();
-      x.lineWidth = 3; x.strokeStyle = 'rgba(255,210,63,.75)'; x.stroke();
-      /* the crown, as on the game's challenge lines */
-      const kx = C - bw / 2 + 34, ky = y + 24;
+      const bw = x.measureText(brag).width + 120;
+      cardRound(x, LX, y, bw, 70, 35);
+      x.fillStyle = 'rgba(30,24,8,.88)'; x.fill();
+      x.lineWidth = 2.5; x.strokeStyle = 'rgba(255,210,63,.75)'; x.stroke();
+      const kx = LX + 30, ky = y + 21;
       x.beginPath(); x.moveTo(kx, ky + 28); x.lineTo(kx, ky + 6); x.lineTo(kx + 10, ky + 16); x.lineTo(kx + 19, ky); x.lineTo(kx + 28, ky + 16);
       x.lineTo(kx + 38, ky + 6); x.lineTo(kx + 38, ky + 28); x.closePath(); x.fillStyle = '#FFD23F'; x.fill();
       x.restore();
-      scText(x, brag, C + 24, y + 49, `600 ${bp}px ${MONOF}`, '#FFD23F');
-      y += 110;
-    } else y += 40;
+      lText(x, brag, LX + 84, y + 46, `600 ${bp}px ${MONOF}`, '#FFD23F');
+      y += 100;
+    } else y += 20;
+
     /* the dare and where to take it up */
-    scText(x, ask, C, y + 92, `800 76px ${STENF}`, '#F4F0E6', '#0B0A0F', 12, -2);
+    const askPx = cardFit(x, ask.toUpperCase(), (p) => `800 ${p}px ${DISPF}`, 92, RX - LX, -3);
+    lText(x, ask.toUpperCase(), LX, y + askPx * 0.85, `800 ${askPx}px ${DISPF}`, '#F4F0FA', -3, 24);
+    y += askPx * 0.85 + 34;
     x.save();
-    x.font = `900 66px ${STENF}`;
+    x.font = `800 58px ${DISPF}`;
     if ('letterSpacing' in x) x.letterSpacing = '-1px';
-    const pw = x.measureText(site).width + 120, py = y + 126;
-    x.shadowColor = 'rgba(0,0,0,.45)'; x.shadowBlur = 26; x.shadowOffsetY = 10;
-    cardRound(x, C - pw / 2, py, pw, 104, 52); x.fillStyle = '#B4F53A'; x.fill();
+    const uw = x.measureText(site).width + 92;
+    x.shadowColor = 'rgba(180,245,58,.35)'; x.shadowBlur = 40;
+    cardRound(x, LX, y, uw, 96, 48); x.fillStyle = '#B4F53A'; x.fill();
     x.restore();
-    scText(x, site, C, py + 75, `900 66px ${STENF}`, '#0B0A0F', null, 0, -1);
+    lText(x, site, LX + 46, y + 67, `800 58px ${DISPF}`, '#0B0A0F', -1);
 
     return new Promise((res) => c.toBlob((b) => res(b), 'image/jpeg', 0.92));
   }
