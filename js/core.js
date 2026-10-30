@@ -2345,6 +2345,19 @@ function initMusic() {
 }
 
 /* "Get the app": only on the real site (it has a manifest), only where installing works, never inside the installed app */
+/* the section links in the header and the phone tab bar: mark the section on screen, and slide the tab bar away
+   while the game is in view so it never sits over the controls */
+function initNav() {
+  const links = $$('.nav a[href^="#"], .tabbar a[href^="#"]');
+  if (!links.length || !('IntersectionObserver' in window)) return;
+  const secs = [...new Set(links.map((a) => a.getAttribute('href')))].map((h) => document.getElementById(h.slice(1))).filter(Boolean);
+  const mark = (id) => links.forEach((a) => { if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
+  /* the section crossing the middle of the screen is the one being read */
+  const io = new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) mark(e.target.id); }, { rootMargin: '-45% 0px -50% 0px' });
+  secs.forEach((s) => io.observe(s));
+  const game = $('#game');
+  if (game) new IntersectionObserver(([e]) => document.documentElement.classList.toggle('tab-off', e.isIntersecting), { threshold: 0.3 }).observe(game);
+}
 function initInstall() {
   const btn = $('#btn-install');
   if (!btn || !document.querySelector('link[rel="manifest"]')) return;
@@ -2609,6 +2622,7 @@ function boot(data) {
   initSound();
   initMusic();
   initInstall();
+  initNav();
   initTip();
   buildStickers();
   Hero.init();
