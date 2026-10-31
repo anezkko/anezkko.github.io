@@ -1014,6 +1014,75 @@ body:has(.game.playing) .ticker{display:none}
   .sticker{transition:transform var(--t-mid) var(--ease-out),box-shadow var(--t-mid) var(--ease-out)}
   .sticker:hover{transform:perspective(800px) rotateX(var(--ty,0deg)) rotateY(var(--tx,0deg)) translateY(-5px);box-shadow:0 34px 44px -24px rgba(0,0,0,.95);background-image:radial-gradient(circle at var(--mx,50%) var(--my,30%),rgba(255,255,255,.26),rgba(255,255,255,0) 46%)}
 }
+
+/* ===== Sevdah Night: the look of the ZID carousels, from the owner's Gemini mock-ups =====
+   The wall at night (near black, a violet light from above, fine grain), one calm column, huge pink uppercase
+   headlines, the sevdah strings, game pictures framed like taped photos. Later rules here win over the ones above. */
+:root{--bg:#060508;--tagwall:none}
+body{background-color:var(--bg);background-image:radial-gradient(120% 60vh at 50% -10vh,rgba(139,61,255,.32),rgba(139,61,255,.08) 55%,transparent 80%);background-repeat:no-repeat;background-size:100% 100vh}
+/* section headings: big, bold, pink, uppercase; the intro under them, not beside */
+.sec-head{grid-template-columns:1fr;align-items:start;gap:16px}
+.sec h2,.finale h2{text-transform:uppercase;color:var(--pink);font-size:clamp(2.8rem,1.4rem + 6.4vw,7rem);line-height:.88;letter-spacing:-.04em;text-shadow:0 0 40px rgba(255,77,196,.18)}
+.sec-lede{font-size:var(--step-1);line-height:1.5;color:var(--text-mid);max-width:46ch}
+.kicker{letter-spacing:.16em}
+/* the sevdah strings: thin glowing lines, drawn as inline SVG */
+.strings{position:absolute;pointer-events:none;overflow:visible;filter:drop-shadow(0 0 5px rgba(255,77,196,.6))}
+.strings path{fill:none;stroke-linecap:round;stroke-width:2}
+.strings path:nth-child(1){stroke:#FF4DC4}
+.strings path:nth-child(2){stroke:#B57BFF;stroke-width:1.6}
+.strings path:nth-child(3){stroke:#8B3DFF;stroke-width:1.4}
+.strings path:nth-child(4){stroke:#B4F53A;stroke-width:1.4;opacity:.8}
+
+/* hero: the headline above, then the paintable train framed like a taped photo */
+.hero{gap:0}
+.hero > .decal.d-bih{display:none}
+.hero-copy{position:relative;inset:auto;display:block;z-index:3;max-width:none;padding:clamp(18px,4vw,48px) 0 clamp(26px,4vw,44px);pointer-events:auto}
+.hero-copy .eyebrow{margin:0 0 14px}
+.hero-copy .hero-h{font-size:clamp(3.4rem,17vw,10rem);line-height:.86;letter-spacing:-.045em;text-transform:uppercase;color:var(--pink);max-width:none;width:auto;text-shadow:0 0 50px rgba(255,77,196,.25)}
+.hero-copy .hero-en{font-family:var(--f-body);font-size:var(--step-1);letter-spacing:0;color:var(--text-mid);margin:16px 0 0}
+.hero-copy .wall-cta{margin-top:clamp(20px,3vw,32px)}
+.hero-copy .wall-play{margin-top:0}
+.wall-frame{position:relative;padding:clamp(8px,1.1vw,14px);background:#F4F0FA;border-radius:6px;transform:rotate(-1deg);box-shadow:0 40px 70px -30px rgba(0,0,0,.95),0 0 60px -20px rgba(255,77,196,.35)}
+.wall-frame::before{content:"";position:absolute;z-index:6;top:-16px;left:50%;width:min(170px,26%);height:34px;transform:translateX(-50%) rotate(-3deg);background:rgba(232,228,240,.62);box-shadow:0 2px 4px rgba(0,0,0,.25);pointer-events:none}
+.wall-frame .wall{border:0;border-radius:2px}
+.wall::before{display:none}
+.hero-strings{left:-12vw;right:-12vw;width:calc(100% + 24vw);bottom:-18%;height:60%;z-index:-1}
+.tray{margin-top:clamp(22px,3vw,34px)}
+.hero-text .ctas .btn:not(.install){display:none}
+.hero-text .stats{display:none}
+.hero-text{padding-top:clamp(28px,4vw,48px)}
+.hero-text .lede{font-size:var(--step-1);line-height:1.5;color:var(--text-mid);max-width:52ch}
+
+@media (max-width:699px){
+  .wall-frame .wall{height:clamp(300px,48vh,460px)}
+  .hero-copy .wall-cta{flex-direction:column;align-items:stretch}
+}
+
+/* the dripping dividers between sections become the strings */
+.drip-wrap .drip,.drip-wrap .decal{display:none}
+.drip-wrap{height:90px;margin-block:clamp(10px,3vw,30px);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 90' preserveAspectRatio='none'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M0 42C150 12 300 72 450 42S750 12 900 44 1100 72 1200 40' stroke='%23FF4DC4' stroke-width='2.2'/%3E%3Cpath d='M0 52C200 82 350 22 520 50S820 80 980 48 1150 24 1200 52' stroke='%238B3DFF' stroke-width='1.6'/%3E%3Cpath d='M0 32C180 52 320 16 500 34S800 54 960 30 1120 18 1200 32' stroke='%23FF7FD6' stroke-width='1.2' opacity='.6'/%3E%3Cpath d='M0 60C220 48 380 72 560 60S860 46 1020 62 1160 68 1200 58' stroke='%23B4F53A' stroke-width='1.2' opacity='.55'/%3E%3C/g%3E%3C/svg%3E") center/100% 100% no-repeat;filter:drop-shadow(0 0 5px rgba(255,77,196,.5))}
+/* the game, framed like the photos */
+.game{border:0;border-radius:6px;box-shadow:0 0 0 clamp(6px,.9vw,10px) #F4F0FA,0 40px 80px -30px rgba(0,0,0,.95),0 0 70px -20px rgba(255,77,196,.4)}
+/* scoreboard and rules headings in the same voice */
+.board-head h3{text-transform:uppercase;font-size:clamp(2rem,1.2rem + 3vw,3.6rem);line-height:.92}
+.law h3{text-transform:uppercase;font-size:clamp(1.4rem,1.1rem + 1vw,1.9rem);line-height:.95}
+
+/* dictionary: a calm list instead of coloured cards */
+.stickers{grid-template-columns:repeat(auto-fill,minmax(min(100%,460px),1fr));gap:0 56px}
+.sticker,.sticker.p,.sticker.l,.sticker.b,.sticker.v{background:transparent;color:var(--text);box-shadow:none;border-radius:0;transform:none;padding:26px 0 24px;border-top:1px solid var(--line-strong);grid-template-columns:minmax(0,1fr) auto;column-gap:16px}
+.sticker.tape::before{display:none}
+.sticker > *{grid-column:1}
+.sticker .st-spray{grid-column:2;grid-row:1;align-self:start;margin-top:6px;color:var(--lime);border-color:var(--lime);border-radius:10px}
+.st-word{font-size:clamp(2.6rem,1.6rem + 3vw,3.6rem);line-height:.9;text-transform:uppercase;color:#F4F0FA}
+.st-say{color:var(--pink);opacity:1;font-size:.82rem;margin-top:4px}
+.st-mean{font-weight:400;font-size:var(--step-1);color:var(--text-mid);margin-top:6px}
+.st-ex{border-top:0;padding-top:0;margin-top:2px;color:var(--text-soft);font-size:.9rem}
+.st-ex span{color:var(--text-mid)}
+.sticker .st-hear{color:var(--text-soft)}
+@media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+  .sticker:hover{transform:none;box-shadow:none;background-image:none}
+  .sticker:hover .st-word{color:var(--pink)}
+}
 </style>
 <script>try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&!sessionStorage.getItem('zid-intro')&&!location.hash){var h=document.documentElement;h.classList.add('intro-on');sessionStorage.setItem('zid-intro','1');
 /* the intro waits (at most 1.2 s) for its graffiti font and the logo, fetched from here on, so "zid" sprays on in its
@@ -1054,6 +1123,17 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
 <main>
 <section class="hero" id="zid" aria-labelledby="hero-h">
   <div class="decal d-bih" style="--r:-7deg" aria-hidden="true"><b>BIH</b></div>
+  <div class="hero-copy">
+      <p class="eyebrow">ZID · Sarajevo → Mostar</p>
+      <h1 class="hero-h" id="hero-h" lang="bs"><span>Halal bilo.</span></h1>
+      <p class="hero-en">It's yours. Paint the train.</p>
+      <div class="wall-cta">
+      <a class="wall-play" href="#igra" data-play><i class="wp-ico" aria-hidden="true"></i><span class="wp-txt"><b>Play Spray to Mostar</b><small>Free · no sign-up<span class="wp-ph"> · works on your phone</span></small></span></a>
+      <p class="wall-beat" id="wall-beat" hidden><i class="wb-crown" aria-hidden="true"></i><span class="wb-t"><span class="wb-k" id="wb-k"></span> <span class="wb-v" id="wb-v"></span></span></p>
+    </div>
+  </div>
+  <div class="wall-frame">
+  <svg class="strings hero-strings" viewBox="0 0 1200 300" preserveAspectRatio="none" aria-hidden="true"><path d="M-20 250 C200 300 420 120 640 170 S1000 40 1220 20"/><path d="M-20 262 C210 292 430 140 650 184 S1010 58 1220 40"/><path d="M-20 274 C220 284 440 160 660 198 S1020 76 1220 60"/><path d="M-20 286 C230 276 450 180 670 212 S1030 94 1220 80"/></svg>
   <div class="wall" id="wall">
     <!-- the scene: dusk in the Neretva valley, the track 79.9% of the way down. It's cut to fill the box by height, so
          its width on screen is the box height x 3.03 (about 182vh on a phone, 165vw on a wider screen) -->
@@ -1062,15 +1142,6 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
       <source type="image/webp" srcset="img/train/scene-1200.webp 1200w, img/train/scene-1800.webp 1800w, img/train/scene-2400.webp 2400w" sizes="(max-width:760px) 182vh, min(165vw, 2050px)">
       <img class="scene-photo" src="img/train/scene-1800.webp" alt="" width="1800" height="595" decoding="async" fetchpriority="high">
     </picture>
-    <div class="hero-copy">
-      <p class="eyebrow">ZID · Sarajevo → Mostar</p>
-      <h1 class="hero-h" id="hero-h" lang="bs"><span>Halal bilo.</span></h1>
-      <p class="hero-en">It's yours. Paint the train.</p>
-      <div class="wall-cta">
-      <a class="wall-play" href="#igra" data-play><i class="wp-ico" aria-hidden="true"></i><span class="wp-txt"><b>Play Spray to Mostar</b><small>Free · no sign-up<span class="wp-ph"> · works on your phone</span></small></span></a>
-      <p class="wall-beat" id="wall-beat" hidden><i class="wb-crown" aria-hidden="true"></i><span class="wb-t"><span class="wb-k" id="wb-k"></span> <span class="wb-v" id="wb-v"></span></span></p>
-      </div>
-    </div>
     <!-- the train: a spare wagon, the wagon you paint (the paint canvas sits on it and goes where it goes) and the
          locomotive, standing on the scene's track (js: the train block in core.js) -->
     <div class="train" id="train">
@@ -1092,6 +1163,7 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
       <button class="send-off" id="send-off" type="button" hidden>Send it off <span lang="bs">· pošalji ga</span> <span aria-hidden="true">→</span></button>
     </div>
     <p class="wall-hint" id="wall-hint">Spray the wagon and it stops · <span lang="bs">ofarbaj ga i voz stane</span></p>
+  </div>
   </div>
   <div class="tray" role="group" aria-label="Spray tools">
     <span class="tray-l" id="cans-label">Colour</span>
