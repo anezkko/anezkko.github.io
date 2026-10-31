@@ -2171,10 +2171,11 @@ function buildStickers() {
     ex.appendChild(document.createTextNode(s.en));
     const word = s.w.replace('?', '');
     const b = a.querySelector('.st-spray');
-    b.setAttribute('aria-label', `Spray it: ${word}, on the train at the top of the page`);
+    b.setAttribute('aria-label', `Spray it: ${word}, on the train on the home screen`);
     b.addEventListener('click', () => {
-      Hero.sprayWord(word.toLowerCase());
-      toast(`<span><b>${word}</b> is on the train.</span> <a href="#zid">See it ↑</a>`);
+      const go = () => { Hero.sprayWord(word.toLowerCase()); toast(`<span><b>${word}</b> is on the train.</span>`); };
+      /* the train is on the home screen: go there first, and spray once it is back on screen and measured */
+      if (document.documentElement.dataset.view === 'page') { location.hash = '#zid'; setTimeout(go, 450); } else go();
     });
     box.appendChild(a);
   });
@@ -2345,18 +2346,64 @@ function initMusic() {
 }
 
 /* "Get the app": only on the real site (it has a manifest), only where installing works, never inside the installed app */
-/* the section links in the header and the phone tab bar: mark the section on screen, and slide the tab bar away
-   while the game is in view so it never sits over the controls */
+/* the home screen is the train and the game; How to play, Scores, Words, Rules and About each open as a page of
+   their own. The view is picked before the first paint (the head script) and kept up to date here as the hash
+   changes, so links, the back button and shared links all work, offline too. */
+const PAGES = ['kako', 'tabela', 'rjecnik', 'zakon', 'o-zidu'];
+function pageOf(h) {
+  if (PAGES.includes(h)) return h;
+  const el = h && document.getElementById(h), pg = el && el.closest('[data-page]');
+  if (!pg) return '';
+  return pg.id || (pg.querySelector('#tabela') ? 'tabela' : '');
+}
 function initNav() {
+  const root = document.documentElement, title = document.title;
   const links = $$('.nav a[href^="#"], .tabbar a[href^="#"]');
-  if (!links.length || !('IntersectionObserver' in window)) return;
-  const secs = [...new Set(links.map((a) => a.getAttribute('href')))].map((h) => document.getElementById(h.slice(1))).filter(Boolean);
-  const mark = (id) => links.forEach((a) => { if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
-  /* the section crossing the middle of the screen is the one being read */
-  const io = new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) mark(e.target.id); }, { rootMargin: '-45% 0px -50% 0px' });
-  secs.forEach((s) => io.observe(s));
+  function route(first) {
+    let h = '';
+    try { h = decodeURIComponent(location.hash.slice(1)); } catch (_) { /* a broken hash is just home */ }
+    const pg = pageOf(h), was = root.dataset.pg || '';
+    root.dataset.view = pg ? 'page' : 'home';
+    if (pg) root.dataset.pg = pg; else delete root.dataset.pg;
+    links.forEach((a) => { if (a.getAttribute('href') === '#' + (pg || 'zid')) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+    if (pg) {
+      /* leaving the game for a page pauses a run, so nothing happens while you read */
+      const pause = $('#btn-pause');
+      if (pause && !pause.hidden) pause.click();
+      const sec = pageSection(pg), head = sec && $('h2', sec);
+      document.title = head ? `${head.textContent.trim()} · ZID` : title;
+      /* the browser also jumps to the anchor; go to the top after it, on the next frame */
+      if (!first || pg !== was) { scrollTo(0, 0); requestAnimationFrame(() => scrollTo(0, 0)); }
+      if (head && !first) { head.tabIndex = -1; head.focus({ preventScroll: true }); }
+    } else {
+      document.title = title;
+      if (was) {
+        const el = h && h !== 'zid' && document.getElementById(h);
+        requestAnimationFrame(() => { if (el) el.scrollIntoView(); else scrollTo(0, 0); });
+      }
+    }
+  }
+  addEventListener('hashchange', () => route(false));
+  /* links to a page (and back home) are handled here, so the browser doesn't also jump to the anchor afterwards;
+     the address still changes, so the back button and sharing work */
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.hasAttribute('data-play')) return;
+    const h = a.getAttribute('href').slice(1);
+    if (!pageOf(h) && !(h === 'zid' && root.dataset.view === 'page')) return;
+    e.preventDefault();
+    if (location.hash !== '#' + h) history.pushState(null, '', '#' + h);
+    route(false);
+  });
+  route(true);
+  /* the tab bar slides away while the game is on screen, so it never sits over the controls */
   const game = $('#game');
-  if (game) new IntersectionObserver(([e]) => document.documentElement.classList.toggle('tab-off', e.isIntersecting), { threshold: 0.3 }).observe(game);
+  if (game && 'IntersectionObserver' in window) new IntersectionObserver(([e]) => root.classList.toggle('tab-off', e.isIntersecting), { threshold: 0.3 }).observe(game);
+}
+/* the page section a page name stands for: #tabela is the board inside the Scores page */
+function pageSection(pg) {
+  const el = document.getElementById(pg);
+  return el && el.closest('[data-page]');
 }
 function initInstall() {
   const btn = $('#btn-install');
@@ -2394,7 +2441,7 @@ function initTip() {
 
 /* ===== the game loads on demand =====
    js/game.js (the game, the Bihać ride and their pixel art) comes in when the game is about to scroll into view,
-   when any Play link is pressed, or at once for a link straight into it (#igra, #bihac, #beat=…, #tabela).
+   when any Play link is pressed, or at once for a link straight into it (#igra, #bihac, #beat=…).
    Until then the frame shows a shaking can. If it can't load, the can says so and offers to try again. */
 let gameP = null, gameReady = false, bootData = {};
 function loadGame() {
@@ -2421,7 +2468,7 @@ function watchGame() {
   if (can) can.innerHTML = CAN.markup();
   const retry = $('#game-load-retry');
   if (retry) retry.addEventListener('click', () => loadGame().catch(() => {}));
-  const deep = /^#(igra|bihac|beat=|tabela)/.test(location.hash) || /[?&]beat=/.test(location.search);
+  const deep = /^#(igra|bihac|beat=)/.test(location.hash) || /[?&]beat=/.test(location.search);
   const wrap = $('#game-wrap');
   if (deep || !wrap || !('IntersectionObserver' in window)) { loadGame().catch(() => {}); return; }
   const io = new IntersectionObserver((es) => {
@@ -2722,7 +2769,7 @@ function boot(data) {
 /* ===== motion: sprayed-on headings and leaning dictionary cards ===== */
 (() => {
   if (REDUCED || !('IntersectionObserver' in window)) return;
-  const heads = $$('.sec h2, .board-head h3, .finale h2, .foot-big');
+  const heads = $$('.sec h2, .finale h2, .foot-big');
   document.documentElement.classList.add('js-spray');
   heads.forEach((h) => h.classList.add('spray-in'));
   const io = new IntersectionObserver((es) => {
