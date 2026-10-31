@@ -37,6 +37,9 @@
 (function () { var l = ''; try { l = JSON.parse(localStorage.getItem('zid.lang') || '""'); } catch (e) {}
   if (l !== 'en' && l !== 'bs') { var n = (navigator.languages && navigator.languages[0]) || navigator.language || ''; l = /^(bs|hr|sr|sh|cnr)\b/i.test(n) ? 'bs' : 'en'; }
   document.documentElement.setAttribute('data-gl', l); })();
+/* home or one page: a link to #kako, #tabela, #rjecnik, #zakon or #o-zidu opens that page on its own (js: Nav in core.js) */
+(function () { var h = location.hash.slice(1), r = document.documentElement, pg = /^(kako|tabela|rjecnik|zakon|o-zidu)$/.test(h) ? h : '';
+  r.setAttribute('data-view', pg ? 'page' : 'home'); if (pg) r.setAttribute('data-pg', pg); })();
 /* outside the real site the scoreboard runs on example scores and a banner says so: mark it now, so the banner's
    space is there from the first paint (same hosts as LIVE in js/core.js) */
 if (!/(^|\.)zidbosna\.com$|^anezkko\.github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname)) document.documentElement.classList.add('demo');
@@ -311,11 +314,9 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .coarse .tray-btn.arm{display:inline-block}
 .tray-btn.arm[aria-pressed="true"]{background:var(--pink);border-color:var(--pink);color:var(--ink)}
 
-.drip{height:36px;background:var(--pink);-webkit-mask:var(--drip-mask) repeat-x 0 0/260px 36px;mask:var(--drip-mask) repeat-x 0 0/260px 36px;margin-block:clamp(48px,6vw,88px) 28px;max-width:1240px;margin-inline:auto;opacity:.9}
 
 /* sections */
 .sec{max-width:1240px;margin-inline:auto;padding-block:clamp(72px,9vw,128px) 36px}
-.drip-wrap + .sec{padding-top:clamp(28px,3.5vw,48px)}
 .sec-head{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:12px 44px;align-items:end;margin-bottom:clamp(28px,3.5vw,48px)}
 .kicker{font-family:var(--f-mono);font-size:var(--step--1);letter-spacing:.12em;text-transform:uppercase;color:var(--pink);margin:0 0 12px}
 .sec h2{font-family:var(--f-display);font-weight:800;font-size:var(--step-3);line-height:.92;letter-spacing:-.045em;margin:0;text-wrap:balance}
@@ -510,7 +511,7 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .board{margin-top:30px;border-top:1px solid var(--line-strong);padding-top:24px}
 .board-head{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:14px 24px;margin-bottom:16px}
 .board-head .kicker{margin:0 0 8px}
-.board-head h3{font-family:var(--f-display);font-weight:800;font-size:clamp(1.6rem,1.1rem + 1.8vw,2.4rem);line-height:1;letter-spacing:-.035em;margin:0}
+.board-head h2{font-family:var(--f-display);font-weight:800;font-size:clamp(1.6rem,1.1rem + 1.8vw,2.4rem);line-height:1;letter-spacing:-.035em;margin:0}
 .board-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
 .board-list li{display:grid;grid-template-columns:2em minmax(0,1fr) auto auto;align-items:center;gap:4px 14px;padding:10px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);min-width:0}
 .board-list .pos{font-family:var(--f-display);font-weight:800;font-size:1.15rem;color:var(--text-soft);font-variant-numeric:tabular-nums}
@@ -684,8 +685,6 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .d-polahko b{font-family:var(--f-display);font-weight:900;font-size:1.1rem;letter-spacing:.04em}
 .hero{position:relative}
 .hero > .decal{position:absolute;top:-12px;left:62%;z-index:4;margin:0}
-.drip-wrap{position:relative;max-width:1240px;margin-inline:auto}
-.drip-wrap > .decal{position:absolute;right:4%;top:-34px;z-index:4;margin:0}
 .foot{position:relative}
 .foot > .decal{position:absolute;right:16px;top:-24px;margin:0;z-index:4}
 
@@ -795,7 +794,6 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
   .bandera .m-hide{display:none}
   .bandera .decal{zoom:.78;margin-inline:-6px}
   .hero > .decal{transform:scale(.8) rotate(var(--r,0deg));top:-16px;left:3%}
-  .drip-wrap > .decal{top:-26px;transform:scale(.85) rotate(var(--r,0deg))}
 }
 @media (max-width:460px){
   .law-ic{width:58px}
@@ -868,7 +866,7 @@ body:has(.game.playing) .ticker{display:none}
   .tabbar a{display:grid;justify-items:center;gap:3px;padding:9px 2px 8px;min-height:52px;text-decoration:none;color:var(--text-soft);
     font-family:var(--f-mono);font-size:.62rem;letter-spacing:.06em;text-transform:uppercase}
   .tabbar svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
-  .tabbar a[href="#igra"] svg{fill:currentColor}
+  .tabbar svg .fill{fill:currentColor}
   .tabbar a[aria-current]{color:var(--pink)}
   .tabbar a:focus-visible{outline:2px solid var(--lime);outline-offset:-4px;border-radius:16px}
   .tab-off .tabbar{transform:translateY(130%);opacity:0;pointer-events:none}
@@ -985,7 +983,7 @@ body:has(.game.playing) .ticker{display:none}
 /* for screen readers only: there, read out, but not drawn */
 .sr-only{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 /* tight display tracking also eats the spaces between words ("Thisisa wall."), so the spaces get some back */
-.hero-h,.sec h2,.finale h2,.board-head h3,.law h3,.ov h3,.foot-big,.st-word,.route b,.wb-s{word-spacing:.12em}
+.hero-h,.sec h2,.finale h2,.law h3,.ov h3,.foot-big,.st-word,.route b,.wb-s{word-spacing:.12em}
 /* ===== the intro: a spray of the logo, about a second and a half, once a visit ===== */
 .intro{display:none}
 .intro-on .intro{display:grid;place-items:center;position:fixed;inset:0;z-index:300;background:radial-gradient(60% 50% at 50% 46%,rgba(139,61,255,.22),rgba(139,61,255,0) 70%),var(--bg);animation:intro-out .55s ease 1.75s forwards;cursor:pointer}
@@ -1014,6 +1012,109 @@ body:has(.game.playing) .ticker{display:none}
   .sticker{transition:transform var(--t-mid) var(--ease-out),box-shadow var(--t-mid) var(--ease-out)}
   .sticker:hover{transform:perspective(800px) rotateX(var(--ty,0deg)) rotateY(var(--tx,0deg)) translateY(-5px);box-shadow:0 34px 44px -24px rgba(0,0,0,.95);background-image:radial-gradient(circle at var(--mx,50%) var(--my,30%),rgba(255,255,255,.26),rgba(255,255,255,0) 46%)}
 }
+
+/* ===== Sevdah Night: the look of the ZID carousels, from the owner's Gemini mock-ups =====
+   The wall at night (near black, a violet light from above, fine grain), one calm column, huge pink uppercase
+   headlines, the sevdah strings, game pictures framed like taped photos. Later rules here win over the ones above. */
+:root{--bg:#060508;--tagwall:none}
+body{background-color:var(--bg);background-image:radial-gradient(120% 60vh at 50% -10vh,rgba(139,61,255,.32),rgba(139,61,255,.08) 55%,transparent 80%);background-repeat:no-repeat;background-size:100% 100vh}
+/* section headings: big, bold, pink, uppercase; the intro under them, not beside */
+.sec-head{grid-template-columns:1fr;align-items:start;gap:16px}
+.sec h2,.finale h2{text-transform:uppercase;color:var(--pink);font-size:clamp(2.8rem,1.4rem + 6.4vw,7rem);line-height:.88;letter-spacing:-.04em;text-shadow:0 0 40px rgba(255,77,196,.18)}
+.sec-lede{font-size:var(--step-1);line-height:1.5;color:var(--text-mid);max-width:46ch}
+.kicker{letter-spacing:.16em}
+/* the sevdah strings: thin glowing lines, drawn as inline SVG */
+.strings{position:absolute;pointer-events:none;overflow:visible;filter:drop-shadow(0 0 5px rgba(255,77,196,.6))}
+.strings path{fill:none;stroke-linecap:round;stroke-width:2}
+.strings path:nth-child(1){stroke:#FF4DC4}
+.strings path:nth-child(2){stroke:#B57BFF;stroke-width:1.6}
+.strings path:nth-child(3){stroke:#8B3DFF;stroke-width:1.4}
+.strings path:nth-child(4){stroke:#B4F53A;stroke-width:1.4;opacity:.8}
+
+/* hero: the headline above, then the paintable train framed like a taped photo */
+.hero{gap:0}
+.hero > .decal.d-bih{display:none}
+.hero-copy{position:relative;inset:auto;display:block;z-index:3;max-width:none;padding:clamp(18px,4vw,48px) 0 clamp(26px,4vw,44px);pointer-events:auto}
+.hero-copy .eyebrow{margin:0 0 14px}
+.hero-copy .hero-h{font-size:clamp(3.4rem,17vw,10rem);line-height:.86;letter-spacing:-.045em;text-transform:uppercase;color:var(--pink);max-width:none;width:auto;text-shadow:0 0 50px rgba(255,77,196,.25)}
+.hero-copy .hero-en{font-family:var(--f-body);font-size:var(--step-1);letter-spacing:0;color:var(--text-mid);margin:16px 0 0}
+.hero-copy .wall-cta{margin-top:clamp(20px,3vw,32px)}
+.hero-copy .wall-play{margin-top:0}
+.wall-frame{position:relative;padding:clamp(8px,1.1vw,14px);background:#F4F0FA;border-radius:6px;transform:rotate(-1deg);box-shadow:0 40px 70px -30px rgba(0,0,0,.95),0 0 60px -20px rgba(255,77,196,.35)}
+.wall-frame::before{content:"";position:absolute;z-index:6;top:-16px;left:50%;width:min(170px,26%);height:34px;transform:translateX(-50%) rotate(-3deg);background:rgba(232,228,240,.62);box-shadow:0 2px 4px rgba(0,0,0,.25);pointer-events:none}
+.wall-frame .wall{border:0;border-radius:2px}
+.wall::before{display:none}
+.hero-strings{left:-12vw;right:-12vw;width:calc(100% + 24vw);bottom:-18%;height:60%;z-index:-1}
+.tray{margin-top:clamp(22px,3vw,34px)}
+.hero-text .ctas .btn:not(.install){display:none}
+.hero-text .stats{display:none}
+.hero-text{padding-top:clamp(28px,4vw,48px)}
+.hero-text .lede{font-size:var(--step-1);line-height:1.5;color:var(--text-mid);max-width:52ch}
+
+@media (max-width:699px){
+  .wall-frame .wall{height:clamp(300px,48vh,460px)}
+  .hero-copy .wall-cta{flex-direction:column;align-items:stretch}
+}
+
+/* the game, framed like the photos */
+.game{border:0;border-radius:6px;box-shadow:0 0 0 clamp(6px,.9vw,10px) #F4F0FA,0 40px 80px -30px rgba(0,0,0,.95),0 0 70px -20px rgba(255,77,196,.4)}
+/* scoreboard and rules headings in the same voice */
+.law h3{text-transform:uppercase;font-size:clamp(1.4rem,1.1rem + 1vw,1.9rem);line-height:.95}
+
+/* dictionary: a calm list instead of coloured cards */
+.stickers{grid-template-columns:repeat(auto-fill,minmax(min(100%,460px),1fr));gap:0 56px}
+.sticker,.sticker.p,.sticker.l,.sticker.b,.sticker.v{background:transparent;color:var(--text);box-shadow:none;border-radius:0;transform:none;padding:26px 0 24px;border-top:1px solid var(--line-strong);grid-template-columns:minmax(0,1fr) auto;column-gap:16px}
+.sticker.tape::before{display:none}
+.sticker > *{grid-column:1}
+.sticker .st-spray{grid-column:2;grid-row:1;align-self:start;margin-top:6px;color:var(--lime);border-color:var(--lime);border-radius:10px}
+.st-word{font-size:clamp(2.6rem,1.6rem + 3vw,3.6rem);line-height:.9;text-transform:uppercase;color:#F4F0FA}
+.st-say{color:var(--pink);opacity:1;font-size:.82rem;margin-top:4px}
+.st-mean{font-weight:400;font-size:var(--step-1);color:var(--text-mid);margin-top:6px}
+.st-ex{border-top:0;padding-top:0;margin-top:2px;color:var(--text-soft);font-size:.9rem}
+.st-ex span{color:var(--text-mid)}
+.sticker .st-hear{color:var(--text-soft)}
+@media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+  .sticker:hover{transform:none;box-shadow:none;background-image:none}
+  .sticker:hover .st-word{color:var(--pink)}
+}
+
+/* ===== one view at a time: the home screen (train and game) or a single page (js: initNav in core.js) ===== */
+/* !important: some sections set their own display (the game section is a flex box), and the view must win */
+html[data-view="home"] main > [data-page]{display:none!important}
+html[data-view="page"] main > *{display:none!important}
+html[data-pg="kako"] #kako,html[data-pg="rjecnik"] #rjecnik,html[data-pg="zakon"] #zakon,html[data-pg="o-zidu"] #o-zidu,
+html[data-pg="tabela"] [data-page]:has(#tabela){display:block!important}
+.page{padding-top:clamp(18px,3vw,40px)}
+.back{display:inline-flex;align-items:center;gap:.6em;min-height:44px;margin:0 0 clamp(14px,2.5vw,26px);font-family:var(--f-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--pink);text-decoration:none}
+.back:hover{color:var(--text)}
+.back:focus-visible{outline:2px solid var(--lime);outline-offset:4px;border-radius:6px}
+.page h2:focus{outline:none}
+/* on a page the site's own heading (the home screen's h1 is hidden with it) */
+html:not([data-view="page"]) .site-name{display:none}
+
+/* the home screen, Krillion-style: the name and one line, the train, one big Play, the score to beat, quiet links */
+.hero{justify-items:stretch}
+.hero-copy{text-align:center;padding-bottom:clamp(20px,3vw,34px)}
+.hero-copy .hero-en{margin-inline:auto}
+.wall-cta{display:grid;gap:12px;width:min(680px,100%);margin:clamp(22px,3vw,34px) auto 0;align-items:stretch}
+.wall-cta .wall-play{justify-content:center;margin:0;padding:18px 22px;border-radius:12px;box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--lime),0 20px 40px -18px rgba(180,245,58,.7)}
+.wall-cta .wall-play:hover{transform:translateY(-2px)}
+.wall-cta .wp-txt{justify-items:center;text-align:center}
+.wall-cta .wp-txt b{font-size:clamp(1.15rem,.9rem + 1vw,1.6rem);text-transform:uppercase;letter-spacing:.06em}
+.wall-cta .wall-beat{margin:0;justify-content:center;border-radius:12px}
+.home-links{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;width:min(680px,100%);margin:16px auto 0}
+.home-links a{display:inline-flex;align-items:center;min-height:44px;padding:0 1.2em;border:1px solid var(--line-strong);border-radius:8px;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text-mid);text-decoration:none;transition:color var(--t-fast),border-color var(--t-fast)}
+.home-links a:hover{color:var(--pink);border-color:var(--pink)}
+.home-links a:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+.hero-text .lede{display:none}
+.hero-text{padding:0}
+.hero-text .hero-front{display:flex;justify-content:center}
+/* the game sits right under it, in the middle of the page */
+#igra{padding-top:clamp(40px,6vw,72px)}
+#igra .sec-head{justify-items:center;text-align:center;margin-bottom:18px}
+#igra .sec-head h2{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+#igra .sec-head .kicker{margin-bottom:10px}
+@media (max-width:699px){.wall-cta .wall-play{padding:16px 18px}}
 </style>
 <script>try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&!sessionStorage.getItem('zid-intro')&&!location.hash){var h=document.documentElement;h.classList.add('intro-on');sessionStorage.setItem('zid-intro','1');
 /* the intro waits (at most 1.2 s) for its graffiti font and the logo, fetched from here on, so "zid" sprays on in its
@@ -1031,13 +1132,14 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
 <div class="page">
 <p class="demo-note" id="demo-note" role="region" aria-label="Preview notice">Preview copy · the scores here are examples · the real board is on <a href="https://zidbosna.com/" target="_blank" rel="noopener">zidbosna.com</a></p>
 <header class="top">
+  <h1 class="sr-only site-name">ZID</h1>
   <div class="top-l">
     <a class="logo" href="#zid" aria-label="ZID, back to the wall"><i class="logo-mark" aria-hidden="true"></i><span class="logo-word">zid</span></a>
     <span class="credit">@anezkko<span class="cr-x"> creation</span></span>
   </div>
   <div class="top-r">
     <nav class="nav" aria-label="Sections">
-      <a href="#zid">Wall</a><a href="#igra">Game</a><a href="#rjecnik">Dictionary</a><a href="#zakon">Rules</a><a href="#o-zidu">About</a>
+      <a href="#zid">Play</a><a href="#kako">How to play</a><a href="#rjecnik">Words</a><a href="#zakon">Rules</a><a href="#tabela">Scores</a><a href="#o-zidu">About</a>
     </nav>
     <div class="radio">
     <button class="radio-btn" id="music-toggle" type="button" data-on="false" aria-haspopup="menu" aria-expanded="false" aria-controls="radio-menu" aria-label="Music: off. Play Radio ZID" title="Radio ZID"><span class="rd" id="rd" aria-hidden="true"><i class="bb-spk sL"><i class="bb-cap"></i></i><i class="bb-spk sR"><i class="bb-cap"></i></i><i class="bb-lcd" id="rd-dial"></i><i class="bb-needle"></i><i class="bb-led l1"></i><i class="bb-led l2"></i><i class="bb-led l3"></i><i class="bb-led r1"></i><i class="bb-led r2"></i><i class="bb-led r3"></i></span></button>
@@ -1054,6 +1156,13 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
 <main>
 <section class="hero" id="zid" aria-labelledby="hero-h">
   <div class="decal d-bih" style="--r:-7deg" aria-hidden="true"><b>BIH</b></div>
+  <div class="hero-copy">
+      <p class="eyebrow">ZID · Sarajevo → Mostar</p>
+      <h1 class="hero-h" id="hero-h" lang="bs"><span>Halal bilo.</span></h1>
+      <p class="hero-en">It's yours. Paint the train.</p>
+  </div>
+  <div class="wall-frame">
+  <svg class="strings hero-strings" viewBox="0 0 1200 300" preserveAspectRatio="none" aria-hidden="true"><path d="M-20 250 C200 300 420 120 640 170 S1000 40 1220 20"/><path d="M-20 262 C210 292 430 140 650 184 S1010 58 1220 40"/><path d="M-20 274 C220 284 440 160 660 198 S1020 76 1220 60"/><path d="M-20 286 C230 276 450 180 670 212 S1030 94 1220 80"/></svg>
   <div class="wall" id="wall">
     <!-- the scene: dusk in the Neretva valley, the track 79.9% of the way down. It's cut to fill the box by height, so
          its width on screen is the box height x 3.03 (about 182vh on a phone, 165vw on a wider screen) -->
@@ -1062,15 +1171,6 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
       <source type="image/webp" srcset="img/train/scene-1200.webp 1200w, img/train/scene-1800.webp 1800w, img/train/scene-2400.webp 2400w" sizes="(max-width:760px) 182vh, min(165vw, 2050px)">
       <img class="scene-photo" src="img/train/scene-1800.webp" alt="" width="1800" height="595" decoding="async" fetchpriority="high">
     </picture>
-    <div class="hero-copy">
-      <p class="eyebrow">ZID · Sarajevo → Mostar</p>
-      <h1 class="hero-h" id="hero-h" lang="bs"><span>Halal bilo.</span></h1>
-      <p class="hero-en">It's yours. Paint the train.</p>
-      <div class="wall-cta">
-      <a class="wall-play" href="#igra" data-play><i class="wp-ico" aria-hidden="true"></i><span class="wp-txt"><b>Play Spray to Mostar</b><small>Free · no sign-up<span class="wp-ph"> · works on your phone</span></small></span></a>
-      <p class="wall-beat" id="wall-beat" hidden><i class="wb-crown" aria-hidden="true"></i><span class="wb-t"><span class="wb-k" id="wb-k"></span> <span class="wb-v" id="wb-v"></span></span></p>
-      </div>
-    </div>
     <!-- the train: a spare wagon, the wagon you paint (the paint canvas sits on it and goes where it goes) and the
          locomotive, standing on the scene's track (js: the train block in core.js) -->
     <div class="train" id="train">
@@ -1093,6 +1193,7 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
     </div>
     <p class="wall-hint" id="wall-hint">Spray the wagon and it stops · <span lang="bs">ofarbaj ga i voz stane</span></p>
   </div>
+  </div>
   <div class="tray" role="group" aria-label="Spray tools">
     <span class="tray-l" id="cans-label">Colour</span>
     <div class="cans" id="cans" role="radiogroup" aria-labelledby="cans-label"></div>
@@ -1108,6 +1209,13 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
     <button type="button" class="tray-btn" id="save-wall" aria-label="Save the wagon as a picture">Save<span class="cw-x"> the wagon</span></button>
     <button type="button" class="tray-btn" id="whitewash" aria-label="Clean the wagon">Clean<span class="cw-x"> the wagon</span></button>
   </div>
+  <div class="wall-cta">
+      <a class="wall-play" href="#igra" data-play><i class="wp-ico" aria-hidden="true"></i><span class="wp-txt"><b>Play Spray to Mostar</b><small>Free · no sign-up<span class="wp-ph"> · works on your phone</span></small></span></a>
+      <p class="wall-beat" id="wall-beat" hidden><i class="wb-crown" aria-hidden="true"></i><span class="wb-t"><span class="wb-k" id="wb-k"></span> <span class="wb-v" id="wb-v"></span></span></p>
+  </div>
+  <nav class="home-links" aria-label="More">
+    <a href="#kako">How to play</a><a href="#tabela">Scores</a><a href="#rjecnik">Words</a><a href="#zakon">Rules</a>
+  </nav>
   <div class="hero-text">
     <div class="hero-front">
       <p class="lede">ZID is a free page about Bosnian street walls. Spray the wall above, run the five-zone game from Bosanski Novi to the Old Bridge in Mostar, and pick up the slang you'll hear along the way.</p>
@@ -1125,7 +1233,6 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
   </div>
 </section>
 
-
 <section class="sec" id="igra" aria-labelledby="igra-h">
   <div class="sec-head">
     <div>
@@ -1133,27 +1240,8 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
       <h2 id="igra-h" data-en="Spray to Mostar">Sprej do Mostara</h2>
       <div class="seg lang-sw" role="group" aria-label="Game language"><button type="button" data-gl-btn="en" aria-pressed="false" lang="en">English</button><button type="button" data-gl-btn="bs" aria-pressed="false" lang="bs">Bosanski</button></div>
     </div>
-    <p class="sec-lede">Run from Bosanski Novi to Stari Most. Paint concrete for points. Leave old stone, wood and other people's best pieces alone, and jump the bears. Finish with a dive into the Neretva.</p>
   </div>
 
-  <div class="route-wrap">
-  <svg class="route-map" viewBox="0 0 640 630" role="img" aria-labelledby="route-map-t"><title id="route-map-t">Map of Bosnia and Herzegovina with the route from Bosanski Novi through Sarajevo and Trebević down the Neretva to Mostar</title>
-<defs><pattern id="rm-hatch" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><path d="M0 0V9" stroke="rgba(255,255,255,.05)" stroke-width="2"/></pattern></defs>
-<path class="rm-land" d="M549.3 388.5L544.8 387.7L537.0 389.6L531.3 391.9L523.5 388.5L515.1 386.2L511.7 389.6L510.0 396.4L515.1 408.1L524.6 426.5L523.5 440.5L515.6 442.0L508.9 430.3L502.7 428.4L496.0 428.8L480.2 442.3L468.4 454.0L465.6 461.9L461.1 470.6L460.0 477.0L460.6 498.1L439.2 501.5L434.7 504.5L432.5 510.9L434.2 538.0L435.8 552.3L447.6 574.9L448.2 581.7L446.5 586.6L438.1 595.2L434.2 598.6L431.3 599.4L417.3 593.7L410.6 591.1L382.5 571.1L370.1 560.2L350.4 545.9L338.1 537.6L331.9 525.2L322.4 522.6L311.1 526.3L298.2 517.3L307.2 512.8L309.4 508.3L308.3 502.6L304.4 494.7L269.6 460.8L252.7 437.8L249.9 429.5L249.9 407.3L246.0 402.0L220.1 391.9L191.5 363.3L162.2 335.0L158.3 327.1L143.1 306.0L124.6 286.4L110.0 274.0L97.6 260.1L84.2 240.5L77.4 210.7L71.2 184.4L67.3 174.2L58.9 170.4L32.5 139.2L10.0 121.1L10.0 101.1L13.9 68.4L17.9 31.5L23.5 26.2L33.6 23.2L45.4 24.3L55.5 29.2L75.7 54.4L87.0 64.2L96.5 68.4L107.8 57.5L121.8 34.9L133.6 23.2L174.6 27.3L194.3 10.0L226.9 33.0L239.8 36.4L247.6 33.3L257.8 34.5L280.2 41.3L285.3 43.9L292.0 43.5L308.9 34.9L314.5 36.0L333.6 53.3L343.7 53.3L354.9 45.8L362.2 39.4L384.7 44.3L397.1 41.3L407.8 40.9L419.0 43.9L429.1 48.0L439.2 51.4L466.7 53.3L479.7 64.2L484.7 75.2L484.7 81.6L485.8 88.7L493.7 95.5L510.0 99.3L520.1 98.5L525.7 98.1L539.8 92.1L556.1 88.7L567.9 92.5L573.5 95.9L574.6 100.8L571.2 117.7L564.5 135.8L553.8 155.0L542.6 172.7L539.8 182.1L539.2 197.2L537.5 208.8L539.2 215.6L542.6 221.7L555.5 226.2L571.8 238.2L586.4 253.7L604.4 271.0L610.0 277.8L610.0 284.5L604.9 289.8L589.2 291.7L572.9 290.2L566.7 288.7L561.1 290.6L557.2 294.7L559.4 299.2L575.7 320.7L595.4 351.6L596.5 364.8L594.3 374.9L589.8 382.1L581.3 381.0L575.2 375.3L566.2 375.7L558.9 377.2L549.3 388.5Z"/><path class="rm-land rm-hatch" d="M549.3 388.5L544.8 387.7L537.0 389.6L531.3 391.9L523.5 388.5L515.1 386.2L511.7 389.6L510.0 396.4L515.1 408.1L524.6 426.5L523.5 440.5L515.6 442.0L508.9 430.3L502.7 428.4L496.0 428.8L480.2 442.3L468.4 454.0L465.6 461.9L461.1 470.6L460.0 477.0L460.6 498.1L439.2 501.5L434.7 504.5L432.5 510.9L434.2 538.0L435.8 552.3L447.6 574.9L448.2 581.7L446.5 586.6L438.1 595.2L434.2 598.6L431.3 599.4L417.3 593.7L410.6 591.1L382.5 571.1L370.1 560.2L350.4 545.9L338.1 537.6L331.9 525.2L322.4 522.6L311.1 526.3L298.2 517.3L307.2 512.8L309.4 508.3L308.3 502.6L304.4 494.7L269.6 460.8L252.7 437.8L249.9 429.5L249.9 407.3L246.0 402.0L220.1 391.9L191.5 363.3L162.2 335.0L158.3 327.1L143.1 306.0L124.6 286.4L110.0 274.0L97.6 260.1L84.2 240.5L77.4 210.7L71.2 184.4L67.3 174.2L58.9 170.4L32.5 139.2L10.0 121.1L10.0 101.1L13.9 68.4L17.9 31.5L23.5 26.2L33.6 23.2L45.4 24.3L55.5 29.2L75.7 54.4L87.0 64.2L96.5 68.4L107.8 57.5L121.8 34.9L133.6 23.2L174.6 27.3L194.3 10.0L226.9 33.0L239.8 36.4L247.6 33.3L257.8 34.5L280.2 41.3L285.3 43.9L292.0 43.5L308.9 34.9L314.5 36.0L333.6 53.3L343.7 53.3L354.9 45.8L362.2 39.4L384.7 44.3L397.1 41.3L407.8 40.9L419.0 43.9L429.1 48.0L439.2 51.4L466.7 53.3L479.7 64.2L484.7 75.2L484.7 81.6L485.8 88.7L493.7 95.5L510.0 99.3L520.1 98.5L525.7 98.1L539.8 92.1L556.1 88.7L567.9 92.5L573.5 95.9L574.6 100.8L571.2 117.7L564.5 135.8L553.8 155.0L542.6 172.7L539.8 182.1L539.2 197.2L537.5 208.8L539.2 215.6L542.6 221.7L555.5 226.2L571.8 238.2L586.4 253.7L604.4 271.0L610.0 277.8L610.0 284.5L604.9 289.8L589.2 291.7L572.9 290.2L566.7 288.7L561.1 290.6L557.2 294.7L559.4 299.2L575.7 320.7L595.4 351.6L596.5 364.8L594.3 374.9L589.8 382.1L581.3 381.0L575.2 375.3L566.2 375.7L558.9 377.2L549.3 388.5Z" fill="url(#rm-hatch)"/>
-<path class="rm-river" d="M398.0 392.0C395.0 388.3 386.8 374.9 380.0 370.0C373.2 365.1 363.7 363.3 357.0 362.6C350.3 361.9 345.2 366.3 340.0 366.0C334.8 365.7 329.5 357.9 325.8 360.9C322.1 363.9 318.3 375.8 318.0 384.0C317.7 392.2 321.3 402.2 324.0 410.0C326.7 417.8 333.9 422.9 334.2 430.9C334.5 438.9 329.2 450.1 326.0 458.0C322.8 465.9 318.0 472.2 315.0 478.0C312.0 483.8 309.2 490.5 308.0 493.0"/><path class="rm-river" d="M60.0 40.0C64.0 42.0 75.7 48.6 84.0 52.0C92.3 55.4 103.1 59.2 110.1 60.2C117.1 61.2 121.0 60.0 126.0 58.0C131.0 56.0 137.7 49.7 140.0 48.0"/>
-<text class="rm-riv" x="300" y="452" transform="rotate(-72 300 452)">Neretva</text><text class="rm-riv" x="40" y="30">Una</text>
-<path class="rm-route-shadow" d="M110.1 60.2C120.1 66.2 148.9 86.0 170.0 96.0C191.1 106.0 215.0 107.8 236.7 120.1C258.4 132.4 281.3 149.4 300.0 170.0C318.7 190.6 333.2 225.0 349.0 243.7C364.8 262.4 381.4 269.7 395.0 282.0C408.6 294.3 417.1 305.4 430.3 317.7C443.5 330.0 474.1 346.9 474.0 356.0C473.9 365.1 449.5 370.9 430.0 372.0C410.5 373.1 374.4 364.5 357.0 362.6C339.6 360.8 331.6 355.0 325.8 360.9C320.0 366.8 320.6 386.3 322.0 398.0C323.4 409.7 332.2 425.4 334.2 430.9"/><path class="rm-route" d="M110.1 60.2C120.1 66.2 148.9 86.0 170.0 96.0C191.1 106.0 215.0 107.8 236.7 120.1C258.4 132.4 281.3 149.4 300.0 170.0C318.7 190.6 333.2 225.0 349.0 243.7C364.8 262.4 381.4 269.7 395.0 282.0C408.6 294.3 417.1 305.4 430.3 317.7C443.5 330.0 474.1 346.9 474.0 356.0C473.9 365.1 449.5 370.9 430.0 372.0C410.5 373.1 374.4 364.5 357.0 362.6C339.6 360.8 331.6 355.0 325.8 360.9C320.0 366.8 320.6 386.3 322.0 398.0C323.4 409.7 332.2 425.4 334.2 430.9" pathLength="1"/>
-<g class="pin" data-z="1" transform="translate(110.1 60.2)"><circle class="pin-halo" r="17"/><circle class="pin-dot" r="11"/><text class="pin-n" y="4">1</text></g><text class="pin-l" x="128.1" y="65.2" text-anchor="start">Bosanski Novi</text><g class="pin" data-z="2" transform="translate(430.3 317.7)"><circle class="pin-halo" r="17"/><circle class="pin-dot" r="11"/><text class="pin-n" y="4">2</text></g><text class="pin-l pl2" x="448.3" y="310.7" text-anchor="start">Baščaršija</text><g class="pin" data-z="3" transform="translate(474.0 356.0)"><circle class="pin-halo" r="17"/><circle class="pin-dot" r="11"/><text class="pin-n" y="4">3</text></g><text class="pin-l pl3" x="492.0" y="373.0" text-anchor="start">Trebević</text><g class="pin" data-z="4" transform="translate(341.0 362.0)"><circle class="pin-halo" r="17"/><circle class="pin-dot" r="11"/><text class="pin-n" y="4">4</text></g><text class="pin-l" x="323.0" y="367.0" text-anchor="end">Neretva</text><g class="pin" data-z="5" transform="translate(334.2 430.9)"><circle class="pin-halo" r="17"/><circle class="pin-dot" r="11"/><text class="pin-n" y="4">5</text></g><text class="pin-l" x="352.2" y="435.9" text-anchor="start">Stari Most</text>
-<g class="rm-n" transform="translate(586 48)"><path d="M0 -20L7 4 0 0-7 4Z"/><text y="22">N</text></g>
-</svg>
-  <ol class="route" id="route" aria-label="Route">
-    <li data-state="current"><img class="zone-ic" src="img/zone-1.webp" width="160" height="160" alt="" loading="lazy" decoding="async"><span class="n" data-en="Zone 1 · Novi Grad">Zona 1 · Novi Grad</span><b>Bosanski Novi</b><p>Where the Sana flows into the Una. The first Bosnian railway reached it in 1872, and the Una quay was built in 1906.</p></li>
-    <li><img class="zone-ic" src="img/zone-2.webp" width="160" height="160" alt="" loading="lazy" decoding="async"><span class="n" data-en="Zone 2 · Sarajevo">Zona 2 · Sarajevo</span><b>Baščaršija</b><p>The old bazaar. On Kazandžiluk the coppersmiths still hammer copper.</p></li>
-    <li><img class="zone-ic" src="img/zone-3.webp" width="160" height="160" alt="" loading="lazy" decoding="async"><span class="n" data-en="Zone 3 · above the city">Zona 3 · iznad grada</span><b>Trebević</b><p>The 1984 Olympic bobsled track, now an open-air gallery above the city.</p></li>
-    <li><img class="zone-ic" src="img/zone-4.webp" width="160" height="160" alt="" loading="lazy" decoding="async"><span class="n" data-en="Zone 4 · Konjic → Jablanica">Zona 4 · Konjic → Jablanica</span><b>Neretva</b><p>The road and the railway follow this emerald river south to Mostar.</p></li>
-    <li><img class="zone-ic" src="img/zone-5.webp" width="160" height="160" alt="" loading="lazy" decoding="async"><span class="n" data-en="Zone 5 · Mostar">Zona 5 · Mostar</span><b>Stari Most</b><p>Built 1566, rebuilt 2004. Divers have jumped the roughly 20 m to the river since at least 1664.</p></li>
-  </ol>
-  </div>
 
   <div class="game-wrap" id="game-wrap">
     <div class="game" id="game">
@@ -1316,23 +1404,35 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
     <p class="best"><span data-en="Best in this browser:">Najbolji rezultat u ovom pregledniku:</span> <b id="best-score">0</b> <span id="best-rank"></span></p>
   </div>
 
-  <div class="board" id="tabela" aria-labelledby="board-h">
-    <div class="board-head">
-      <div>
-        <p class="kicker" data-en="Scoreboard · top 10">Tabela · top 10</p>
-        <h3 id="board-h" data-en="Who holds the wall?">Ko drži zid?</h3>
-      </div>
-      <div class="seg board-tabs" role="group" aria-label="Which scoreboard">
-        <button type="button" data-board="week" aria-pressed="true" data-en="This week">Ova sedmica</button>
-        <button type="button" data-board="all" aria-pressed="false" data-en="All time">Svih vremena</button>
-      </div>
-    </div>
-    <p class="board-ex" id="board-ex" hidden></p>
-    <ol class="board-list" id="board-list"><li class="board-note" data-en="Loading the scoreboard…">Učitavam tabelu…</li></ol>
-    <p class="board-me" id="board-me"></p>
-    <p class="board-how">Finish all five zones and dive, then type a name to get on the board. The weekly board starts fresh every Monday, so the crown is always up for grabs.</p>
-  </div>
 </section>
+
+<section class="sec page" id="kako" aria-labelledby="kako-h" data-page>
+  <a class="back" href="#zid"><span aria-hidden="true">←</span> Back to the game <span lang="bs">· nazad na igru</span></a>
+  <div class="sec-head">
+    <div>
+      <p class="kicker">Spray to Mostar · <span lang="bs">kako se igra</span></p>
+      <h2 id="kako-h">How to play</h2>
+    </div>
+    <p class="sec-lede">Run from Bosanski Novi to Stari Most. Paint concrete for points. Leave old stone, wood and other people's best pieces alone, and jump the bears. Finish with a dive into the Neretva.</p>
+  </div>
+  <div class="route-wrap">
+  <svg class="route-map" viewBox="0 0 640 630" role="img" aria-labelledby="route-map-t"><title id="route-map-t">Map of Bosnia and Herzegovina with the route from Bosanski Novi through Sarajevo and Trebević down the Neretva to Mostar</title>
+<defs><pattern id="rm-hatch" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><path d="M0 0V9" stroke="rgba(255,255,255,.05)" stroke-width="2"/></pattern></defs>
+<path class="rm-land" d="M549.3 388.5L544.8 387.7L537.0 389.6L531.3 391.9L523.5 388.5L515.1 386.2L511.7 389.6L510.0 396.4L515.1 408.1L524.6 426.5L523.5 440.5L515.6 442.0L508.9 430.3L502.7 428.4L496.0 428.8L480.2 442.3L468.4 454.0L465.6 461.9L461.1 470.6L460.0 477.0L460.6 498.1L439.2 501.5L434.7 504.5L432.5 510.9L434.2 538.0L435.8 552.3L447.6 574.9L448.2 581.7L446.5 586.6L438.1 595.2L434.2 598.6L431.3 599.4L417.3 593.7L410.6 591.1L382.5 571.1L370.1 560.2L350.4 545.9L338.1 537.6L331.9 525.2L322.4 522.6L311.1 526.3L298.2 517.3L307.2 512.8L309.4 508.3L308.3 502.6L304.4 494.7L269.6 460.8L252.7 437.8L249.9 429.5L249.9 407.3L246.0 402.0L220.1 391.9L191.5 363.3L162.2 335.0L158.3 327.1L143.1 306.0L124.6 286.4L110.0 274.0L97.6 260.1L84.2 240.5L77.4 210.7L71.2 184.4L67.3 174.2L58.9 170.4L32.5 139.2L10.0 121.1L10.0 101.1L13.9 68.4L17.9 31.5L23.5 26.2L33.6 23.2L45.4 24.3L55.5 29.2L75.7 54.4L87.0 64.2L96.5 68.4L107.8 57.5L121.8 34.9L133.6 23.2L174.6 27.3L194.3 10.0L226.9 33.0L239.8 36.4L247.6 33.3L257.8 34.5L280.2 41.3L285.3 43.9L292.0 43.5L308.9 34.9L314.5 36.0L333.6 53.3L343.7 53.3L354.9 45.8L362.2 39.4L384.7 44.3L397.1 41.3L407.8 40.9L419.0 43.9L429.1 48.0L439.2 51.4L466.7 53.3L479.7 64.2L484.7 75.2L484.7 81.6L485.8 88.7L493.7 95.5L510.0 99.3L520.1 98.5L525.7 98.1L539.8 92.1L556.1 88.7L567.9 92.5L573.5 95.9L574.6 100.8L571.2 117.7L564.5 135.8L553.8 155.0L542.6 172.7L539.8 182.1L539.2 197.2L537.5 208.8L539.2 215.6L542.6 221.7L555.5 226.2L571.8 238.2L586.4 253.7L604.4 271.0L610.0 277.8L610.0 284.5L604.9 289.8L589.2 291.7L572.9 290.2L566.7 288.7L561.1 290.6L557.2 294.7L559.4 299.2L575.7 320.7L595.4 351.6L596.5 364.8L594.3 374.9L589.8 382.1L581.3 381.0L575.2 375.3L566.2 375.7L558.9 377.2L549.3 388.5Z"/><path class="rm-land rm-hatch" d="M549.3 388.5L544.8 387.7L537.0 389.6L531.3 391.9L523.5 388.5L515.1 386.2L511.7 389.6L510.0 396.4L515.1 408.1L524.6 426.5L523.5 440.5L515.6 442.0L508.9 430.3L502.7 428.4L496.0 428.8L480.2 442.3L468.4 454.0L465.6 461.9L461.1 470.6L460.0 477.0L460.6 498.1L439.2 501.5L434.7 504.5L432.5 510.9L434.2 538.0L435.8 552.3L447.6 574.9L448.2 581.7L446.5 586.6L438.1 595.2L434.2 598.6L431.3 599.4L417.3 593.7L410.6 591.1L382.5 571.1L370.1 560.2L350.4 545.9L338.1 537.6L331.9 525.2L322.4 522.6L311.1 526.3L298.2 517.3L307.2 512.8L309.4 508.3L308.3 502.6L304.4 494.7L269.6 460.8L252.7 437.8L249.9 429.5L249.9 407.3L246.0 402.0L220.1 391.9L191.5 363.3L162.2 335.0L158.3 327.1L143.1 306.0L124.6 286.4L110.0 274.0L97.6 260.1L84.2 240.5L77.4 210.7L71.2 184.4L67.3 174.2L58.9 170.4L32.5 139.2L10.0 121.1L10.0 101.1L13.9 68.4L17.9 31.5L23.5 26.2L33.6 23.2L45.4 24.3L55.5 29.2L75.7 54.4L87.0 64.2L96.5 68.4L107.8 57.5L121.8 34.9L133.6 23.2L174.6 27.3L194.3 10.0L226.9 33.0L239.8 36.4L247.6 33.3L257.8 34.5L280.2 41.3L285.3 43.9L292.0 43.5L308.9 34.9L314.5 36.0L333.6 53.3L343.7 53.3L354.9 45.8L362.2 39.4L384.7 44.3L397.1 41.3L407.8 40.9L419.0 43.9L429.1 48.0L439.2 51.4L466.7 53.3L479.7 64.2L484.7 75.2L484.7 81.6L485.8 88.7L493.7 95.5L510.0 99.3L520.1 98.5L525.7 98.1L539.8 92.1L556.1 88.7L567.9 92.5L573.5 95.9L574.6 100.8L571.2 117.7L564.5 135.8L553.8 155.0L542.6 172.7L539.8 182.1L539.2 197.2L537.5 208.8L539.2 215.6L542.6 221.7L555.5 226.2L571.8 238.2L586.4 253.7L604.4 271.0L610.0 277.8L610.0 284.5L604.9 289.8L589.2 291.7L572.9 290.2L566.7 288.7L561.1 290.6L557.2 294.7L559.4 299.2L575.7 320.7L595.4 351.6L596.5 364.8L594.3 374.9L589.8 382.1L581.3 381.0L575.2 375.3L566.2 375.7L558.9 377.2L549.3 388.5Z" fill="url(#rm-hatch)"/>
+<path class="rm-river" d="M398.0 392.0C395.0 388.3 386.8 374.9 380.0 370.0C373.2 365.1 363.7 363.3 357.0 362.6C350.3 361.9 345.2 366.3 340.0 366.0C334.8 365.7 329.5 357.9 325.8 360.9C322.1 363.9 318.3 375.8 318.0 384.0C317.7 392.2 321.3 402.2 324.0 410.0C326.7 417.8 333.9 422.9 334.2 430.9C334.5 438.9 329.2 450.1 326.0 458.0C322.8 465.9 318.0 472.2 315.0 478.0C312.0 483.8 309.2 490.5 308.0 493.0"/><path class="rm-river" d="M60.0 40.0C64.0 42.0 75.7 48.6 84.0 52.0C92.3 55.4 103.1 59.2 110.1 60.2C117.1 61.2 121.0 60.0 126.0 58.0C131.0 56.0 137.7 49.7 140.0 48.0"/>
+<text class="rm-riv" x="300" y="452" transform="rotate(-72 300 452)">Neretva</text><text class="rm-riv" x="40" y="30">Una</text>
+<path class="rm-route-shadow" d="M110.1 60.2C120.1 66.2 148.9 86.0 170.0 96.0C191.1 106.0 215.0 107.8 236.7 120.1C258.4 132.4 281.3 149.4 300.0 170.0C318.7 190.6 333.2 225.0 349.0 243.7C364.8 262.4 381.4 269.7 395.0 282.0C408.6 294.3 417.1 305.4 430.3 317.7C443.5 330.0 474.1 346.9 474.0 356.0C473.9 365.1 449.5 370.9 430.0 372.0C410.5 373.1 374.4 364.5 357.0 362.6C339.6 360.8 331.6 355.0 325.8 360.9C320.0 366.8 320.6 386.3 322.0 398.0C323.4 409.7 332.2 425.4 334.2 430.9"/><path class="rm-route" d="M110.1 60.2C120.1 66.2 148.9 86.0 170.0 96.0C191.1 106.0 215.0 107.8 236.7 120.1C258.4 132.4 281.3 149.4 300.0 170.0C318.7 190.6 333.2 225.0 349.0 243.7C364.8 262.4 381.4 269.7 395.0 282.0C408.6 294.3 417.1 305.4 430.3 317.7C443.5 330.0 474.1 346.9 474.0 356.0C473.9 365.1 449.5 370.9 430.0 372.0C410.5 373.1 374.4 364.5 357.0 362.6C339.6 360.8 331.6 355.0 325.8 360.9C320.0 366.8 320.6 386.3 322.0 398.0C323.4 409.7 332.2 425.4 334.2 430.9" pathLength="1"/>
+<g class="pin" data-z="1" transform="translate(110.1 60.2)"><circle class="pin-halo" r="17"/><circle class="pin-dot" r="11"/><text class="pin-n" y="4">1</text></g><text class="pin-l" x="128.1" y="65.2" text-anchor="start">Bosanski Novi</text><g class="pin" data-z="2" transform="translate(430.3 317.7)"><circle class="pin-halo" r="17"/><circle class="pin-dot" r="11"/><text class="pin-n" y="4">2</text></g><text class="pin-l pl2" x="448.3" y="310.7" text-anchor="start">Baščaršija</text><g class="pin" data-z="3" transform="translate(474.0 356.0)"><circle class="pin-halo" r="17"/><circle class="pin-dot" r="11"/><text class="pin-n" y="4">3</text></g><text class="pin-l pl3" x="492.0" y="373.0" text-anchor="start">Trebević</text><g class="pin" data-z="4" transform="translate(341.0 362.0)"><circle class="pin-halo" r="17"/><circle class="pin-dot" r="11"/><text class="pin-n" y="4">4</text></g><text class="pin-l" x="323.0" y="367.0" text-anchor="end">Neretva</text><g class="pin" data-z="5" transform="translate(334.2 430.9)"><circle class="pin-halo" r="17"/><circle class="pin-dot" r="11"/><text class="pin-n" y="4">5</text></g><text class="pin-l" x="352.2" y="435.9" text-anchor="start">Stari Most</text>
+<g class="rm-n" transform="translate(586 48)"><path d="M0 -20L7 4 0 0-7 4Z"/><text y="22">N</text></g>
+</svg>
+  <ol class="route" id="route" aria-label="Route">
+    <li data-state="current"><img class="zone-ic" src="img/zone-1.webp" width="160" height="160" alt="" loading="lazy" decoding="async"><span class="n" data-en="Zone 1 · Novi Grad">Zona 1 · Novi Grad</span><b>Bosanski Novi</b><p>Where the Sana flows into the Una. The first Bosnian railway reached it in 1872, and the Una quay was built in 1906.</p></li>
+    <li><img class="zone-ic" src="img/zone-2.webp" width="160" height="160" alt="" loading="lazy" decoding="async"><span class="n" data-en="Zone 2 · Sarajevo">Zona 2 · Sarajevo</span><b>Baščaršija</b><p>The old bazaar. On Kazandžiluk the coppersmiths still hammer copper.</p></li>
+    <li><img class="zone-ic" src="img/zone-3.webp" width="160" height="160" alt="" loading="lazy" decoding="async"><span class="n" data-en="Zone 3 · above the city">Zona 3 · iznad grada</span><b>Trebević</b><p>The 1984 Olympic bobsled track, now an open-air gallery above the city.</p></li>
+    <li><img class="zone-ic" src="img/zone-4.webp" width="160" height="160" alt="" loading="lazy" decoding="async"><span class="n" data-en="Zone 4 · Konjic → Jablanica">Zona 4 · Konjic → Jablanica</span><b>Neretva</b><p>The road and the railway follow this emerald river south to Mostar.</p></li>
+    <li><img class="zone-ic" src="img/zone-5.webp" width="160" height="160" alt="" loading="lazy" decoding="async"><span class="n" data-en="Zone 5 · Mostar">Zona 5 · Mostar</span><b>Stari Most</b><p>Built 1566, rebuilt 2004. Divers have jumped the roughly 20 m to the river since at least 1664.</p></li>
+  </ol>
+  </div>
 
 <div class="bandera" role="group" aria-label="Bandera: a street pole covered in Bosnian stickers">
   <span class="plate" aria-hidden="true">Bandera Nº 07</span>
@@ -1358,28 +1458,54 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
   <div class="decal d-raja m-hide" style="--r:-8deg;--y:4px"><span>raja</span><small>CREW</small></div>
 </div>
 
-<div class="drip-wrap">
-  <div class="drip" aria-hidden="true"></div>
-  <div class="decal d-hello" style="--r:-5deg" aria-hidden="true"><div class="hl-top"><b>ZDRAVO</b><span>ja sam</span></div><div class="hl-body"><span class="hl-tag">jarane</span></div></div>
-</div>
+<section class="finale" aria-labelledby="finale-h">
+  <img class="finale-art" src="img/finale-most-1200.webp" srcset="img/finale-most-1200.webp 1200w, img/finale-most-2400.webp 2400w" sizes="(max-width:1300px) 100vw, 1240px" width="2400" height="713" loading="lazy" decoding="async" alt="Stari Most at dusk: a diver falls under the arch towards the green Neretva, the towers and the old town glowing pink and violet">
+  <div class="finale-copy">
+    <p class="kicker">Zone 5 · Stari Most · 1566 / 2004</p>
+    <h2 id="finale-h">Take the dive.</h2>
+    <p class="finale-bs" lang="bs">Skoči.</p>
+  </div>
+  <div class="finale-go">
+    <p class="finale-d">About 20 m from the top of the arch into the Neretva. Paint your way from Bosanski Novi and the bridge is yours.</p>
+    <a class="btn" href="#igra" data-play>Play Spray to Mostar</a>
+  </div>
+</section>
+</section>
 
-<section class="sec" id="rjecnik" aria-labelledby="rjecnik-h">
+<section class="sec page" aria-labelledby="board-h" data-page>
+  <a class="back" href="#zid"><span aria-hidden="true">←</span> Back to the game <span lang="bs">· nazad na igru</span></a>
+  <div class="board" id="tabela" aria-labelledby="board-h">
+    <div class="board-head">
+      <div>
+        <p class="kicker" data-en="Scoreboard · top 10">Tabela · top 10</p>
+        <h2 id="board-h" data-en="Who holds the wall?">Ko drži zid?</h2>
+      </div>
+      <div class="seg board-tabs" role="group" aria-label="Which scoreboard">
+        <button type="button" data-board="week" aria-pressed="true" data-en="This week">Ova sedmica</button>
+        <button type="button" data-board="all" aria-pressed="false" data-en="All time">Svih vremena</button>
+      </div>
+    </div>
+    <p class="board-ex" id="board-ex" hidden></p>
+    <ol class="board-list" id="board-list"><li class="board-note" data-en="Loading the scoreboard…">Učitavam tabelu…</li></ol>
+    <p class="board-me" id="board-me"></p>
+    <p class="board-how">Finish all five zones and dive, then type a name to get on the board. The weekly board starts fresh every Monday, so the crown is always up for grabs.</p>
+  </div>
+</section>
+
+<section class="sec page" id="rjecnik" aria-labelledby="rjecnik-h" data-page>
+  <a class="back" href="#zid"><span aria-hidden="true">←</span> Back to the game <span lang="bs">· nazad na igru</span></a>
   <div class="sec-head">
     <div>
       <p class="kicker">12 words · <span lang="bs">rječnik ulice</span></p>
       <h2 id="rjecnik-h">Street dictionary</h2>
     </div>
-    <p class="sec-lede">Words you'll hear from the čaršija to the bridge. Press Spray it and the word goes up on the wall at the top of the page.</p>
+    <p class="sec-lede">Words you'll hear from the čaršija to the bridge. Press Spray it and the word goes up on the train on the home screen.</p>
   </div>
   <div class="stickers" id="stickers"></div>
 </section>
 
-<div class="drip-wrap">
-  <div class="drip" aria-hidden="true"></div>
-  <div class="decal d-inat peel" style="--r:4deg" aria-hidden="true"><b>INAT</b><small>kamen po kamen</small></div>
-</div>
-
-<section class="sec" id="zakon" aria-labelledby="zakon-h">
+<section class="sec page" id="zakon" aria-labelledby="zakon-h" data-page>
+  <a class="back" href="#zid"><span aria-hidden="true">←</span> Back to the game <span lang="bs">· nazad na igru</span></a>
   <div class="sec-head">
     <div>
       <p class="kicker">4 rules · <span lang="bs">zakon ulice</span></p>
@@ -1418,22 +1544,11 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
     </li>
   </ol>
 </section>
-<section class="finale" aria-labelledby="finale-h">
-  <img class="finale-art" src="img/finale-most-1200.webp" srcset="img/finale-most-1200.webp 1200w, img/finale-most-2400.webp 2400w" sizes="(max-width:1300px) 100vw, 1240px" width="2400" height="713" loading="lazy" decoding="async" alt="Stari Most at dusk: a diver falls under the arch towards the green Neretva, the towers and the old town glowing pink and violet">
-  <div class="finale-copy">
-    <p class="kicker">Zone 5 · Stari Most · 1566 / 2004</p>
-    <h2 id="finale-h">Take the dive.</h2>
-    <p class="finale-bs" lang="bs">Skoči.</p>
-  </div>
-  <div class="finale-go">
-    <p class="finale-d">About 20 m from the top of the arch into the Neretva. Paint your way from Bosanski Novi and the bridge is yours.</p>
-    <a class="btn" href="#igra" data-play>Play Spray to Mostar</a>
-  </div>
-</section>
 
 <!-- About / making-of. Cards marked .ph-card and lines marked .ph are the owner's own words still to write: they
      show only on preview hosts (html.demo), never on zidbosna.com, so the live page has no placeholders. -->
-<section class="sec story" id="o-zidu" aria-labelledby="about-h">
+<section class="sec story page" id="o-zidu" aria-labelledby="about-h" data-page>
+  <a class="back" href="#zid"><span aria-hidden="true">←</span> Back to the game <span lang="bs">· nazad na igru</span></a>
   <div class="story-head">
     <p class="kicker">About ZID · <span lang="bs">o ZID-u</span></p>
     <h2 id="about-h"><span class="en-only">A love letter to Bosnia</span><span class="bs-only" lang="bs">Ljubavno pismo Bosni</span></h2>
@@ -1509,10 +1624,10 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
 </footer>
 </div>
 <nav class="tabbar" id="tabbar" aria-label="Quick links">
-  <a href="#zid"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3zM3 10h18M3 14h18M9 6v4M15 6v4M6 10v4M12 10v4M18 10v4M9 14v4M15 14v4"/></svg><span>Wall</span></a>
-  <a href="#igra"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><span>Game</span></a>
+  <a href="#zid"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="fill" d="M8 5.5v13l10.5-6.5z"/></svg><span>Play</span></a>
   <a href="#rjecnik"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v10H10l-5 4v-4H4z"/></svg><span>Words</span></a>
   <a href="#zakon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/></svg><span>Rules</span></a>
+  <a href="#tabela"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V11h4v8M10 19V5h4v14M16 19v-6h4v6M3 19h18"/></svg><span>Scores</span></a>
   <a href="#o-zidu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><span>About</span></a>
 </nav>
 <div class="toast" id="toast" hidden></div>
