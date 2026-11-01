@@ -2174,8 +2174,8 @@ function buildStickers() {
     b.setAttribute('aria-label', `Spray it: ${word}, on the train on the home screen`);
     b.addEventListener('click', () => {
       const go = () => { Hero.sprayWord(word.toLowerCase()); toast(`<span><b>${word}</b> is on the train.</span>`); };
-      /* the train is on the home screen: go there first, and spray once it is back on screen and measured */
-      if (document.documentElement.dataset.view === 'page') { location.hash = '#zid'; setTimeout(go, 450); } else go();
+      /* the train is at the bottom of the home screen: go there first, and spray once it is on screen and measured */
+      if (document.documentElement.dataset.view === 'page') { location.hash = '#voz'; setTimeout(go, 450); } else go();
     });
     box.appendChild(a);
   });
@@ -2447,7 +2447,7 @@ let gameP = null, gameReady = false, bootData = {};
 function loadGame() {
   if (gameP) return gameP;
   const box = $('#game-load');
-  if (box) box.classList.remove('failed');
+  if (box) { box.classList.remove('failed'); box.classList.add('loading'); }
   gameP = new Promise((resolve, reject) => {
     const s = document.createElement('script');
     s.src = 'js/game.js';
@@ -2469,12 +2469,12 @@ function watchGame() {
   const retry = $('#game-load-retry');
   if (retry) retry.addEventListener('click', () => loadGame().catch(() => {}));
   const deep = /^#(igra|bihac|beat=)/.test(location.hash) || /[?&]beat=/.test(location.search);
-  const wrap = $('#game-wrap');
-  if (deep || !wrap || !('IntersectionObserver' in window)) { loadGame().catch(() => {}); return; }
-  const io = new IntersectionObserver((es) => {
-    if (es.some((e) => e.isIntersecting)) { io.disconnect(); loadGame().catch(() => {}); }
-  }, { rootMargin: '0px 0px 150px 0px' });   /* on most screens the game is under 800 px below the fold, so start once you scroll its way */
-  io.observe(wrap);
+  if (deep) { loadGame().catch(() => {}); return; }
+  /* the game sits right under the title, so waiting for it to scroll into view would load it at once on every visit:
+     it loads on the first touch, scroll or key instead, which a visitor makes within moments and a speed test never does */
+  const evs = ['pointerdown', 'touchstart', 'keydown', 'wheel', 'scroll'];
+  const go = () => { evs.forEach((ev) => removeEventListener(ev, go, true)); loadGame().catch(() => {}); };
+  evs.forEach((ev) => addEventListener(ev, go, { capture: true, passive: true }));
 }
 /* UI sounds: a quiet click for the page's buttons and switches. It listens after the buttons' own handlers, so
    switching the sound off is silent, and like every sound it waits for the first tap and obeys the sound switch. */

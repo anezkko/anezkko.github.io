@@ -45,8 +45,6 @@
 if (!/(^|\.)zidbosna\.com$|^anezkko\.github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname)) document.documentElement.classList.add('demo');
 </script>
 <link rel="preload" href="fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
-<!-- the first screen: the wall texture (the largest paint) and the wall photo, fetched first -->
-<link rel="preload" as="image" type="image/avif" imagesrcset="img/train/scene-1200.avif 1200w, img/train/scene-1800.avif 1800w, img/train/scene-2400.avif 2400w" imagesizes="(max-width:760px) 182vh, min(165vw, 2050px)" fetchpriority="high">
 <style>
 /* Layout: a black wall of old tags under a magenta glow. Big bold type, neon numbers, stickers pasted on top. One dark world by design. */
 /* fonts: self-hosted (fonts/, OFL), one file each: Latin + Latin Extended + the symbols in use, built by
@@ -873,6 +871,8 @@ body:has(.game.playing) .ticker{display:none}
   body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
   .has-ticker body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
   .ticker{position:relative;bottom:auto;box-shadow:none;border-top:0;border-bottom:2px solid var(--pink,#FF4DC4)}
+  /* its place is kept from the first paint, so the page doesn't jump down when the match data arrives */
+  .ticker[hidden]{display:flex!important;visibility:hidden}
   .toast,.has-ticker .toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
 }
 @media (max-width:699px) and (prefers-reduced-motion:reduce){.tabbar{transition:none}}
@@ -1114,7 +1114,24 @@ html:not([data-view="page"]) .site-name{display:none}
 #igra .sec-head{justify-items:center;text-align:center;margin-bottom:18px}
 #igra .sec-head h2{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 #igra .sec-head .kicker{margin-bottom:10px}
-@media (max-width:699px){.wall-cta .wall-play{padding:16px 18px}}
+@media (max-width:699px){
+  .wall-cta .wall-play{padding:16px 18px}
+  /* two by two on a phone, whatever the font, so nothing below jumps when the web font arrives */
+  .home-links{display:grid;grid-template-columns:1fr 1fr}
+  .home-links a{justify-content:center}
+}
+/* the score to beat arrives with the scoreboard: its place is kept, so the game below doesn't jump */
+.wall-cta .wall-beat[hidden]{display:flex!important;visibility:hidden}
+
+/* the game in the centre: until the first touch the game box says "Tap to play"; then it loads (js: watchGame) */
+.game-load .gl-w{font-family:var(--f-mono);font-size:.82rem;letter-spacing:.16em;text-transform:uppercase;color:var(--lime)}
+.game-load:not(.loading) .gl-t,.game-load.loading .gl-w,.game-load.failed .gl-w{display:none}
+.game-load:not(.loading){cursor:pointer}
+/* the train to paint, at the bottom of the home screen */
+.paint{padding-top:clamp(56px,8vw,110px)}
+.paint-head{text-align:center;justify-items:center;display:grid;gap:12px;margin-bottom:clamp(26px,3.5vw,40px)}
+.paint-head .kicker{margin:0}
+.paint-head .sec-lede{margin-inline:auto}
 </style>
 <script>try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&!sessionStorage.getItem('zid-intro')&&!location.hash){var h=document.documentElement;h.classList.add('intro-on');sessionStorage.setItem('zid-intro','1');
 /* the intro waits (at most 1.2 s) for its graffiti font and the logo, fetched from here on, so "zid" sprays on in its
@@ -1159,55 +1176,7 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
   <div class="hero-copy">
       <p class="eyebrow">ZID · Sarajevo → Mostar</p>
       <h1 class="hero-h" id="hero-h" lang="bs"><span>Halal bilo.</span></h1>
-      <p class="hero-en">It's yours. Paint the train.</p>
-  </div>
-  <div class="wall-frame">
-  <svg class="strings hero-strings" viewBox="0 0 1200 300" preserveAspectRatio="none" aria-hidden="true"><path d="M-20 250 C200 300 420 120 640 170 S1000 40 1220 20"/><path d="M-20 262 C210 292 430 140 650 184 S1010 58 1220 40"/><path d="M-20 274 C220 284 440 160 660 198 S1020 76 1220 60"/><path d="M-20 286 C230 276 450 180 670 212 S1030 94 1220 80"/></svg>
-  <div class="wall" id="wall">
-    <!-- the scene: dusk in the Neretva valley, the track 79.9% of the way down. It's cut to fill the box by height, so
-         its width on screen is the box height x 3.03 (about 182vh on a phone, 165vw on a wider screen) -->
-    <picture>
-      <source type="image/avif" srcset="img/train/scene-1200.avif 1200w, img/train/scene-1800.avif 1800w, img/train/scene-2400.avif 2400w" sizes="(max-width:760px) 182vh, min(165vw, 2050px)">
-      <source type="image/webp" srcset="img/train/scene-1200.webp 1200w, img/train/scene-1800.webp 1800w, img/train/scene-2400.webp 2400w" sizes="(max-width:760px) 182vh, min(165vw, 2050px)">
-      <img class="scene-photo" src="img/train/scene-1800.webp" alt="" width="1800" height="595" decoding="async" fetchpriority="high">
-    </picture>
-    <!-- the train: a spare wagon, the wagon you paint (the paint canvas sits on it and goes where it goes) and the
-         locomotive, standing on the scene's track (js: the train block in core.js) -->
-    <div class="train" id="train">
-      <div class="car spare" aria-hidden="true"><picture><source type="image/avif" data-srcset="img/train/wagon-red.avif"><img data-src="img/train/wagon-red.webp" alt="" width="1600" height="426" decoding="async"></picture></div>
-      <div class="car canvas-car">
-        <picture><source type="image/avif" data-srcset="img/train/wagon.avif"><img class="paint-surface" data-src="img/train/wagon.webp" alt="" width="1600" height="426" decoding="async"></picture>
-        <canvas id="wall-canvas" tabindex="0" role="application" aria-roledescription="wagon to paint" aria-label="Train wagon to paint" aria-describedby="wall-keys"></canvas>
-        <div class="roller" id="roller" hidden></div>
-      </div>
-      <div class="car loco" aria-hidden="true"><picture><source type="image/avif" data-srcset="img/train/loco.avif"><img data-src="img/train/loco.webp" alt="" width="1591" height="438" decoding="async"></picture><i class="headlight"></i></div>
-    </div>
-    <div class="front" aria-hidden="true">
-      <picture class="fr fr-pole"><source type="image/avif" data-srcset="img/train/front-0.avif"><img data-src="img/train/front-0.webp" alt="" width="155" height="614" decoding="async"></picture>
-      <picture class="fr fr-grass"><source type="image/avif" data-srcset="img/train/front-3.avif"><img data-src="img/train/front-3.webp" alt="" width="278" height="125" decoding="async"></picture>
-    </div>
-    <p class="sr-only" id="wall-keys"><span lang="bs">Povuci po vagonu i farbaj.</span> Drag across the wagon to paint. With a keyboard: the arrow keys move the nozzle, Shift with an arrow moves it further, and holding Space sprays. Colours and paint styles are just below the wall.</p>
-    <div class="train-ctl">
-      <button class="wall-still" id="wall-still" type="button" aria-pressed="false" aria-label="Pause the train" hidden><i aria-hidden="true"></i></button>
-      <button class="send-off" id="send-off" type="button" hidden>Send it off <span lang="bs">· pošalji ga</span> <span aria-hidden="true">→</span></button>
-    </div>
-    <p class="wall-hint" id="wall-hint">Spray the wagon and it stops · <span lang="bs">ofarbaj ga i voz stane</span></p>
-  </div>
-  </div>
-  <div class="tray" role="group" aria-label="Spray tools">
-    <span class="tray-l" id="cans-label">Colour</span>
-    <div class="cans" id="cans" role="radiogroup" aria-labelledby="cans-label"></div>
-    <div class="seg caps" role="group" aria-label="Paint style">
-      <button type="button" data-cap="skinny" aria-pressed="false" title="Skinny cap: a fine line">Thin</button>
-      <button type="button" data-cap="fat" aria-pressed="true" title="Fat cap: a wide soft line">Thick</button>
-      <button type="button" data-cap="mist" aria-pressed="false" title="A light, wide haze for fades and backgrounds">Mist</button>
-      <button type="button" data-cap="splatter" aria-pressed="false" title="Flicked drops of paint">Splatter</button>
-      <button type="button" data-cap="drippy" aria-pressed="false" title="Too much paint: it runs as you go">Drippy</button>
-      <button type="button" data-cap="marker" aria-pressed="false" title="A paint marker: hard, solid line">Marker</button>
-    </div>
-    <button type="button" class="tray-btn arm" id="arm-toggle" aria-pressed="false">Start painting</button>
-    <button type="button" class="tray-btn" id="save-wall" aria-label="Save the wagon as a picture">Save<span class="cw-x"> the wagon</span></button>
-    <button type="button" class="tray-btn" id="whitewash" aria-label="Clean the wagon">Clean<span class="cw-x"> the wagon</span></button>
+      <p class="hero-en">Paint your way from Bosanski Novi to the Stari Most.</p>
   </div>
   <div class="wall-cta">
       <a class="wall-play" href="#igra" data-play><i class="wp-ico" aria-hidden="true"></i><span class="wp-txt"><b>Play Spray to Mostar</b><small>Free · no sign-up<span class="wp-ph"> · works on your phone</span></small></span></a>
@@ -1216,21 +1185,6 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
   <nav class="home-links" aria-label="More">
     <a href="#kako">How to play</a><a href="#tabela">Scores</a><a href="#rjecnik">Words</a><a href="#zakon">Rules</a>
   </nav>
-  <div class="hero-text">
-    <div class="hero-front">
-      <p class="lede">ZID is a free page about Bosnian street walls. Spray the wall above, run the five-zone game from Bosanski Novi to the Old Bridge in Mostar, and pick up the slang you'll hear along the way.</p>
-      <div class="ctas">
-        <a class="btn ghost" href="#rjecnik">Street dictionary</a>
-        <a class="btn ghost" href="#zakon">Street law</a>
-        <button type="button" class="btn ghost install" id="btn-install" hidden aria-label="Get the app: install ZID on this device">Get the app <span aria-hidden="true">↓</span></button>
-      </div>
-    </div>
-    <dl class="stats">
-      <div><dt>5</dt><dd>zones in one run<span lang="bs">zona, jedna trka</span></dd></div>
-      <div><dt>~20 m</dt><dd>dive into the Neretva<span lang="bs">skok u Neretvu</span></dd></div>
-      <div><dt>12</dt><dd>street words to learn<span lang="bs">riječi s ulice</span></dd></div>
-    </dl>
-  </div>
 </section>
 
 <section class="sec" id="igra" aria-labelledby="igra-h">
@@ -1245,7 +1199,7 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
 
   <div class="game-wrap" id="game-wrap">
     <div class="game" id="game">
-      <div class="game-load" id="game-load" role="status"><span class="gl-can" aria-hidden="true"></span><span class="gl-t" data-en="Loading the game…">Učitavam igru…</span><span class="gl-f" data-en="The game didn't load.">Igra se nije učitala.</span><button type="button" class="gl-retry" id="game-load-retry" data-en="Try again">Probaj opet</button></div>
+      <div class="game-load" id="game-load" role="status"><span class="gl-can" aria-hidden="true"></span><span class="gl-w" data-en="Tap to play">Dodirni i igraj</span><span class="gl-t" data-en="Loading the game…">Učitavam igru…</span><span class="gl-f" data-en="The game didn't load.">Igra se nije učitala.</span><button type="button" class="gl-retry" id="game-load-retry" data-en="Try again">Probaj opet</button></div>
       <canvas id="game-canvas" role="img" aria-label="Sprej do Mostara game screen" data-en-aria="Spray to Mostar game screen"></canvas>
       <div class="hud" id="hud" hidden>
         <div class="hud-zone"><span id="hud-zone">1/5 Bosanski Novi</span><div class="hud-bar"><i id="hud-prog"></i></div></div>
@@ -1404,6 +1358,77 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
     <p class="best"><span data-en="Best in this browser:">Najbolji rezultat u ovom pregledniku:</span> <b id="best-score">0</b> <span id="best-rank"></span></p>
   </div>
 
+</section>
+
+<section class="sec hero paint" id="voz" aria-labelledby="voz-h">
+  <div class="paint-head">
+    <p class="kicker">Halal bilo · <span lang="bs">ofarbaj voz</span></p>
+    <h2 id="voz-h">Paint the train</h2>
+    <p class="sec-lede">It's yours. Spray the wagon and it stops; send it off and a clean one rolls in.</p>
+  </div>
+  <div class="wall-frame">
+  <svg class="strings hero-strings" viewBox="0 0 1200 300" preserveAspectRatio="none" aria-hidden="true"><path d="M-20 250 C200 300 420 120 640 170 S1000 40 1220 20"/><path d="M-20 262 C210 292 430 140 650 184 S1010 58 1220 40"/><path d="M-20 274 C220 284 440 160 660 198 S1020 76 1220 60"/><path d="M-20 286 C230 276 450 180 670 212 S1030 94 1220 80"/></svg>
+  <div class="wall" id="wall">
+    <!-- the scene: dusk in the Neretva valley, the track 79.9% of the way down. It's cut to fill the box by height, so
+         its width on screen is the box height x 3.03 (about 182vh on a phone, 165vw on a wider screen) -->
+    <picture>
+      <source type="image/avif" srcset="img/train/scene-1200.avif 1200w, img/train/scene-1800.avif 1800w, img/train/scene-2400.avif 2400w" sizes="(max-width:760px) 182vh, min(165vw, 2050px)">
+      <source type="image/webp" srcset="img/train/scene-1200.webp 1200w, img/train/scene-1800.webp 1800w, img/train/scene-2400.webp 2400w" sizes="(max-width:760px) 182vh, min(165vw, 2050px)">
+      <img class="scene-photo" src="img/train/scene-1800.webp" alt="" width="1800" height="595" decoding="async" loading="lazy">
+    </picture>
+    <!-- the train: a spare wagon, the wagon you paint (the paint canvas sits on it and goes where it goes) and the
+         locomotive, standing on the scene's track (js: the train block in core.js) -->
+    <div class="train" id="train">
+      <div class="car spare" aria-hidden="true"><picture><source type="image/avif" data-srcset="img/train/wagon-red.avif"><img data-src="img/train/wagon-red.webp" alt="" width="1600" height="426" decoding="async"></picture></div>
+      <div class="car canvas-car">
+        <picture><source type="image/avif" data-srcset="img/train/wagon.avif"><img class="paint-surface" data-src="img/train/wagon.webp" alt="" width="1600" height="426" decoding="async"></picture>
+        <canvas id="wall-canvas" tabindex="0" role="application" aria-roledescription="wagon to paint" aria-label="Train wagon to paint" aria-describedby="wall-keys"></canvas>
+        <div class="roller" id="roller" hidden></div>
+      </div>
+      <div class="car loco" aria-hidden="true"><picture><source type="image/avif" data-srcset="img/train/loco.avif"><img data-src="img/train/loco.webp" alt="" width="1591" height="438" decoding="async"></picture><i class="headlight"></i></div>
+    </div>
+    <div class="front" aria-hidden="true">
+      <picture class="fr fr-pole"><source type="image/avif" data-srcset="img/train/front-0.avif"><img data-src="img/train/front-0.webp" alt="" width="155" height="614" decoding="async"></picture>
+      <picture class="fr fr-grass"><source type="image/avif" data-srcset="img/train/front-3.avif"><img data-src="img/train/front-3.webp" alt="" width="278" height="125" decoding="async"></picture>
+    </div>
+    <p class="sr-only" id="wall-keys"><span lang="bs">Povuci po vagonu i farbaj.</span> Drag across the wagon to paint. With a keyboard: the arrow keys move the nozzle, Shift with an arrow moves it further, and holding Space sprays. Colours and paint styles are just below the wall.</p>
+    <div class="train-ctl">
+      <button class="wall-still" id="wall-still" type="button" aria-pressed="false" aria-label="Pause the train" hidden><i aria-hidden="true"></i></button>
+      <button class="send-off" id="send-off" type="button" hidden>Send it off <span lang="bs">· pošalji ga</span> <span aria-hidden="true">→</span></button>
+    </div>
+    <p class="wall-hint" id="wall-hint">Spray the wagon and it stops · <span lang="bs">ofarbaj ga i voz stane</span></p>
+  </div>
+  </div>
+  <div class="tray" role="group" aria-label="Spray tools">
+    <span class="tray-l" id="cans-label">Colour</span>
+    <div class="cans" id="cans" role="radiogroup" aria-labelledby="cans-label"></div>
+    <div class="seg caps" role="group" aria-label="Paint style">
+      <button type="button" data-cap="skinny" aria-pressed="false" title="Skinny cap: a fine line">Thin</button>
+      <button type="button" data-cap="fat" aria-pressed="true" title="Fat cap: a wide soft line">Thick</button>
+      <button type="button" data-cap="mist" aria-pressed="false" title="A light, wide haze for fades and backgrounds">Mist</button>
+      <button type="button" data-cap="splatter" aria-pressed="false" title="Flicked drops of paint">Splatter</button>
+      <button type="button" data-cap="drippy" aria-pressed="false" title="Too much paint: it runs as you go">Drippy</button>
+      <button type="button" data-cap="marker" aria-pressed="false" title="A paint marker: hard, solid line">Marker</button>
+    </div>
+    <button type="button" class="tray-btn arm" id="arm-toggle" aria-pressed="false">Start painting</button>
+    <button type="button" class="tray-btn" id="save-wall" aria-label="Save the wagon as a picture">Save<span class="cw-x"> the wagon</span></button>
+    <button type="button" class="tray-btn" id="whitewash" aria-label="Clean the wagon">Clean<span class="cw-x"> the wagon</span></button>
+  </div>
+  <div class="hero-text">
+    <div class="hero-front">
+      <p class="lede">ZID is a free page about Bosnian street walls. Spray the wall above, run the five-zone game from Bosanski Novi to the Old Bridge in Mostar, and pick up the slang you'll hear along the way.</p>
+      <div class="ctas">
+        <a class="btn ghost" href="#rjecnik">Street dictionary</a>
+        <a class="btn ghost" href="#zakon">Street law</a>
+        <button type="button" class="btn ghost install" id="btn-install" hidden aria-label="Get the app: install ZID on this device">Get the app <span aria-hidden="true">↓</span></button>
+      </div>
+    </div>
+    <dl class="stats">
+      <div><dt>5</dt><dd>zones in one run<span lang="bs">zona, jedna trka</span></dd></div>
+      <div><dt>~20 m</dt><dd>dive into the Neretva<span lang="bs">skok u Neretvu</span></dd></div>
+      <div><dt>12</dt><dd>street words to learn<span lang="bs">riječi s ulice</span></dd></div>
+    </dl>
+  </div>
 </section>
 
 <section class="sec page" id="kako" aria-labelledby="kako-h" data-page>
