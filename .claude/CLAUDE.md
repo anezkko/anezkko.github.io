@@ -11,10 +11,10 @@ Webby) without losing what makes it ZID.
 - `index.html`: the page, its CSS inline (~90 KB). Tiny head scripts: language before first paint, the preview
   (`demo`) class, intro flag, config (`ZID_API`, `ZID_TIP`), service-worker registration.
 - `js/core.js` (deferred): everything the page needs straight away (helpers, sound, Radio ZID, language, the hero
-  wall, scoreboard, ticker, fullscreen). `js/game.js` (~820 KB, loaded on demand by `loadGame()`): the game, the
+  wall, scoreboard, the page router, fullscreen). `js/game.js` (~820 KB, loaded on demand by `loadGame()`): the game, the
   Bihać ride, the memos (with sources) and the pixel-art tables. They share top-level names; no modules.
-- `data/ticker.json` (match ticker) and `data/words.json` (which dictionary words have a recording in
-  `audio/words/`): owner-editable, each with a `_help` line.
+- `data/words.json` (which dictionary words have a recording in `audio/words/`): owner-editable, with a `_help`
+  line. (The football ticker was removed at the owner's request.)
 - `press/`: the press kit (`press/index.html`, six screenshots from `_dev/press-shots.mjs`, the logo PNG).
 - `img/`, `fonts/` (self-hosted WOFF2 + OFL), `audio/`, icons, `manifest.json`, `sw.js` (network-first cache,
   version in `CACHE`), `404.html`, `robots.txt`, `sitemap.xml`, `CNAME`.
