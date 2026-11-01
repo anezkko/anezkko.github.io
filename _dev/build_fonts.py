@@ -8,7 +8,8 @@ font arrives.
     python3 _dev/build_fonts.py <folder> bricolage-grotesque         # just the families named
 
 Sources: github.com/google/fonts ofl/archivo/Archivo[wdth,wght].ttf, ofl/martianmono/MartianMono[wdth,wght].ttf,
-ofl/sedgwickavedisplay/SedgwickAveDisplay-Regular.ttf, ofl/bricolagegrotesque/BricolageGrotesque[opsz,wdth,wght].ttf
+ofl/sedgwickavedisplay/SedgwickAveDisplay-Regular.ttf, ofl/bricolagegrotesque/BricolageGrotesque[opsz,wdth,wght].ttf,
+ofl/jersey10/Jersey10-Regular.ttf
 """
 import io
 import os
@@ -38,6 +39,9 @@ FAMILIES = [
     # buttons in it still read well
     ('BricolageGrotesque[opsz,wdth,wght].ttf', 'bricolage-grotesque', {'wdth': 100, 'wght': (400, 800), 'opsz': 72},
      ('Bricolage Fallback', ['Arial', 'Helvetica Neue', 'Helvetica', 'Liberation Sans'], (2048, 904, 1854, 434, 67))),
+    # the headlines since the pixel look: a chunky pixel face that has every Bosnian letter (č ć đ š ž)
+    ('Jersey10-Regular.ttf', 'jersey-10', None,
+     ('Jersey Fallback', ['Arial', 'Helvetica Neue', 'Helvetica', 'Liberation Sans'], (2048, 904, 1854, 434, 67))),
 ]
 ONLY = sys.argv[2:]
 

@@ -27,8 +27,9 @@ Webby) without losing what makes it ZID.
 ## Rules
 1. Branches, small commits, PRs. Never push to `main`.
 2. No build step: plain HTML/CSS/JS (ES modules fine). Optimise images/fonts once and commit the output.
-3. Keep the identity: dark wall world, pink `#FF4DC4`, lime `#B4F53A`, violet `#8B3DFF`, Bricolage Grotesque
-   (headlines) + Archivo (text) + Sedgwick Ave Display + Martian Mono, stickers/tape/drips, the official Z logo.
+3. Keep the identity: dark wall world, pink `#FF4DC4`, lime `#B4F53A`, violet `#8B3DFF`, Jersey 10 pixel
+   headlines (pink with a stepped yellow 3D shadow) + Archivo (text) + Sedgwick Ave Display + Martian Mono (Bricolage
+   Grotesque stays for the share pictures drawn on canvas), stickers/tape/drips, the official Z logo.
    Evolve, don't replace.
 4. Bilingual always: `L(bs, en)` in JS, `data-en` (and `data-en-ph`, `data-en-aria`) in HTML. List new Bosnian
    strings in the PR for the owner to check.
