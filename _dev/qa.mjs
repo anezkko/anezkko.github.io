@@ -38,8 +38,8 @@ for (const w of [360, 390, 768, 1440, 2560]) {
 // 2 · reduced motion from the start
 {
   const { ctx, p, errs } = await open(U, { viewport: { width: 1280, height: 860 }, reducedMotion: 'reduce' });
-  const st = await p.evaluate(() => ({ intro: document.documentElement.classList.contains('intro-on'), spray: document.documentElement.classList.contains('js-spray'), ticker: getComputedStyle(document.querySelector('.ticker-track') || document.body).animationName }));
-  row('Reduced motion: no intro, no spray-in, still ticker', !st.intro && !st.spray && (st.ticker === 'none' || !st.ticker) && !errs.length, JSON.stringify(st));
+  const st = await p.evaluate(() => ({ intro: document.documentElement.classList.contains('intro-on'), spray: document.documentElement.classList.contains('js-spray') }));
+  row('Reduced motion: no intro, no spray-in', !st.intro && !st.spray && !errs.length, JSON.stringify(st));
   await ctx.close();
 }
 // 3 · offline after one visit and one game load (the service worker needs a real origin: zid.localhost is fine)

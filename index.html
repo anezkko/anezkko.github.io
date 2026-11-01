@@ -311,8 +311,8 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .lang-sw{margin-top:16px}
 /* touch targets: every control answers to at least 44×44 px. The smaller ones keep their look and get an invisible
    hit area around them, centred, so a thumb that lands just outside the pill still counts */
-.chip,.can,.seg button,.tray-btn,.st-spray,.st-hear,.ov-btn,.tk-pause,.music-btn,.pause-btn{position:relative}
-.chip::after,.can::after,.seg button::after,.tray-btn::after,.st-spray::after,.st-hear::after,.wall-still::after,.ov-btn::after,.tk-pause::after,.music-btn::after,.pause-btn::after{content:"";position:absolute;left:50%;top:50%;width:max(100%,44px);height:max(100%,44px);transform:translate(-50%,-50%)}
+.chip,.can,.seg button,.tray-btn,.st-spray,.st-hear,.ov-btn,.music-btn,.pause-btn{position:relative}
+.chip::after,.can::after,.seg button::after,.tray-btn::after,.st-spray::after,.st-hear::after,.wall-still::after,.ov-btn::after,.music-btn::after,.pause-btn::after{content:"";position:absolute;left:50%;top:50%;width:max(100%,44px);height:max(100%,44px);transform:translate(-50%,-50%)}
 .tray-btn{appearance:none;border:1px solid var(--line-strong);background:transparent;color:var(--text);font:600 .62rem/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:.9em 1.15em;border-radius:999px;cursor:pointer}
 .tray-btn:hover{border-color:var(--text)}
 .tray-btn.arm{display:none}
@@ -839,30 +839,9 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
   .sticker:hover{transform:rotate(var(--r))}
   .btn:hover,.wall-play:hover{transform:none}
 }
-/* Bosnia national team ticker: a bar along the bottom of the screen, like a news channel (update by hand) */
-.has-ticker body{padding-bottom:44px}
 body:has(.game.playing){padding-bottom:0}
-.has-ticker .toast{bottom:calc(62px + env(safe-area-inset-bottom,0px))}
-.ticker{position:fixed;left:0;right:0;bottom:0;z-index:60;display:flex;align-items:stretch;height:44px;background:rgba(10,9,13,.96);border-top:2px solid var(--pink,#FF4DC4);box-shadow:0 -10px 28px rgba(0,0,0,.45)}
-body:has(.game.playing) .ticker{display:none}
-.tk-chip{flex:none;display:grid;place-items:center;padding:0 16px;background:var(--pink,#FF4DC4);color:#0A090D;font-family:var(--f-display);font-weight:800;font-size:1rem;letter-spacing:.02em}
-.tk-view{flex:1;min-width:0;overflow:hidden;display:flex;align-items:center}
-.ticker-track{display:flex;width:max-content;animation:tk 48s linear infinite}
 /* it stops when you hover it, when it has focus, and when you press its pause button (WCAG 2.2.2) */
-.ticker:hover .ticker-track,.ticker:focus-within .ticker-track,.ticker.paused .ticker-track{animation-play-state:paused}
-.tk-pause{flex:none;appearance:none;width:44px;border:0;border-left:1px solid var(--line,rgba(255,255,255,.1));background:transparent;color:var(--text);cursor:pointer;display:grid;place-items:center}
-.tk-pause i{display:block;width:12px;height:14px;border-left:4px solid currentColor;border-right:4px solid currentColor}
-.ticker.paused .tk-pause i{width:0;height:0;border-style:solid;border-width:7px 0 7px 12px;border-color:transparent transparent transparent currentColor}
-.tk-pause:hover{background:rgba(255,255,255,.06)}
-.ticker-set{display:flex;align-items:center;gap:18px;margin:0;padding:0 18px 0 0;white-space:nowrap;font-family:var(--f-mono);font-size:.82rem;color:var(--text)}
-.tk-item{display:inline-flex;align-items:baseline;gap:8px}
-.tk-item b{font-family:var(--f-display);font-weight:800;font-size:1rem;color:var(--lime,#B4F53A)}
-.tk-k{font-size:.7rem;letter-spacing:.04em;color:var(--text-soft)}
-.tk-sep{color:var(--pink,#FF4DC4)}
-.tk-cd{font-weight:700;color:var(--pink,#FF4DC4)}
-.tk-today .tk-k{color:var(--pink,#FF4DC4);font-weight:700}
-@keyframes tk{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-/* phones: the sections in a tab bar at the thumb, hidden while the game is on screen; the ticker moves to the top */
+/* phones: the sections in a tab bar at the thumb, hidden while the game is on screen */
 .tabbar{display:none}
 @media (max-width:699px){
   .tabbar{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:61;display:grid;grid-template-columns:repeat(5,1fr);
@@ -876,17 +855,11 @@ body:has(.game.playing) .ticker{display:none}
   .tabbar a:focus-visible{outline:2px solid var(--lime);outline-offset:-4px;border-radius:16px}
   .tab-off .tabbar{transform:translateY(130%);opacity:0;pointer-events:none}
   body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
-  .has-ticker body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
-  .ticker{position:relative;bottom:auto;box-shadow:none;border-top:0;border-bottom:2px solid var(--pink,#FF4DC4)}
-  /* its place is kept from the first paint, so the page doesn't jump down when the match data arrives */
-  .ticker[hidden]{display:flex!important;visibility:hidden}
-  .toast,.has-ticker .toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+  .toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
 }
 @media (max-width:699px) and (prefers-reduced-motion:reduce){.tabbar{transition:none}}
-@media (max-width:560px){.tk-chip{padding:0 11px;font-size:.9rem}.ticker-set{font-size:.74rem}.tk-item b{font-size:.9rem}}
 /* with reduced motion it doesn't move at all: one static line, and nothing to pause */
 @media (prefers-reduced-motion:reduce){.headlight{animation:none}.wall-still{display:none!important}}   /* the train just stands there: no button needed */
-@media (prefers-reduced-motion:reduce){.ticker-track{animation:none}.ticker-set + .ticker-set{display:none}.tk-view{-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}.tk-pause{display:none}}
 /* ===== Bihać, the chill ride (bihac/): it covers the game frame while it runs, with its own corner buttons and cards.
    The cards use the game's .ov look; these are only the ride's own parts. ===== */
 .ride{position:absolute;inset:0;z-index:4;background:#0E0F12}
@@ -1091,11 +1064,11 @@ html[data-view="home"] main > [data-page]{display:none!important}
 html[data-view="page"] main > *{display:none!important}
 html[data-pg="kako"] #kako,html[data-pg="rjecnik"] #rjecnik,html[data-pg="zakon"] #zakon,html[data-pg="o-zidu"] #o-zidu,
 html[data-pg="tabela"] [data-page]:has(#tabela){display:block!important}
-.page{padding-top:clamp(18px,3vw,40px)}
+[data-page]{padding-top:clamp(18px,3vw,40px)}
 .back{display:inline-flex;align-items:center;gap:.6em;min-height:44px;margin:0 0 clamp(14px,2.5vw,26px);font-family:var(--f-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--pink);text-decoration:none}
 .back:hover{color:var(--text)}
 .back:focus-visible{outline:2px solid var(--lime);outline-offset:4px;border-radius:6px}
-.page h2:focus{outline:none}
+[data-page] h2:focus{outline:none}
 /* on a page the site's own heading (the home screen's h1 is hidden with it) */
 html:not([data-view="page"]) .site-name{display:none}
 
@@ -1156,6 +1129,37 @@ html{font-synthesis:none}
 .st-word{font-size:clamp(1.6rem,1.1rem + 2vw,2.4rem);line-height:1.25;color:#F4F0FA;text-shadow:.06em .06em 0 #FF4DC4,.12em .12em 0 #B3207F;letter-spacing:0}
 .wall-cta .wp-txt b{font-size:clamp(.82rem,.7rem + .7vw,1.15rem);line-height:1.5;letter-spacing:0}
 .board-row b,.board-top b{letter-spacing:0}
+
+/* ===== big title, small layout: the name fills the screen, everything under it sits in one narrow, calm column ===== */
+:root{--col:860px}
+.hero-copy .hero-h{font-size:clamp(3.2rem,16.8vw,10.5rem)}
+.hero-copy{padding-top:clamp(26px,5vw,70px);padding-bottom:clamp(14px,2vw,22px)}
+.hero-copy .hero-en{font-size:var(--step-0);color:var(--text-soft);margin-top:clamp(16px,2.4vw,26px)}
+.hero-copy .eyebrow{margin-bottom:clamp(14px,2vw,22px)}
+/* the Play button, the score and the links: one slim column */
+.wall-cta{width:min(480px,100%);gap:10px;margin-top:clamp(16px,2.4vw,26px)}
+.wall-cta .wall-play{padding:12px 18px;gap:12px;border-radius:10px}
+.wall-cta .wp-ico{width:36px;height:36px}
+.wall-cta .wp-ico::after{border-width:7px 0 7px 12px}
+.wall-cta .wp-txt b{font-size:clamp(.72rem,.62rem + .45vw,.92rem)}
+.wall-cta .wp-txt small{font-size:.6rem}
+.wall-cta .wall-beat{padding:7px 14px 8px 10px;border-radius:10px}
+.wall-cta .wb-n{font-size:1.25rem}
+.wall-cta .wb-s{font-size:.95rem}
+.home-links{width:min(480px,100%);gap:8px;margin-top:10px}
+.home-links a{min-height:40px;padding:0 .95em;font-size:.6rem;border-radius:7px}
+/* the game, the train and the pages keep to the same column */
+#igra,#voz,main > [data-page]{max-width:var(--col)}
+#igra{padding-top:clamp(30px,4.5vw,56px)}
+.sec-lede{font-size:var(--step-0)}
+.sec h2,.finale h2{font-size:clamp(1.6rem,.9rem + 3.2vw,3.4rem)}
+.wall-frame{width:100%;max-width:var(--col);margin-inline:auto;box-sizing:border-box}
+.tray{max-width:var(--col);margin-inline:auto;width:100%}
+.stickers{grid-template-columns:1fr}
+/* the footer's big word in the arcade face: every letter is one em, so it is set smaller to sit beside the text */
+.foot .foot-big{font-size:clamp(2.6rem,1.2rem + 6vw,6rem);line-height:1.1;letter-spacing:0;color:#B4F53A;text-shadow:.05em .05em 0 #FF4DC4,.1em .1em 0 #B3207F}
+/* the coffee button's word: the arcade face runs wide, so it is set small enough to stay on one line */
+.kahva b{font-size:.78rem;line-height:1.5}
 </style>
 <script>try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&!sessionStorage.getItem('zid-intro')&&!location.hash){var h=document.documentElement;h.classList.add('intro-on');sessionStorage.setItem('zid-intro','1');
 /* the intro waits (at most 1.2 s) for its graffiti font and the logo, fetched from here on, so "zid" sprays on in its
@@ -1165,11 +1169,6 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
 </head>
 <body>
 <div class="intro" id="intro" aria-hidden="true"><div class="intro-in"><i class="intro-mark"></i><span class="intro-tag">zid</span><span class="intro-sub">Sarajevo → Mostar</span></div></div>
-<div class="ticker" id="ticker" role="region" aria-label="Bosnia and Herzegovina national team: last result and next match" hidden>
-  <div class="tk-chip" aria-hidden="true">BiH</div>
-  <div class="tk-view"><div class="ticker-track" id="tk-track"></div></div>
-  <button class="tk-pause" id="tk-pause" type="button" aria-pressed="false" aria-label="Pause the ticker"><i aria-hidden="true"></i></button>
-</div>
 <div class="page">
 <p class="demo-note" id="demo-note" role="region" aria-label="Preview notice">Preview copy · the scores here are examples · the real board is on <a href="https://zidbosna.com/" target="_blank" rel="noopener">zidbosna.com</a></p>
 <header class="top">
