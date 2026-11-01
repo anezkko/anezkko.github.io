@@ -140,55 +140,6 @@ a{color:inherit}
 .music[data-on="true"] .eq i:nth-child(2){animation-delay:-.3s}
 .music[data-on="true"] .eq i:nth-child(3){animation-delay:-.6s}
 @keyframes eq{0%,100%{height:3px}50%{height:10px}}
-/* Radio ZID: the boombox in the header is the music button. One picture (--bb) draws the boombox and, clipped to
-   ovals, the two speakers that pump on the beat; the display, its needle and the six lights sit over their spots
-   on the picture, in % of it (the picture is 871 x 635 at full size). */
-:root{--bb:url("img/03.webp")}
-.radio-btn{appearance:none;-webkit-appearance:none;border:0;background:none;padding:0;margin:-15px 0 -13px;cursor:pointer;display:block;line-height:0;border-radius:14px;transition:transform var(--t-fast) var(--ease-out)}
-@media (hover:hover){.radio-btn:hover{transform:rotate(-3deg) translateY(-1px)}}
-.radio-btn:focus-visible{outline:3px solid var(--pink);outline-offset:3px}
-.rd{position:relative;display:block;height:78px;aspect-ratio:871/635;background:var(--bb) 0 0/100% 100% no-repeat;transform-origin:50% 96%;filter:drop-shadow(0 6px 7px rgba(0,0,0,.6))}
-.rd i{position:absolute;display:block}
-.bb-spk,.bb-cap{border-radius:50%;background-image:var(--bb);background-repeat:no-repeat}
-.bb-spk{opacity:0}
-.bb-spk.sL{left:1.068%;top:34.197%;width:22.778%;height:45.118%;background-size:439.012% 221.640%;background-position:1.383% 62.310%}
-.sL .bb-cap{left:41.104%;top:39.180%;width:23.337%;height:22.967%;background-size:1881.210% 965.046%;background-position:11.016% 57.871%}
-.bb-spk.sR{left:51.550%;top:27%;width:29.277%;height:50.472%;background-size:341.569% 198.128%;background-position:72.890% 54.515%}
-.sR .bb-cap{left:39.118%;top:38.830%;width:23.882%;height:23.151%;background-size:1430.213% 855.795%;background-position:67.739% 52.764%}
-.bb-lcd{left:26.636%;top:27.717%;width:22.273%;height:10.866%;clip-path:polygon(1.03% 27.54%,98.97% 2.9%,98.45% 78.26%,.52% 97.1%);background:rgba(10,20,14,.55);transition:background-color .5s ease}
-.radio-btn[data-on="true"] .bb-lcd{background:radial-gradient(ellipse at 50% 60%,rgba(214,255,170,.5),rgba(170,250,140,.2) 70%,rgba(150,240,120,.08));mix-blend-mode:screen}
-.rd .bb-needle{width:1.5px;margin-left:-.75px;left:calc(26.866% + 21.814% * var(--n,.14));top:calc(31.181% - 2.677% * var(--n,.14));height:calc(6.614% + .63% * var(--n,.14));background:#FF4DC4;box-shadow:0 0 2px .5px rgba(255,77,196,.7);border-radius:1px;opacity:0;transition:left .9s cubic-bezier(.3,1.35,.45,1),top .9s cubic-bezier(.3,1.35,.45,1),height .9s ease,opacity .4s ease}
-.radio-btn[data-on="true"] .bb-needle{opacity:1}
-.bb-led{width:1.5%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);background:rgba(12,22,22,.9);transition:background-color .4s ease,box-shadow .4s ease,opacity .4s ease}
-.bb-led.l1{left:22.721%;top:31.669%}
-.bb-led.l2{left:22.675%;top:33.937%}
-.bb-led.l3{left:22.664%;top:36.189%}
-.bb-led.r1{left:53.020%;top:27.465%}
-.bb-led.r2{left:53.042%;top:29.890%}
-.bb-led.r3{left:53.054%;top:32.315%}
-.bb-led.l1,.bb-led.r1{--lc:#FF6AD5}
-.bb-led.l2,.bb-led.l3,.bb-led.r2{--lc:#FFB347}
-.bb-led.r3{--lc:#A4FF6E}
-.radio-btn[data-on="true"] .bb-led{background:var(--lc);box-shadow:0 0 3px 1px var(--lc);opacity:.45}
-/* Radio ZID: the station menu under the music button */
-.radio{position:relative}
-.radio-menu{position:absolute;right:0;top:calc(100% + 10px);z-index:60;width:min(290px,calc(100vw - 24px));padding:8px;border-radius:18px;background:#15131B;border:1px solid var(--line-strong);box-shadow:0 24px 48px -16px rgba(0,0,0,.85);display:grid;gap:2px}
-.radio-menu[hidden]{display:none}
-.rm-h{margin:6px 10px 8px;font-family:var(--f-tag);font-size:1.4rem;line-height:1;color:var(--pink);transform:rotate(-2deg);transform-origin:left center}
-.rm-item,.rm-off{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:var(--text);text-align:left;font:inherit;display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;cursor:pointer;width:100%}
-.rm-item:hover,.rm-off:hover{background:rgba(255,255,255,.07)}
-.rm-item:focus-visible,.rm-off:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--pink)}
-.rm-t{display:grid;gap:3px;min-width:0}
-.rm-t b{font-family:var(--f-display);font-weight:800;font-size:1rem;letter-spacing:0;line-height:1.1}
-.rm-t small{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.06em;color:var(--text-soft)}
-.rm-eq{flex:none;display:inline-flex;align-items:flex-end;gap:2px;width:14px;height:12px;color:rgba(255,255,255,.28)}
-.rm-eq i{display:block;width:3px;height:3px;background:currentColor;border-radius:1px}
-.rm-item[aria-checked="true"]{background:rgba(180,245,58,.1)}
-.rm-item[aria-checked="true"] .rm-t b,.rm-item[aria-checked="true"] .rm-eq{color:var(--lime)}
-.rm-item[aria-checked="true"] .rm-eq i{animation:eq .9s ease-in-out infinite}
-.rm-item[aria-checked="true"] .rm-eq i:nth-child(2){animation-delay:-.3s}
-.rm-item[aria-checked="true"] .rm-eq i:nth-child(3){animation-delay:-.6s}
-.rm-off{margin-top:4px;border-top:1px solid var(--line);border-radius:0 0 12px 12px;font-family:var(--f-mono);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-soft);padding-block:12px}
 .pill{display:inline-flex;align-items:center;gap:.4em;border:1px solid var(--text);color:var(--text);border-radius:999px;padding:.6em 1.2em;font-weight:600;font-size:.88rem;text-decoration:none;transition:background var(--t-fast) var(--ease-out),color var(--t-fast) var(--ease-out)}
 .pill:hover{background:var(--text);color:var(--ink)}
 
@@ -754,8 +705,6 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
   .wall-hint{display:none}
   .top{flex-wrap:nowrap;gap:10px;padding-block:12px 10px}
   .top{position:relative}
-  .radio{position:static}
-  .radio-menu{left:0;right:0;width:auto;top:calc(100% + 2px)}
   .top-l{flex-wrap:nowrap;min-width:0;gap:10px}
   .logo{font-size:1.75rem;gap:8px}
   .logo-mark{width:38px;height:38px}
@@ -764,8 +713,6 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
   .chip,.chip.music{width:42px;height:42px;padding:0;display:grid;place-items:center}
   .chip .ico{display:block}
   .chip.music .eq{display:none}
-  .rd{height:56px}
-  .radio-btn{margin:-9px 0 -8px}
   .chip .lbl,.tray-l,.can .can-n{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
   .tray{gap:10px;padding:10px 12px 12px;border-radius:18px}
   .cans{flex-wrap:nowrap;justify-content:space-between;width:100%;gap:0;min-height:52px}
@@ -823,15 +770,12 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 }
 @media (max-width:349px){
   /* the smallest phones: a smaller boombox so the header stays one row next to the credit */
-  .rd{height:46px}
-  .radio-btn{margin:-6px 0 -5px}
   .top-l{gap:7px}
   .top-r{gap:5px}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   .music[data-on="true"] .eq i{animation:none;height:8px}
-  .rm-item[aria-checked="true"] .rm-eq i{animation:none;height:8px}
   .btn,.sticker,.st-spray,.decal,.kahva,.wall-play{transition:none}
   .can .can-ic{transition:none}
   .wall-beat{animation:none}
@@ -1132,7 +1076,7 @@ html{font-synthesis:none}
 
 /* ===== big title, small layout: the name fills the screen, everything under it sits in one narrow, calm column ===== */
 :root{--col:860px}
-.hero-copy .hero-h{font-size:clamp(3.2rem,16.8vw,10.5rem)}
+.hero-copy .hero-h{font-size:clamp(3.2rem,16.8vw,8rem)}
 .hero-copy{padding-top:clamp(26px,5vw,70px);padding-bottom:clamp(14px,2vw,22px)}
 .hero-copy .hero-en{font-size:var(--step-0);color:var(--text-soft);margin-top:clamp(16px,2.4vw,26px)}
 .hero-copy .eyebrow{margin-bottom:clamp(14px,2vw,22px)}
@@ -1181,13 +1125,7 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
     <nav class="nav" aria-label="Sections">
       <a href="#zid">Play</a><a href="#kako">How to play</a><a href="#rjecnik">Words</a><a href="#zakon">Rules</a><a href="#tabela">Scores</a><a href="#o-zidu">About</a>
     </nav>
-    <div class="radio">
-    <button class="radio-btn" id="music-toggle" type="button" data-on="false" aria-haspopup="menu" aria-expanded="false" aria-controls="radio-menu" aria-label="Music: off. Play Radio ZID" title="Radio ZID"><span class="rd" id="rd" aria-hidden="true"><i class="bb-spk sL"><i class="bb-cap"></i></i><i class="bb-spk sR"><i class="bb-cap"></i></i><i class="bb-lcd" id="rd-dial"></i><i class="bb-needle"></i><i class="bb-led l1"></i><i class="bb-led l2"></i><i class="bb-led l3"></i><i class="bb-led r1"></i><i class="bb-led r2"></i><i class="bb-led r3"></i></span></button>
-    <div class="radio-menu" id="radio-menu" role="menu" aria-label="Radio ZID" hidden>
-      <p class="rm-h" aria-hidden="true">Radio ZID</p>
-      <button class="rm-off" id="radio-off" type="button" role="menuitem">Music off</button>
-    </div>
-    </div>
+    <button class="chip music" id="music-toggle" type="button" aria-pressed="false" data-on="false"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 17.5V6.2l9-2v11.3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="17.6" r="2.5" fill="currentColor"/><circle cx="16" cy="15.6" r="2.5" fill="currentColor"/></svg><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span class="lbl">Music</span></button>
     <button class="chip sound" id="sound-toggle" type="button" aria-pressed="true"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 9.4h3.9L12 5.6v12.8l-4.6-3.8H3.5z" fill="currentColor"/><path class="i-on" d="M15.4 9.1a4.1 4.1 0 0 1 0 5.8M17.9 6.6a7.7 7.7 0 0 1 0 10.8" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><path class="i-off" d="M15.6 9.6l4.8 4.8M20.4 9.6l-4.8 4.8" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg><span class="lbl" id="sound-label">Sound: on</span></button>
     <a class="pill" href="#igra" data-play>Play ↗</a>
   </div>
@@ -1198,7 +1136,7 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
   <div class="decal d-bih" style="--r:-7deg" aria-hidden="true"><b>BIH</b></div>
   <div class="hero-copy">
       <p class="eyebrow">ZID · Sarajevo → Mostar</p>
-      <h1 class="hero-h" id="hero-h" lang="bs"><span>Halal bilo.</span></h1>
+      <h1 class="hero-h" id="hero-h"><span>Paint the train</span></h1>
       <p class="hero-en">Paint your way from Bosanski Novi to the Stari Most.</p>
   </div>
   <div class="wall-cta">
@@ -1385,8 +1323,8 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
 
 <section class="sec hero paint" id="voz" aria-labelledby="voz-h">
   <div class="paint-head">
-    <p class="kicker">Halal bilo · <span lang="bs">ofarbaj voz</span></p>
-    <h2 id="voz-h">Paint the train</h2>
+    <p class="kicker">The train · <span lang="bs">ofarbaj voz</span></p>
+    <h2 id="voz-h" lang="bs">Halal bilo.</h2>
     <p class="sec-lede">It's yours. Spray the wagon and it stops; send it off and a clean one rolls in.</p>
   </div>
   <div class="wall-frame">

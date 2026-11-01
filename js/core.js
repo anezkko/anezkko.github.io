@@ -2230,92 +2230,27 @@ function initSound() {
 /* Radio ZID: the boombox in the header starts the last station; once music plays, the same boombox opens the station
    menu. While it plays, the speakers pump and their rings flash on every beat, the boombox hops a little, the display
    glows with the needle on the station, and the lights blink like a level meter. */
+/* the music button: one tap plays Radio ZID's calm station, another stops it. The music also starts by itself:
+   browsers only let a page make sound after a tap or click, so it fades in on the visitor's first one, anywhere on
+   the page. Not from the keyboard (music that starts by itself would talk over a screen reader; the button is one
+   Tab away), not for anyone who turned the music or the sound off before (both remembered), and not when that first
+   touch is on the music or sound button, which decide it */
 function initMusic() {
-  const btn = $('#music-toggle'), menu = $('#radio-menu'), off = $('#radio-off'), rd = $('#rd'), dial = $('#rd-dial');
-  const spk = $$('.bb-spk', rd), caps = $$('.bb-cap', rd), leds = [$$('.bb-led.l1, .bb-led.r1', rd), $$('.bb-led.l2, .bb-led.r2', rd), $$('.bb-led.l3, .bb-led.r3', rd)];
-  const ids = Music.stations.map((s) => s.id);
-  const items = Music.stations.map((s) => {
-    const b = document.createElement('button');
-    b.type = 'button'; b.className = 'rm-item'; b.dataset.station = s.id;
-    b.setAttribute('role', 'menuitemradio'); b.setAttribute('aria-checked', 'false');
-    b.innerHTML = '<span class="rm-eq" aria-hidden="true"><i></i><i></i><i></i></span><span class="rm-t"><b></b><small></small></span>';
-    b.querySelector('b').textContent = s.name; b.querySelector('small').textContent = s.desc;
-    b.addEventListener('click', () => pick(s.id));
-    menu.insertBefore(b, off);
-    return b;
-  });
-  /* where each station sits on the dial, left to right */
-  const needle = (st) => rd.style.setProperty('--n', String(0.08 + 0.84 * Math.max(0, ids.indexOf(st.id)) / (ids.length - 1)));
-  let loop = 0;
-  const ease = 'cubic-bezier(.2,.7,.3,1)';
-  function bounce(k) {
-    if (!REDUCED) {
-      rd.animate([
-        { transform: 'translateY(0) scale(1, 1)' },
-        { transform: `translateY(0) scale(${1 + 0.035 * k}, ${1 - 0.05 * k})`, offset: 0.14 },
-        { transform: `translateY(${(-3 * k).toFixed(1)}px) scale(${1 - 0.012 * k}, ${1 + 0.025 * k})`, offset: 0.45 },
-        { transform: 'translateY(0) scale(1, 1)' },
-      ], { duration: 300, easing: ease });
-      /* the speakers punch out and their neon rings flash; the dust caps push further than the cones */
-      const z = rd.offsetHeight / 78, glow = `0 0 ${((2 + 3 * k) * z).toFixed(1)}px ${(0.5 * k * z).toFixed(1)}px rgba(255,106,213,${(0.35 + 0.4 * k).toFixed(2)})`;
-      spk.forEach((s) => s.animate([
-        { opacity: 1, transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(255,106,213,0)' },
-        { opacity: 1, transform: `scale(${1 + 0.12 * k})`, boxShadow: glow, offset: 0.18 },
-        { opacity: 1, transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(255,106,213,0)' },
-      ], { duration: 280, easing: ease }));
-      caps.forEach((c) => c.animate([{ transform: 'scale(1)' }, { transform: `scale(${1 + 0.32 * k})`, offset: 0.18 }, { transform: 'scale(1)' }], { duration: 280, easing: ease }));
-    }
-    dial.animate([{ opacity: 1 }, { opacity: 0.6 + 0.2 * (1 - k) }], { duration: 380, easing: 'ease-out' });
-    /* level meter: the first light takes every beat, the others only the stronger ones */
-    leds.forEach((row, i) => { if (k > [0.05, 0.45, 0.8][i]) row.forEach((l) => l.animate([{ opacity: 1 }, { opacity: 0.45 }], { duration: 320, easing: 'ease-out' })); });
-  }
-  function frame() {
-    if (!Music.playing) { loop = 0; return; }
-    const k = Music.beat(Music.heard());
-    if (k > 0.05) bounce(k);
-    loop = requestAnimationFrame(frame);
-  }
-  const show = (on, st) => {
+  const btn = $('#music-toggle');
+  if (!btn) return;
+  const show = (on) => {
     btn.dataset.on = on ? 'true' : 'false';
-    btn.setAttribute('aria-label', on ? `Music: ${st.name}. Change station` : 'Music: off. Play Radio ZID');
-    btn.title = on ? `Radio ZID · ${st.name}` : 'Radio ZID';
-    items.forEach((b) => b.setAttribute('aria-checked', String(on && b.dataset.station === st.id)));
-    needle(st);
-    if (on && !loop) loop = requestAnimationFrame(frame);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.title = on ? `Radio ZID · ${Music.station.name}` : 'Radio ZID';
   };
-  Music.onChange(show);
-  show(false, Music.station);
-  const open = (focus) => {
-    menu.hidden = false; btn.setAttribute('aria-expanded', 'true');
-    if (focus) (items.find((b) => b.getAttribute('aria-checked') === 'true') || items[0]).focus();
-  };
-  const close = (refocus) => {
-    if (menu.hidden) return;
-    menu.hidden = true; btn.setAttribute('aria-expanded', 'false');
-    if (refocus) btn.focus();
-  };
-  const announce = (hint) => { const s = Music.station; toast(`<span><b>${s.name}</b> · ${s.desc}${hint ? '. Tap the boombox again to change station.' : ''}</span>`, hint ? 4200 : 3000); };
-  function pick(id) {
-    const same = Music.playing && Music.station.id === id;
-    close(true);
-    if (same) return;
-    if (Music.set(id)) announce(false);
+  Music.onChange((on) => show(on));
+  show(Music.playing);
+  btn.addEventListener('click', () => {
+    if (Music.playing) { Music.stop(); Store.set('radio', false); return; }
+    Store.set('radio', true);
+    if (Music.start()) toast(`<span><b>${Music.station.name}</b> · Radio ZID</span>`, 3000);
     else toast('Music can’t play in this browser.');
-  }
-  btn.addEventListener('click', (e) => {
-    if (!Music.playing) {
-      Store.set('radio', true);
-      if (Music.start()) announce(true);
-      else toast('Music can’t play in this browser.');
-      return;
-    }
-    if (menu.hidden) open(e.detail === 0); else close(false);
   });
-  off.addEventListener('click', () => { Music.stop(); Store.set('radio', false); close(true); });
-  /* the music starts by itself: browsers only let a page make sound after a tap or click, so Radio ZID fades in
-     on the visitor's first one, anywhere on the page. Not from the keyboard (music that starts by itself would
-     talk over a screen reader; the boombox is one Tab away), not for anyone who switched the radio or the sound off
-     before (both remembered), and not when that first touch is on the radio or the sound switch, which decide it */
   const FIRST = ['pointerup', 'touchend', 'click'];
   let tried = false;
   function first(e) {
@@ -2327,22 +2262,12 @@ function initMusic() {
     if (tried) return;
     tried = true;
     if (Music.playing || !Sound.on || Store.get('radio', true) === false) return;
-    if (e.target && e.target.closest && e.target.closest('#music-toggle, #radio-menu, #sound-toggle')) return;
+    if (e.target && e.target.closest && e.target.closest('#music-toggle, #sound-toggle')) return;
     if (Music.start(undefined, true, 1.5)) {
-      toast(`<span><b>${Music.station.name}</b> · Radio ZID. ${L('Dodirni kasetofon da promijeniš stanicu ili ugasiš muziku.', 'Tap the boombox to change station or turn it off.')}</span>`, 5000);
+      toast(`<span><b>${Music.station.name}</b> · Radio ZID. ${L('Dodirni Muzika da je ugasiš.', 'Tap Music to turn it off.')}</span>`, 5000);
     }
   }
   FIRST.forEach((type) => addEventListener(type, first, true));
-  document.addEventListener('pointerdown', (e) => { if (!menu.hidden && !menu.contains(e.target) && !btn.contains(e.target)) close(false); });
-  menu.addEventListener('keydown', (e) => {
-    const all = [...items, off], i = all.indexOf(document.activeElement);
-    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(true); }
-    else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-      e.preventDefault(); e.stopPropagation();
-      all[(i + (e.key === 'ArrowDown' ? 1 : -1) + all.length) % all.length].focus();
-    } else if (e.key === 'Tab') close(false);
-    else if (e.key === 'Enter' || e.key === ' ') e.stopPropagation();
-  });
 }
 
 /* "Get the app": only on the real site (it has a manifest), only where installing works, never inside the installed app */
