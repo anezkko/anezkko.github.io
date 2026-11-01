@@ -2321,9 +2321,6 @@ function initNav() {
     route(false);
   });
   route(true);
-  /* the tab bar slides away while the game is on screen, so it never sits over the controls */
-  const game = $('#game');
-  if (game && 'IntersectionObserver' in window) new IntersectionObserver(([e]) => root.classList.toggle('tab-off', e.isIntersecting), { threshold: 0.3 }).observe(game);
 }
 /* the page section a page name stands for: #tabela is the board inside the Scores page */
 function pageSection(pg) {

@@ -2,7 +2,7 @@
    Online, it always fetches the newest upload first, so updates show straight away.
    The shell (page, core script, fonts, the pictures on the first screen) is stored when the helper installs. Every
    other file of the site is stored the first time it's fetched, so after one game the game works offline too. */
-const CACHE = 'zid-v21';
+const CACHE = 'zid-v22';
 const CORE = [
   './', 'index.html', '404.html', 'manifest.json',
   'js/core.js',

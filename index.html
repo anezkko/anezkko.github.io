@@ -785,7 +785,7 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 }
 body:has(.game.playing){padding-bottom:0}
 /* it stops when you hover it, when it has focus, and when you press its pause button (WCAG 2.2.2) */
-/* phones: the sections in a tab bar at the thumb, hidden while the game is on screen */
+/* phones: the sections in a tab bar at the thumb, hidden while a run is being played */
 .tabbar{display:none}
 @media (max-width:699px){
   .tabbar{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:61;display:grid;grid-template-columns:repeat(5,1fr);
@@ -797,7 +797,8 @@ body:has(.game.playing){padding-bottom:0}
   .tabbar svg .fill{fill:currentColor}
   .tabbar a[aria-current]{color:var(--pink)}
   .tabbar a:focus-visible{outline:2px solid var(--lime);outline-offset:-4px;border-radius:16px}
-  .tab-off .tabbar{transform:translateY(130%);opacity:0;pointer-events:none}
+  /* it slides away while a run is being played, so it never sits over the game's controls */
+  body:has(.game.playing) .tabbar{transform:translateY(130%);opacity:0;pointer-events:none}
   body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
   .toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
 }
@@ -1106,6 +1107,42 @@ html{font-synthesis:none}
 .foot .foot-big{font-size:clamp(2.6rem,1.2rem + 6vw,6rem);line-height:1.1;letter-spacing:0;color:#B4F53A;text-shadow:.05em .05em 0 #FF4DC4,.1em .1em 0 #B3207F}
 /* the coffee button's word: the arcade face runs wide, so it is set small enough to stay on one line */
 .kahva b{font-size:.78rem;line-height:1.5}
+
+/* ===== the header as an arcade screen (the owner's pick from six header options): a CRT with scanlines, 1UP and the
+   score to beat along the top, the title, and a blinking PRESS START that opens the game ===== */
+.crt{position:relative;max-width:var(--col);margin:clamp(12px,2.4vw,26px) auto 0;border-radius:26px;text-align:center;
+  padding:clamp(16px,3vw,34px) clamp(16px,3.4vw,40px) clamp(22px,3.2vw,34px);
+  background:radial-gradient(120% 90% at 50% 40%,#1A1027,#08060C 75%);border:3px solid #2A2236;
+  box-shadow:inset 0 0 60px rgba(139,61,255,.25),0 0 0 8px #120E18,0 0 50px -10px rgba(255,77,196,.5)}
+.crt::after{content:"";position:absolute;inset:0;border-radius:23px;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 2px,transparent 2px 4px)}
+.crt-hud{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:clamp(16px,2.6vw,26px);font:400 clamp(.5rem,1.3vw,.7rem)/1.6 var(--f-display);color:var(--pink);text-align:left}
+.crt-hud .wall-beat{margin:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none;animation:none;display:flex;justify-content:flex-end;text-align:right;color:inherit}
+.crt-hud .wall-beat[hidden]{display:flex!important;visibility:hidden}
+.crt-hud .wb-crown{display:none}
+.crt-hud .wb-t{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:2px 10px}
+.crt-hud .wb-k{font:inherit;letter-spacing:0;color:var(--pink);text-transform:uppercase;white-space:normal}
+.crt-hud .wb-v{gap:8px}
+.crt-hud .wb-n,.crt-hud .wb-s{font:inherit;font-size:1em;letter-spacing:0;padding:0;line-height:inherit}
+.crt-hud .wb-n{color:#F4F0FA}
+.crt-hud .wb-s{color:var(--yellow)}
+.crt .hero-h{font-size:clamp(1.5rem,.9rem + 3vw,4.2rem)}
+.crt .hero-en{font-size:var(--step-0);margin-top:clamp(12px,1.8vw,18px)}
+/* PRESS START: the Play button, in the arcade's own words. It blinks a few times, then stays (and never for reduced motion) */
+.crt .press{display:inline-grid;justify-items:center;gap:10px;margin-top:clamp(18px,2.8vw,28px);padding:10px 16px;border-radius:8px;background:none;box-shadow:none;color:var(--lime);text-decoration:none}
+.crt .press b{font:400 clamp(.8rem,.6rem + 1vw,1.2rem)/1.4 var(--f-display);letter-spacing:0;text-transform:uppercase;text-shadow:0 0 12px rgba(180,245,58,.55);animation:press-blink 1s steps(2) 5}
+.crt .press small{font:600 .6rem var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--text-soft)}
+.crt .press:hover{transform:none;box-shadow:none}
+.crt .press:hover b{color:#F4F0FA}
+.crt .press:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+@keyframes press-blink{50%{opacity:.2}}
+@media (prefers-reduced-motion:reduce){.crt .press b{animation:none}}
+.hero-copy.crt{padding-bottom:clamp(22px,3.2vw,34px)}
+.crt + .home-links{margin-top:clamp(18px,2.6vw,26px)}
+@media (max-width:699px){
+  .crt{border-radius:18px}
+  .crt::after{border-radius:15px}
+  .crt .hero-h{font-size:clamp(1.3rem,6.6vw,1.9rem);line-height:1.25}
+}
 </style>
 <script>try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&!sessionStorage.getItem('zid-intro')&&!location.hash){var h=document.documentElement;h.classList.add('intro-on');sessionStorage.setItem('zid-intro','1');
 /* the intro waits (at most 1.2 s) for its graffiti font and the logo, fetched from here on, so "zid" sprays on in its
@@ -1136,14 +1173,14 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
 <main>
 <section class="hero" id="zid" aria-labelledby="hero-h">
   <div class="decal d-bih" style="--r:-7deg" aria-hidden="true"><b>BIH</b></div>
-  <div class="hero-copy">
-      <p class="eyebrow">ZID · Sarajevo → Mostar</p>
-      <h1 class="hero-h" id="hero-h"><span>Paint the train</span></h1>
-      <p class="hero-en">Paint your way from Bosanski Novi to the Stari Most.</p>
-  </div>
-  <div class="wall-cta">
-      <a class="wall-play" href="#igra" data-play><i class="wp-ico" aria-hidden="true"></i><span class="wp-txt"><b>Play Spray to Mostar</b><small>Free · no sign-up<span class="wp-ph"> · works on your phone</span></small></span></a>
+  <!-- the header is an arcade screen: 1UP and the score to beat along the top, the title, and PRESS START, which opens the game -->
+  <div class="hero-copy crt">
+    <div class="crt-hud"><span class="crt-1up" aria-hidden="true">1UP</span>
       <p class="wall-beat" id="wall-beat" hidden><i class="wb-crown" aria-hidden="true"></i><span class="wb-t"><span class="wb-k" id="wb-k"></span> <span class="wb-v" id="wb-v"></span></span></p>
+    </div>
+    <h1 class="hero-h" id="hero-h"><span>Paint the train</span></h1>
+    <p class="hero-en">Paint your way from Bosanski Novi to the Stari Most.</p>
+    <a class="wall-play press" href="#igra" data-play><b><span aria-hidden="true">▶ </span>Press start</b><span class="sr-only">: play Spray to Mostar.</span><small>Free play · no sign-up</small></a>
   </div>
   <nav class="home-links" aria-label="More">
     <a href="#kako">How to play</a><a href="#tabela">Scores</a><a href="#rjecnik">Words</a><a href="#zakon">Rules</a>
