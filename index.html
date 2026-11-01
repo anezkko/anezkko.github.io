@@ -1077,6 +1077,8 @@ html{font-synthesis:none}
 /* ===== big title, small layout: the name fills the screen, everything under it sits in one narrow, calm column ===== */
 :root{--col:860px}
 .hero-copy .hero-h{font-size:clamp(3.2rem,16.8vw,8rem)}
+/* on a phone the title stays on two lines: every letter is one em, and "PAINT THE" is nine of them */
+@media (max-width:699px){.hero-copy .hero-h{font-size:clamp(1.9rem,9.4vw,2.6rem);line-height:1.2}}
 .hero-copy{padding-top:clamp(26px,5vw,70px);padding-bottom:clamp(14px,2vw,22px)}
 .hero-copy .hero-en{font-size:var(--step-0);color:var(--text-soft);margin-top:clamp(16px,2.4vw,26px)}
 .hero-copy .eyebrow{margin-bottom:clamp(14px,2vw,22px)}
