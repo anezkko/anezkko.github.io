@@ -44,7 +44,7 @@
    space is there from the first paint (same hosts as LIVE in js/core.js) */
 if (!/(^|\.)zidbosna\.com$|^anezkko\.github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname)) document.documentElement.classList.add('demo');
 </script>
-<link rel="preload" href="fonts/jersey-10.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/press-start-2p.woff2" as="font" type="font/woff2" crossorigin>
 <style>
 /* Layout: a black wall of old tags under a magenta glow. Big bold type, neon numbers, stickers pasted on top. One dark world by design. */
 /* fonts: self-hosted (fonts/, OFL), one file each: Latin + Latin Extended + the symbols in use, built by
@@ -55,10 +55,13 @@ if (!/(^|\.)zidbosna\.com$|^anezkko\.github\.io$|^localhost$|^127\.0\.0\.1$/.tes
 @font-face{font-family:"Martian Mono";src:url("fonts/martian-mono.woff2") format("woff2");font-weight:400 600;font-style:normal;font-display:swap}
 @font-face{font-family:"Sedgwick Ave Display";src:url("fonts/sedgwick-ave-display.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
 @font-face{font-family:"Bricolage Fallback";src:local("Arial"),local("Helvetica Neue"),local("Helvetica"),local("Liberation Sans");size-adjust:104.18%;ascent-override:89.27%;descent-override:25.92%;line-gap-override:0%}
-/* the headlines: Jersey 10, a chunky pixel face (SIL OFL, built by _dev/build_fonts.py). Bricolage stays declared for
-   the share pictures drawn on canvas, and only loads when one is made */
+/* the headlines: Press Start 2P, the classic arcade face; Jersey 10, a narrower pixel face, for the game's own cards
+   (both SIL OFL, built by _dev/build_fonts.py). Bricolage stays declared for the share pictures drawn on canvas, and
+   only loads when one is made */
 @font-face{font-family:"Jersey 10";src:url("fonts/jersey-10.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
 @font-face{font-family:"Jersey Fallback";src:local("Arial"),local("Helvetica Neue"),local("Helvetica"),local("Liberation Sans");size-adjust:80.48%;ascent-override:99.85%;descent-override:33.28%;line-gap-override:0.00%}
+@font-face{font-family:"Press Start 2P";src:url("fonts/press-start-2p.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Press Start Fallback";src:local("Courier New"),local("Menlo"),local("Consolas"),local("Liberation Mono");size-adjust:166.64%;ascent-override:60.01%;descent-override:0.00%;line-gap-override:0.00%}
 @font-face{font-family:"Archivo Fallback";src:local("Arial"),local("Helvetica Neue"),local("Helvetica"),local("Liberation Sans");size-adjust:101.92%;ascent-override:86.14%;descent-override:20.60%;line-gap-override:0%}
 @font-face{font-family:"Martian Mono Fallback";src:local("Courier New"),local("Menlo"),local("Consolas"),local("Liberation Mono");size-adjust:116.65%;ascent-override:85.73%;descent-override:17.15%;line-gap-override:0%}
 :root{
@@ -77,7 +80,7 @@ if (!/(^|\.)zidbosna\.com$|^anezkko\.github\.io$|^localhost$|^127\.0\.0\.1$/.tes
   --paper:#F1EEF5; --paper-ink:#131118;
   --st-pink:#FF4DC4; --st-lime:#B4F53A; --st-black:#17151D; --st-violet:#6E2FE0;
   --st-ink-dark:#120F16; --st-ink-light:#F4F1FA;
-  --f-display:"Jersey 10","Jersey Fallback","Helvetica Neue",Arial,sans-serif;
+  --f-display:"Press Start 2P","Press Start Fallback","Courier New",monospace;
   --f-body:"Archivo","Archivo Fallback","Helvetica Neue",Arial,sans-serif;
   --f-tag:"Sedgwick Ave Display","Marker Felt","Segoe Print",cursive;
   /* one motion system: every hover, card and button uses these, so the whole page moves with the same hand */
@@ -1137,18 +1140,22 @@ html:not([data-view="page"]) .site-name{display:none}
 .paint-head .kicker{margin:0}
 .paint-head .sec-lede{margin-inline:auto}
 
-/* ===== the pixel look: Jersey 10 headlines in pink with a stepped yellow 3D shadow, like the owner's reference.
-   One weight only, so the browser never smears a fake bold onto the pixels ===== */
+/* ===== the pixel look: Press Start 2P headlines in yellow with a stepped pink 3D shadow, the owner's pick. The face
+   is wide (every letter is one em), so headings wrap onto more lines, with room above each line for the marks on
+   č ć š ž. One weight only, so the browser never smears a fake bold onto the pixels ===== */
 html{font-synthesis:none}
-.hero-h,.sec h2,.finale h2,.chapter h3,.law h3{text-shadow:.03em .03em 0 #FFD23F,.06em .06em 0 #FFD23F,.09em .09em 0 #E89A16;letter-spacing:.01em}
-.hero-copy .hero-h{font-size:clamp(5rem,26vw,15rem);line-height:.84;text-shadow:.03em .03em 0 #FFD23F,.06em .06em 0 #FFD23F,.09em .09em 0 #E89A16}
-.sec h2,.finale h2{font-size:clamp(3.4rem,1.8rem + 7.6vw,8.4rem);line-height:.86}
-.chapter h3{font-size:clamp(2.1rem,1.6rem + 2.2vw,3.2rem)}
-.law h3{color:var(--pink);font-size:clamp(1.8rem,1.4rem + 1.4vw,2.4rem)}
+/* inside the game the cards keep the narrower Jersey 10, so the game's screens fit as they are */
+.game,.game-wrap{--f-display:"Jersey 10","Jersey Fallback","Helvetica Neue",Arial,sans-serif}
+.hero-h,.sec h2,.finale h2,.chapter h3,.law h3{color:#FFD23F;text-shadow:.04em .04em 0 #FF4DC4,.08em .08em 0 #FF4DC4,.12em .12em 0 #B3207F;letter-spacing:0;line-height:1.18}
+.hero-h > span{white-space:normal}
+.hero-copy .hero-h{font-size:clamp(2.9rem,14.5vw,7.6rem);line-height:1.12;text-transform:uppercase;color:#FFD23F;text-shadow:.04em .04em 0 #FF4DC4,.08em .08em 0 #FF4DC4,.12em .12em 0 #B3207F}
+.sec h2,.finale h2{font-size:clamp(1.8rem,1rem + 4.2vw,4.6rem)}
+.chapter h3{font-size:clamp(1.2rem,.95rem + 1.1vw,1.7rem);line-height:1.3}
+.law h3{font-size:clamp(1rem,.85rem + .6vw,1.3rem);line-height:1.35}
 /* the dictionary words: white with a pink step */
-.st-word{font-size:clamp(3.2rem,2rem + 3.6vw,4.4rem);text-shadow:.04em .04em 0 #FF4DC4,.08em .08em 0 #B3207F;letter-spacing:.02em}
-.wall-cta .wp-txt b{font-size:clamp(1.5rem,1.1rem + 1.4vw,2.1rem);letter-spacing:.04em}
-.home-links a,.tabbar a{letter-spacing:.12em}
+.st-word{font-size:clamp(1.6rem,1.1rem + 2vw,2.4rem);line-height:1.25;color:#F4F0FA;text-shadow:.06em .06em 0 #FF4DC4,.12em .12em 0 #B3207F;letter-spacing:0}
+.wall-cta .wp-txt b{font-size:clamp(.82rem,.7rem + .7vw,1.15rem);line-height:1.5;letter-spacing:0}
+.board-row b,.board-top b{letter-spacing:0}
 </style>
 <script>try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&!sessionStorage.getItem('zid-intro')&&!location.hash){var h=document.documentElement;h.classList.add('intro-on');sessionStorage.setItem('zid-intro','1');
 /* the intro waits (at most 1.2 s) for its graffiti font and the logo, fetched from here on, so "zid" sprays on in its
@@ -1642,8 +1649,8 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
     </li>
     <li class="chapter">
       <h3><span class="en-only">Made with care, free for everyone</span><span class="bs-only" lang="bs">S pažnjom, besplatno za sve</span></h3>
-      <p class="en-only">The game's world is pixel art. The bigger illustrations (the Stari Most finale, the street-law stickers, the zone landmarks and the stećci) were made with Google Gemini, then cut out and fitted to the page. It's all one HTML page with plain CSS and JavaScript, hosted free on GitHub Pages; it works offline and installs as an app. Type: Jersey 10, Archivo, Martian Mono, Sedgwick Ave Display and Bricolage Grotesque, under the SIL Open Font License.</p>
-      <p class="bs-only" lang="bs">Svijet igre je piksel-art. Veće ilustracije (finale sa Starim mostom, naljepnice uličnog zakona, znamenitosti zona i stećci) nastale su uz Google Gemini, a zatim su izrezane i uklopljene u stranicu. Sve je jedna HTML stranica, običan CSS i JavaScript, besplatno na GitHub Pagesu; radi i bez interneta i može se instalirati kao aplikacija. Pisma: Jersey 10, Archivo, Martian Mono, Sedgwick Ave Display i Bricolage Grotesque, pod SIL Open Font License.</p>
+      <p class="en-only">The game's world is pixel art. The bigger illustrations (the Stari Most finale, the street-law stickers, the zone landmarks and the stećci) were made with Google Gemini, then cut out and fitted to the page. It's all one HTML page with plain CSS and JavaScript, hosted free on GitHub Pages; it works offline and installs as an app. Type: Press Start 2P, Jersey 10, Archivo, Martian Mono, Sedgwick Ave Display and Bricolage Grotesque, under the SIL Open Font License.</p>
+      <p class="bs-only" lang="bs">Svijet igre je piksel-art. Veće ilustracije (finale sa Starim mostom, naljepnice uličnog zakona, znamenitosti zona i stećci) nastale su uz Google Gemini, a zatim su izrezane i uklopljene u stranicu. Sve je jedna HTML stranica, običan CSS i JavaScript, besplatno na GitHub Pagesu; radi i bez interneta i može se instalirati kao aplikacija. Pisma: Press Start 2P, Jersey 10, Archivo, Martian Mono, Sedgwick Ave Display i Bricolage Grotesque, pod SIL Open Font License.</p>
     </li>
   </ol>
   <p class="story-sign"><span class="halal-sig">Halal bilo.</span> <a class="about-sig" href="https://www.instagram.com/anezkko/" target="_blank" rel="noopener">@anezkko<span class="sr-only"> on Instagram (opens in a new tab)</span></a></p>

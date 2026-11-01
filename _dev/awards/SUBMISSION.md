@@ -56,7 +56,7 @@ bilingual, culture, history, generative music, Web Audio, canvas, PWA, offline, 
   Gemini, then cut out and fitted to the page
 - **The hero wall:** Anezkko
 - **Music:** Radio ZID, six stations composed in code (Web Audio), with the calm Sumrak fading in on the first tap; no samples, no licensed tracks
-- **Type:** Jersey 10 (The Soft Type Project Authors), Bricolage Grotesque (Mathieu Triay), Archivo (Omnibus-Type), Martian Mono (Evil Martians), Sedgwick Ave Display;
+- **Type:** Press Start 2P (CodeMan38), Jersey 10 (The Soft Type Project Authors), Bricolage Grotesque (Mathieu Triay), Archivo (Omnibus-Type), Martian Mono (Evil Martians), Sedgwick Ave Display;
   all SIL Open Font License
 - **Facts:** 20 memos, each linked to its source (Wikipedia, UNESCO, N1, UN, nobelprize.org, UEFA, Berlinale);
   checked October 2026

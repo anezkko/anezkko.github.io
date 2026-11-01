@@ -9,7 +9,7 @@ font arrives.
 
 Sources: github.com/google/fonts ofl/archivo/Archivo[wdth,wght].ttf, ofl/martianmono/MartianMono[wdth,wght].ttf,
 ofl/sedgwickavedisplay/SedgwickAveDisplay-Regular.ttf, ofl/bricolagegrotesque/BricolageGrotesque[opsz,wdth,wght].ttf,
-ofl/jersey10/Jersey10-Regular.ttf
+ofl/jersey10/Jersey10-Regular.ttf, ofl/pressstart2p/PressStart2P-Regular.ttf
 """
 import io
 import os
@@ -42,6 +42,9 @@ FAMILIES = [
     # the headlines since the pixel look: a chunky pixel face that has every Bosnian letter (č ć đ š ž)
     ('Jersey10-Regular.ttf', 'jersey-10', None,
      ('Jersey Fallback', ['Arial', 'Helvetica Neue', 'Helvetica', 'Liberation Sans'], (2048, 904, 1854, 434, 67))),
+    # the page headlines: the classic arcade face, yellow with a pink pixel shadow (Jersey 10 stays for the game's cards)
+    ('PressStart2P-Regular.ttf', 'press-start-2p', None,
+     ('Press Start Fallback', ['Courier New', 'Menlo', 'Consolas', 'Liberation Mono'], (2048, 1229, 1705, 615, 0))),
 ]
 ONLY = sys.argv[2:]
 
