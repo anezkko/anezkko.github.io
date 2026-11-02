@@ -2386,6 +2386,16 @@ function loadGame() {
   return gameP;
 }
 function watchGame() {
+  /* the start card's buttons are in the page before the game is: pressed early, they wait for it, then go */
+  for (const id of ['btn-start', 'btn-ride']) {
+    const b = document.getElementById(id);
+    if (b) b.addEventListener('click', () => {
+      if (gameReady) return;
+      const box = $('#game-load');
+      if (box) box.classList.add('wanted');
+      loadGame().then(() => { if (box) box.classList.remove('wanted'); b.click(); }, () => {});
+    });
+  }
   const can = $('#game-load .gl-can');
   if (can) can.innerHTML = CAN.markup();
   const retry = $('#game-load-retry');

@@ -37,6 +37,9 @@
 (function () { var l = ''; try { l = JSON.parse(localStorage.getItem('zid.lang') || '""'); } catch (e) {}
   if (l !== 'en' && l !== 'bs') { var n = (navigator.languages && navigator.languages[0]) || navigator.language || ''; l = /^(bs|hr|sr|sh|cnr)\b/i.test(n) ? 'bs' : 'en'; }
   document.documentElement.setAttribute('data-gl', l); })();
+/* touch screens are marked before the first paint too (js/core.js marks them again, and on a first touch), so what
+   only keyboards need is never shown and then taken away */
+if (matchMedia('(pointer: coarse)').matches) document.documentElement.classList.add('coarse');
 /* home or one page: a link to #kako, #tabela, #rjecnik, #zakon or #o-zidu opens that page on its own (js: Nav in core.js) */
 (function () { var h = location.hash.slice(1), r = document.documentElement, pg = /^(kako|tabela|rjecnik|zakon|o-zidu)$/.test(h) ? h : '';
   r.setAttribute('data-view', pg ? 'page' : 'home'); if (pg) r.setAttribute('data-pg', pg); })();
@@ -982,7 +985,6 @@ body{background-color:var(--bg);background-image:radial-gradient(120% 60vh at 50
 }
 
 /* the game, framed like the photos */
-.game{border:0;border-radius:6px;box-shadow:0 0 0 clamp(6px,.9vw,10px) #F4F0FA,0 40px 80px -30px rgba(0,0,0,.95),0 0 70px -20px rgba(255,77,196,.4)}
 /* scoreboard and rules headings in the same voice */
 .law h3{text-transform:uppercase;font-size:clamp(1.4rem,1.1rem + 1vw,1.9rem);line-height:.95}
 
@@ -1048,10 +1050,6 @@ html:not([data-view="page"]) .site-name{display:none}
 /* the score to beat arrives with the scoreboard: its place is kept, so the game below doesn't jump */
 .wall-cta .wall-beat[hidden]{display:flex!important;visibility:hidden}
 
-/* the game in the centre: until the first touch the game box says "Tap to play"; then it loads (js: watchGame) */
-.game-load .gl-w{font-family:var(--f-mono);font-size:.82rem;letter-spacing:.16em;text-transform:uppercase;color:var(--lime)}
-.game-load:not(.loading) .gl-t,.game-load.loading .gl-w,.game-load.failed .gl-w{display:none}
-.game-load:not(.loading){cursor:pointer}
 /* the train to paint, at the bottom of the home screen */
 .paint{padding-top:clamp(56px,8vw,110px)}
 .paint-head{text-align:center;justify-items:center;display:grid;gap:12px;margin-bottom:clamp(26px,3.5vw,40px)}
@@ -1108,41 +1106,32 @@ html{font-synthesis:none}
 /* the coffee button's word: the arcade face runs wide, so it is set small enough to stay on one line */
 .kahva b{font-size:.78rem;line-height:1.5}
 
-/* ===== the header as an arcade screen (the owner's pick from six header options): a CRT with scanlines, 1UP and the
-   score to beat along the top, the title, and a blinking PRESS START that opens the game ===== */
-.crt{position:relative;max-width:var(--col);margin:clamp(12px,2.4vw,26px) auto 0;border-radius:26px;text-align:center;
-  padding:clamp(16px,3vw,34px) clamp(16px,3.4vw,40px) clamp(22px,3.2vw,34px);
-  background:radial-gradient(120% 90% at 50% 40%,#1A1027,#08060C 75%);border:3px solid #2A2236;
-  box-shadow:inset 0 0 60px rgba(139,61,255,.25),0 0 0 8px #120E18,0 0 50px -10px rgba(255,77,196,.5)}
-.crt::after{content:"";position:absolute;inset:0;border-radius:23px;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 2px,transparent 2px 4px)}
-.crt-hud{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:clamp(16px,2.6vw,26px);font:400 clamp(.5rem,1.3vw,.7rem)/1.6 var(--f-display);color:var(--pink);text-align:left}
-.crt-hud .wall-beat{margin:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none;animation:none;display:flex;justify-content:flex-end;text-align:right;color:inherit}
-.crt-hud .wall-beat[hidden]{display:flex!important;visibility:hidden}
-.crt-hud .wb-crown{display:none}
-.crt-hud .wb-t{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:2px 10px}
-.crt-hud .wb-k{font:inherit;letter-spacing:0;color:var(--pink);text-transform:uppercase;white-space:normal}
-.crt-hud .wb-v{gap:8px}
-.crt-hud .wb-n,.crt-hud .wb-s{font:inherit;font-size:1em;letter-spacing:0;padding:0;line-height:inherit}
-.crt-hud .wb-n{color:#F4F0FA}
-.crt-hud .wb-s{color:var(--yellow)}
-.crt .hero-h{font-size:clamp(1.5rem,.9rem + 3vw,4.2rem)}
-.crt .hero-en{font-size:var(--step-0);margin-top:clamp(12px,1.8vw,18px)}
-/* PRESS START: the Play button, in the arcade's own words. It blinks a few times, then stays (and never for reduced motion) */
-.crt .press{display:inline-grid;justify-items:center;gap:10px;margin-top:clamp(18px,2.8vw,28px);padding:10px 16px;border-radius:8px;background:none;box-shadow:none;color:var(--lime);text-decoration:none}
-.crt .press b{font:400 clamp(.8rem,.6rem + 1vw,1.2rem)/1.4 var(--f-display);letter-spacing:0;text-transform:uppercase;text-shadow:0 0 12px rgba(180,245,58,.55);animation:press-blink 1s steps(2) 5}
-.crt .press small{font:600 .6rem var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--text-soft)}
-.crt .press:hover{transform:none;box-shadow:none}
-.crt .press:hover b{color:#F4F0FA}
-.crt .press:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+/* ===== the game's start card is the arcade screen (the owner's pick): scanlines, 1UP and the score to beat along the
+   top, PAINT THE TRAIN, and PRESS START, which starts the run at once. The game box wears an arcade bezel ===== */
+.game{border:3px solid #2A2236;border-radius:18px;box-shadow:0 0 0 clamp(5px,.8vw,8px) #120E18,0 30px 70px -30px rgba(0,0,0,.95),0 0 60px -14px rgba(255,77,196,.55)}
+#ov-start{background:radial-gradient(120% 90% at 50% 40%,rgba(26,16,39,.9),rgba(8,6,12,.95) 75%)}
+#ov-start::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.26) 0 2px,transparent 2px 4px)}
+#ov-start .ov-in{position:static;max-width:640px;gap:clamp(6px,1.3vw,14px)}
+.crt-hud{position:absolute;left:clamp(12px,2.2vw,24px);right:clamp(12px,2.2vw,24px);top:clamp(10px,1.8vw,20px);display:flex;justify-content:space-between;align-items:flex-start;gap:12px;font:400 clamp(7px,1vw,11px)/1.6 "Press Start 2P",monospace;color:var(--pink);text-align:left;z-index:1}
+.crt-hud .beat{margin:0;padding:0;border:0;border-radius:0;background:none;font:inherit;letter-spacing:0;color:var(--yellow);text-transform:uppercase;text-align:right;gap:.6em}
+.crt-hud .beat::before{width:1.2em;height:.9em}
+#ov-start h3{font:400 clamp(17px,4.2vw,50px)/1.25 "Press Start 2P",monospace;color:#FFD23F;text-transform:uppercase;text-shadow:.04em .04em 0 #FF4DC4,.08em .08em 0 #FF4DC4,.12em .12em 0 #B3207F}
+#ov-start .en,#ov-start .bs-only{font-size:clamp(11px,1.3vw,14px);line-height:1.5;color:#C9C3D4;max-width:46ch;margin:0}
+/* PRESS START blinks five times, then stays (never for reduced motion) */
+#ov-start .press{font:400 clamp(11px,1.5vw,16px)/1.4 "Press Start 2P",monospace;text-transform:uppercase;background:none;color:var(--lime);border-radius:8px;padding:.7em .9em;text-shadow:0 0 12px rgba(180,245,58,.55);box-shadow:none;animation:press-blink 1s steps(2) 5}
+#ov-start .press:hover{color:#F4F0FA;background:none}
+#ov-start .press:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+/* the chill ride in the same arcade face as PRESS START: it's already there at the first paint, so nothing reflows */
+#ov-start .ov-btn.alt{font:400 clamp(9px,1.2vw,12px)/1.4 "Press Start 2P",monospace;text-transform:uppercase;padding:.8em 1.1em}
+/* the controls under the game in the mono face, which the first screen already has, so the body font arriving later
+   doesn't make the lines under the game jump */
+.game-wrap .keys{font-family:var(--f-mono);font-size:.72rem;line-height:1.7}
 @keyframes press-blink{50%{opacity:.2}}
-@media (prefers-reduced-motion:reduce){.crt .press b{animation:none}}
-.hero-copy.crt{padding-bottom:clamp(22px,3.2vw,34px)}
-.crt + .home-links{margin-top:clamp(18px,2.6vw,26px)}
-@media (max-width:699px){
-  .crt{border-radius:18px}
-  .crt::after{border-radius:15px}
-  .crt .hero-h{font-size:clamp(1.3rem,6.6vw,1.9rem);line-height:1.25}
-}
+@media (prefers-reduced-motion:reduce){#ov-start .press{animation:none}}
+/* the game box only says it's loading when someone pressed start before the game had arrived */
+.game-load{display:none}
+.game-load.wanted,.game-load.failed{display:grid}
+#igra{padding-top:clamp(18px,3vw,36px)}
 </style>
 <script>try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&!sessionStorage.getItem('zid-intro')&&!location.hash){var h=document.documentElement;h.classList.add('intro-on');sessionStorage.setItem('zid-intro','1');
 /* the intro waits (at most 1.2 s) for its graffiti font and the logo, fetched from here on, so "zid" sprays on in its
@@ -1173,24 +1162,13 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
 <main>
 <section class="hero" id="zid" aria-labelledby="hero-h">
   <div class="decal d-bih" style="--r:-7deg" aria-hidden="true"><b>BIH</b></div>
-  <!-- the header is an arcade screen: 1UP and the score to beat along the top, the title, and PRESS START, which opens the game -->
-  <div class="hero-copy crt">
-    <div class="crt-hud"><span class="crt-1up" aria-hidden="true">1UP</span>
-      <p class="wall-beat" id="wall-beat" hidden><i class="wb-crown" aria-hidden="true"></i><span class="wb-t"><span class="wb-k" id="wb-k"></span> <span class="wb-v" id="wb-v"></span></span></p>
-    </div>
-    <h1 class="hero-h" id="hero-h"><span>Paint the train</span></h1>
-    <p class="hero-en">Paint your way from Bosanski Novi to the Stari Most.</p>
-    <a class="wall-play press" href="#igra" data-play><b><span aria-hidden="true">▶ </span>Press start</b><span class="sr-only">: play Spray to Mostar.</span><small>Free play · no sign-up</small></a>
-  </div>
-  <nav class="home-links" aria-label="More">
-    <a href="#kako">How to play</a><a href="#tabela">Scores</a><a href="#rjecnik">Words</a><a href="#zakon">Rules</a>
-  </nav>
+  <h1 class="sr-only" id="hero-h">ZID: paint the train</h1>
 </section>
 
 <section class="sec" id="igra" aria-labelledby="igra-h">
   <div class="sec-head">
     <div>
-      <p class="kicker" data-en="Game · 5 zones · about 4 minutes">Igra · 5 zona · oko 4 minute</p>
+      <p class="kicker"><span class="bs-only" lang="bs">Igra · 5 zona · oko 4 minute</span><span class="en-only" lang="en">Game · 5 zones · about 4 minutes</span></p>
       <h2 id="igra-h" data-en="Spray to Mostar">Sprej do Mostara</h2>
       <div class="seg lang-sw" role="group" aria-label="Game language"><button type="button" data-gl-btn="en" aria-pressed="false" lang="en">English</button><button type="button" data-gl-btn="bs" aria-pressed="false" lang="bs">Bosanski</button></div>
     </div>
@@ -1199,7 +1177,7 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
 
   <div class="game-wrap" id="game-wrap">
     <div class="game" id="game">
-      <div class="game-load" id="game-load" role="status"><span class="gl-can" aria-hidden="true"></span><span class="gl-w" data-en="Tap to play">Dodirni i igraj</span><span class="gl-t" data-en="Loading the game…">Učitavam igru…</span><span class="gl-f" data-en="The game didn't load.">Igra se nije učitala.</span><button type="button" class="gl-retry" id="game-load-retry" data-en="Try again">Probaj opet</button></div>
+      <div class="game-load" id="game-load" role="status"><span class="gl-can" aria-hidden="true"></span><span class="gl-t" data-en="Loading the game…">Učitavam igru…</span><span class="gl-f" data-en="The game didn't load.">Igra se nije učitala.</span><button type="button" class="gl-retry" id="game-load-retry" data-en="Try again">Probaj opet</button></div>
       <canvas id="game-canvas" role="img" aria-label="Sprej do Mostara game screen" data-en-aria="Spray to Mostar game screen"></canvas>
       <div class="hud" id="hud" hidden>
         <div class="hud-zone"><span id="hud-zone">1/5 Bosanski Novi</span><div class="hud-bar"><i id="hud-prog"></i></div></div>
@@ -1217,16 +1195,15 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
         <button class="pause-btn" id="btn-pause" type="button" hidden data-en="Pause">Pauza</button>
       </div>
 
-      <div class="ov" id="ov-start" role="dialog" aria-labelledby="ov-start-h">
+      <!-- the start card carries both languages and the page shows one before the first paint, so nothing jumps when the script arrives -->
+      <div class="ov arcade" id="ov-start" role="dialog" aria-labelledby="ov-start-h">
         <div class="ov-in">
-          <p class="k" data-en="Game · Bosanski Novi → Mostar">Igra · Bosanski Novi → Mostar</p>
-          <h3 id="ov-start-h" data-en="Spray to Mostar">Sprej do Mostara</h3>
-          <p class="tag">polahko? jok.<span class="gloss en-only">take it easy? nope.</span></p>
-          <p class="bs-only">Trči od Bosanskog Novog do Starog mosta. Spreji beton, ne diraj staro, i na kraju skoči.</p>
-          <p class="en">Run to the Old Bridge. Paint concrete, leave heritage alone, then dive.</p>
-          <p class="beat" id="s-beat" hidden></p>
-          <div class="ov-btns"><button class="ov-btn" id="btn-start" type="button" data-en="Start">Kreni</button><button class="ov-btn alt" id="btn-ride" type="button" data-en="Chill ride: Bihać">Mirna vožnja: Bihać</button></div>
-          <p class="k" data-en="Space / ↑ to jump · hold the mouse on a wall or F to spray">Space / ↑ skok · drži miš na zidu ili F za sprej</p>
+          <div class="crt-hud"><span class="crt-1up" aria-hidden="true">1UP</span><p class="beat" id="s-beat" hidden></p></div>
+          <h3 id="ov-start-h"><span class="bs-only" lang="bs">Ofarbaj voz</span><span class="en-only" lang="en">Paint the train</span></h3>
+          <p class="bs-only">Od Bosanskog Novog do Starog mosta. Spreji beton, ne diraj staro, i na kraju skoči.</p>
+          <p class="en">Bosanski Novi to the Stari Most. Paint concrete, leave heritage alone, then dive.</p>
+          <div class="ov-btns"><button class="ov-btn press" id="btn-start" type="button"><span class="bs-only" lang="bs">▶ Kreni</span><span class="en-only" lang="en">▶ Press start</span></button><button class="ov-btn alt" id="btn-ride" type="button"><span class="bs-only" lang="bs">Mirna vožnja: Bihać</span><span class="en-only" lang="en">Chill ride: Bihać</span></button></div>
+          <p class="k"><span class="bs-only" lang="bs">Besplatno · bez registracije · Space / ↑ skok · drži F za sprej</span><span class="en-only" lang="en">Free play · no sign-up · Space / ↑ to jump · hold F to spray</span></p>
         </div>
       </div>
 
@@ -1357,6 +1334,9 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
     </ul>
     <p class="best"><span data-en="Best in this browser:">Najbolji rezultat u ovom pregledniku:</span> <b id="best-score">0</b> <span id="best-rank"></span></p>
   </div>
+  <nav class="home-links" aria-label="More">
+    <a href="#kako">How to play</a><a href="#tabela">Scores</a><a href="#rjecnik">Words</a><a href="#zakon">Rules</a>
+  </nav>
 
 </section>
 

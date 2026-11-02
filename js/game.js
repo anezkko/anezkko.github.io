@@ -1594,8 +1594,14 @@ const Game = (() => {
     markPassed();
     document.dispatchEvent(new CustomEvent('zid:start'));
     setupZone(0);
-    /* first run: pick a writer (when there is more than one). After that the zone card's round button changes it. */
-    if (CREW_IDS.length < 2 || Store.get('char', '')) showCard(); else openPick('start');
+    /* Press start and the run begins: no writer pick and no card for zone 1 (the owner's call). The writer is the last
+       one picked, or the first; the round button on the later zone cards changes it. The zone is set up as its card
+       would set it up, without opening the card, so nothing moves focus away from the game afterwards. */
+    cardText();
+    state = 'card';
+    hud.hidden = false;
+    drawWho();
+    beginZone();
     if (!frameInView()) frame.scrollIntoView({ block: 'center', behavior: REDUCED ? 'auto' : 'smooth' });
   }
   /* a run pauses, with the usual pause card, when the frame is scrolled mostly out of view: nothing runs unseen */
