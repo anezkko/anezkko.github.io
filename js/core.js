@@ -1939,11 +1939,14 @@ const Hero = (() => {
       }
     }
 
+    /* the all-time best ride on the train (see the train's red wagon) */
+    const fame = (top) => document.dispatchEvent(new CustomEvent('zid:fame', { detail: top.slice(0, 3) }));
     async function fetchBoard(which) {
       if (DEMO) {
         const data = exampleBoard(which);
         cache[which] = { t: Date.now(), data };
         if (which === 'week') Rivals.set(data.top);
+        if (which === 'all') fame(data.top);
         if (board === which) render(data, which);
         return data;
       }
@@ -1954,6 +1957,7 @@ const Hero = (() => {
       if (!data || !data.ok || !Array.isArray(data.top)) throw new Error('bad reply');
       cache[which] = { t: Date.now(), data };
       if (which === 'week') Rivals.set(data.top);
+      if (which === 'all') fame(data.top);
       if (board === which) render(data, which);
       return data;
     }
@@ -2071,6 +2075,8 @@ const Hero = (() => {
           delete cache.week; delete cache.all;
           load(board);
           if (board !== 'week') fetchBoard('week').catch(() => {});
+          /* a new all-time top three: the train's red wagon gets repainted with it */
+          if (board !== 'all' && data.posAll && data.posAll <= 3) fetchBoard('all').catch(() => {});
         } else {
           const why = {
             'bad-name': L('To ime ne može. Probaj drugo.', 'That name isn\u2019t allowed. Try another.'),
@@ -2134,6 +2140,9 @@ const Hero = (() => {
       Lang.on(() => { const c = cache[board]; if (c) render(c.data, board); else load(board); placeText(); exampleNote(); });
       wallBeat();
       load('week');
+      /* the all-time board, for the train's red wagon: asked for once the page has loaded, so it never slows the start */
+      const later = () => setTimeout(() => fetchBoard('all').catch(() => {}), 600);
+      if (document.readyState === 'complete') later(); else addEventListener('load', later, { once: true });
     }
     return { init };
   })();
@@ -2558,6 +2567,57 @@ document.addEventListener('click', (e) => {
   } else loaded.then(begin);
   /* a new size: a standing train keeps its place */
   if ('ResizeObserver' in window) new ResizeObserver(() => { if (state === 'stopped' && REDUCED) place(stopX()); }).observe(wall);
+})();
+
+/* ===== the all-time top three, painted on the train =====
+   The red wagon at the back of the train carries the all-time best as tags: #1 big with a crown on its left panel,
+   #2 and #3 on the right. They're painted when the all-time board answers (after the page has loaded); with no
+   scores, or no answer, the wagon stays plain. The scoreboard page lists the same names for screen readers. */
+(() => {
+  const car = $('#train .car.spare');
+  if (!car) return;
+  const NS = 'http://www.w3.org/2000/svg';
+  const add = (tag, attrs, parent, text) => {
+    const el = document.createElementNS(NS, tag);
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    if (text !== undefined) el.textContent = text;
+    parent.appendChild(el);
+    return el;
+  };
+  /* drawn in the wagon picture's own pixels (1600 × 426), so it scales with the train */
+  const svg = add('svg', { class: 'fame', viewBox: '0 0 1600 426', 'aria-hidden': 'true', focusable: 'false' }, car);
+  const defs = add('defs', {}, svg);
+  const f = add('filter', { id: 'fm-spray', x: '-20%', y: '-40%', width: '140%', height: '180%' }, defs);
+  add('feGaussianBlur', { in: 'SourceGraphic', stdDeviation: '5', result: 'b' }, f);   /* the soft overspray round a sprayed letter */
+  const mg = add('feMerge', {}, f);
+  add('feMergeNode', { in: 'b' }, mg); add('feMergeNode', { in: 'SourceGraphic' }, mg);
+  let top = [];
+  /* a name too long for its panel is squeezed in, the way a writer squeezes a tag into a gap */
+  const fit = (t, max) => { try { if (t.getComputedTextLength() > max) { t.setAttribute('textLength', max); t.setAttribute('lengthAdjust', 'spacingAndGlyphs'); } } catch (_) { /* not laid out yet */ } };
+  /* one tag: a name in spray letters, tilted a little, its score in pixels underneath */
+  function tag(r, i, x, y, size, colour, tilt, max) {
+    const g = add('g', { class: 'fm-t', transform: `rotate(${tilt} ${x} ${y})`, filter: 'url(#fm-spray)' }, svg);
+    add('text', { class: 'fm-p', x: x - max / 2 - 8, y: y - size * 0.62 }, g, `#${i + 1}`);
+    fit(add('text', { class: 'fm-n', x, y, 'font-size': size, fill: colour }, g, r.name), max);
+    add('text', { class: 'fm-s', x, y: y + size * 0.5, 'font-size': Math.round(size * 0.3) }, g, String(r.total));
+  }
+  function paint() {
+    svg.querySelectorAll('.fm-t,.fm-k,.fm-c').forEach((el) => el.remove());
+    if (!top.length) return;
+    add('text', { class: 'fm-k', x: 372, y: 84 }, svg, L('SVIH VREMENA', 'ALL TIME'));
+    /* the crown over #1, the one from the Z logo */
+    add('path', { class: 'fm-c', d: 'M340 150 L334 112 L354 130 L372 104 L390 130 L410 112 L404 150 Z' }, svg);
+    tag(top[0], 0, 372, 240, 106, '#FFD23F', -5, 320);
+    if (top[1]) tag(top[1], 1, 1235, 152, 64, '#B4F53A', -3, 270);
+    if (top[2]) tag(top[2], 2, 1235, 262, 58, '#FF4DC4', -4, 270);
+  }
+  document.addEventListener('zid:fame', (e) => {
+    top = (e.detail || []).filter((r) => r && r.name);
+    /* the spray letters measure right only once their font is here */
+    const font = document.fonts && document.fonts.load ? document.fonts.load('64px "Sedgwick Ave Display"') : Promise.resolve();
+    font.then(paint, paint);
+  });
+  Lang.on(paint);
 })();
 
 /* ===== play fullscreen (phones) =====

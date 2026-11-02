@@ -207,6 +207,14 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .car.loco{height:102.8%}                                  /* the locomotive art is that much taller than the wagon */
 .car picture,.car img{display:block;height:100%;width:auto;aspect-ratio:1600/426}   /* the box is kept before the picture arrives */
 .car.loco picture,.car.loco img{aspect-ratio:1591/438}
+/* the all-time top three ride on the red wagon as tags (js: the train's top three) */
+.fame{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.fame text{text-anchor:middle;paint-order:stroke;stroke:#0B0A0F;stroke-linejoin:round}
+.fame .fm-n{font-family:var(--f-tag);stroke-width:9px}
+.fame .fm-s{font-family:var(--f-display);fill:#F4F0E6;stroke-width:6px}
+.fame .fm-p{font-family:var(--f-display);font-size:22px;fill:#F4F0E6;stroke-width:6px;text-anchor:start}
+.fame .fm-k{font-family:var(--f-mono);font-size:19px;letter-spacing:.16em;fill:#F4F0E6;stroke-width:5px;opacity:.85}
+.fame .fm-c{fill:#B4F53A;stroke:#0B0A0F;stroke-width:5px;stroke-linejoin:round}
 .canvas-car{pointer-events:auto}
 /* the paint only shows on the wagon itself, never on the sky between its wheels */
 .canvas-car canvas{-webkit-mask:url("img/train/wagon-mask.png") 0 0/100% 100% no-repeat;mask:url("img/train/wagon-mask.png") 0 0/100% 100% no-repeat}
