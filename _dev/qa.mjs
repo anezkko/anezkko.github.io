@@ -88,16 +88,15 @@ for (const w of [360, 390, 768, 1440, 2560]) {
   row('Social card tags and image', !miss.length && img === 200, miss.length ? 'missing ' + miss.join(', ') : `${og['og:title']} · image ${img}`);
   await ctx.close();
 }
-// 6 · keyboard: Tab to Start, Enter, the zone card's button, Enter: a run has the keys
+// 6 · keyboard: Tab to Start (PRESS START), Enter: the run begins at once and has the keys
 {
   const { ctx, p } = await open(U + '#igra', { viewport: { width: 1280, height: 860 } });
   await p.waitForFunction(() => document.documentElement.classList.contains('game-ready'));
   let i = 0; for (; i < 120; i++) { await p.keyboard.press('Tab'); if (await p.evaluate(() => document.activeElement.id === 'btn-start')) break; }
-  await p.keyboard.press('Enter'); await p.waitForTimeout(700);
+  await p.keyboard.press('Enter'); await p.waitForTimeout(900);
   const z = await p.evaluate(() => document.activeElement.id);
-  await p.keyboard.press('Enter'); await p.waitForTimeout(600);
   const run = await p.evaluate(() => document.activeElement.id === 'game' && document.getElementById('game').classList.contains('playing'));
-  row('Keyboard only: Tab → Start → zone card → run', z === 'btn-zone' && run, `Start after ${i + 1} Tabs; then ${z}`);
+  row('Keyboard only: Tab → Press start → run', run, `Start after ${i + 1} Tabs; then ${z}`);
   await ctx.close();
 }
 await b.close();
