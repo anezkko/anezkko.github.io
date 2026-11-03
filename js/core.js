@@ -2586,30 +2586,57 @@ document.addEventListener('click', (e) => {
   };
   /* drawn in the wagon picture's own pixels (1600 × 426), so it scales with the train */
   const svg = add('svg', { class: 'fame', viewBox: '0 0 1600 426', 'aria-hidden': 'true', focusable: 'false' }, car);
+  /* real spray paint on an old wagon: letter edges a little rough, a soft haze of overspray round them, and the paint
+     worn through in patches where the wagon's rust shows. The layer is blended onto the picture (hard-light, in the
+     page CSS) so the metal's texture and the dusk light come through the colour. */
   const defs = add('defs', {}, svg);
-  const f = add('filter', { id: 'fm-spray', x: '-20%', y: '-40%', width: '140%', height: '180%' }, defs);
-  add('feGaussianBlur', { in: 'SourceGraphic', stdDeviation: '5', result: 'b' }, f);   /* the soft overspray round a sprayed letter */
-  const mg = add('feMerge', {}, f);
-  add('feMergeNode', { in: 'b' }, mg); add('feMergeNode', { in: 'SourceGraphic' }, mg);
+  const f = add('filter', { id: 'fm-spray', x: '-5%', y: '-10%', width: '110%', height: '120%' }, defs);
+  add('feTurbulence', { type: 'fractalNoise', baseFrequency: '0.7', numOctaves: '2', seed: '7', result: 'grain' }, f);
+  add('feDisplacementMap', { in: 'SourceGraphic', in2: 'grain', scale: '3.5', xChannelSelector: 'R', yChannelSelector: 'G', result: 'rough' }, f);
+  add('feGaussianBlur', { in: 'rough', stdDeviation: '5', result: 'haze' }, f);
+  const ct = add('feComponentTransfer', { in: 'haze', result: 'mist' }, f);
+  add('feFuncA', { type: 'linear', slope: '0.4' }, ct);
+  const mg = add('feMerge', { result: 'paint' }, f);
+  add('feMergeNode', { in: 'mist' }, mg); add('feMergeNode', { in: 'rough' }, mg);
+  add('feTurbulence', { type: 'fractalNoise', baseFrequency: '0.025 0.06', numOctaves: '3', seed: '3', result: 'wear' }, f);
+  add('feColorMatrix', { in: 'wear', type: 'matrix', values: '0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -6 0 0 0 4.5', result: 'kept' }, f);
+  add('feComposite', { in: 'paint', in2: 'kept', operator: 'in' }, f);
+  /* the scores keep the rough edge and the haze but aren't worn through, so the numbers always read */
+  const fl = add('filter', { id: 'fm-num', x: '-5%', y: '-10%', width: '110%', height: '120%' }, defs);
+  add('feTurbulence', { type: 'fractalNoise', baseFrequency: '0.7', numOctaves: '2', seed: '7', result: 'grain' }, fl);
+  add('feDisplacementMap', { in: 'SourceGraphic', in2: 'grain', scale: '2.5', xChannelSelector: 'R', yChannelSelector: 'G' }, fl);
+  const layer = add('g', { filter: 'url(#fm-spray)' }, svg), nums = add('g', { filter: 'url(#fm-num)' }, svg);
   let top = [];
   /* a name too long for its panel is squeezed in, the way a writer squeezes a tag into a gap */
   const fit = (t, max) => { try { if (t.getComputedTextLength() > max) { t.setAttribute('textLength', max); t.setAttribute('lengthAdjust', 'spacingAndGlyphs'); } } catch (_) { /* not laid out yet */ } };
-  /* one tag: a name in spray letters, tilted a little, its score in pixels underneath */
-  function tag(r, i, x, y, size, colour, tilt, max) {
-    const g = add('g', { class: 'fm-t', transform: `rotate(${tilt} ${x} ${y})`, filter: 'url(#fm-spray)' }, svg);
-    add('text', { class: 'fm-p', x: x - max / 2 - 8, y: y - size * 0.62 }, g, `#${i + 1}`);
-    fit(add('text', { class: 'fm-n', x, y, 'font-size': size, fill: colour }, g, r.name), max);
-    add('text', { class: 'fm-s', x, y: y + size * 0.5, 'font-size': Math.round(size * 0.3) }, g, String(r.total));
+  /* a few runs of paint under a name; where they fall comes from the name, so a tag keeps its drips */
+  function drips(g, name, x, y, size, max, colour) {
+    let h = 7;
+    for (const ch of name) h = (h * 31 + ch.codePointAt(0)) >>> 0;
+    for (let k = 0; k < 3; k++) {
+      h = (h * 1103515245 + 12345) >>> 0;
+      const dx = x + ((h % 1000) / 1000 - 0.5) * max * 0.8, len = size * (0.15 + ((h >>> 10) % 100) / 300), w = Math.max(3, size * 0.05);
+      add('line', { x1: dx, y1: y - size * 0.05, x2: dx, y2: y + len, stroke: colour, 'stroke-width': w, 'stroke-linecap': 'round' }, g);
+      add('circle', { cx: dx, cy: y + len, r: w * 0.85, fill: colour }, g);
+    }
+  }
+  /* one tag: a name in spray letters with a darker outline, tilted a little, a few drips, its score underneath */
+  function tag(r, i, x, y, size, colour, line, tilt, max) {
+    const g = add('g', { transform: `rotate(${tilt} ${x} ${y})` }, layer);
+    add('text', { class: 'fm-p', x: x - max / 2 - 6, y: y - size * 0.6 }, g, `#${i + 1}`);
+    drips(g, r.name, x, y, size, max, colour);
+    fit(add('text', { class: 'fm-n', x, y, 'font-size': size, fill: colour, stroke: line }, g, r.name), max);
+    add('text', { class: 'fm-s', x: x + max * 0.12, y: y + size * 0.62, 'font-size': Math.round(size * 0.3), transform: `rotate(${tilt} ${x} ${y})` }, nums, String(r.total));
   }
   function paint() {
-    svg.querySelectorAll('.fm-t,.fm-k,.fm-c').forEach((el) => el.remove());
+    layer.textContent = ''; nums.textContent = '';
     if (!top.length) return;
-    add('text', { class: 'fm-k', x: 372, y: 84 }, svg, L('SVIH VREMENA', 'ALL TIME'));
+    add('text', { class: 'fm-k', x: 372, y: 84 }, layer, L('SVIH VREMENA', 'ALL TIME'));
     /* the crown over #1, the one from the Z logo */
-    add('path', { class: 'fm-c', d: 'M340 150 L334 112 L354 130 L372 104 L390 130 L410 112 L404 150 Z' }, svg);
-    tag(top[0], 0, 372, 240, 106, '#FFD23F', -5, 320);
-    if (top[1]) tag(top[1], 1, 1235, 152, 64, '#B4F53A', -3, 270);
-    if (top[2]) tag(top[2], 2, 1235, 262, 58, '#FF4DC4', -4, 270);
+    add('path', { class: 'fm-c', d: 'M340 150 L334 112 L354 130 L372 104 L390 130 L410 112 L404 150 Z' }, layer);
+    tag(top[0], 0, 372, 236, 106, '#FFD23F', '#B3207F', -5, 320);
+    if (top[1]) tag(top[1], 1, 1235, 150, 66, '#B4F53A', '#2F5A12', -3, 270);
+    if (top[2]) tag(top[2], 2, 1235, 258, 60, '#FF4DC4', '#5A1FB0', -4, 270);
   }
   document.addEventListener('zid:fame', (e) => {
     top = (e.detail || []).filter((r) => r && r.name);
