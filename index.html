@@ -208,13 +208,11 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .car picture,.car img{display:block;height:100%;width:auto;aspect-ratio:1600/426}   /* the box is kept before the picture arrives */
 .car.loco picture,.car.loco img{aspect-ratio:1591/438}
 /* the all-time top three ride on the red wagon as tags (js: the train's top three) */
-.fame{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;mix-blend-mode:hard-light;opacity:.9}
-.fame text{text-anchor:middle;stroke-linejoin:round}
-.fame .fm-n{font-family:var(--f-tag);paint-order:stroke;stroke-width:5px}
-.fame .fm-s{font-family:var(--f-mono);font-weight:600;letter-spacing:.06em;fill:#F4F0E6}
-.fame .fm-p{font-family:var(--f-tag);font-size:30px;fill:#F4F0E6;text-anchor:start}
-.fame .fm-k{font-family:var(--f-mono);font-size:19px;letter-spacing:.2em;fill:#F4F0E6;opacity:.8}
-.fame .fm-c{fill:#B4F53A}
+.fame{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;opacity:.93}
+.fame text{text-anchor:middle}
+.fame .fm-b{font-family:"Bricolage Grotesque","Bricolage Fallback","Arial Black",sans-serif;font-weight:800;letter-spacing:.01em;paint-order:stroke;stroke-linejoin:round;stroke-linecap:round}
+.fame .fm-s{font-family:"Bricolage Grotesque","Bricolage Fallback","Arial Black",sans-serif;font-weight:800}
+.fame .fm-k{font-family:"Bricolage Grotesque","Bricolage Fallback","Arial Black",sans-serif;font-weight:800;font-size:40px;letter-spacing:.02em;fill:#F4F0E6}
 .canvas-car{pointer-events:auto}
 /* the paint only shows on the wagon itself, never on the sky between its wheels */
 .canvas-car canvas{-webkit-mask:url("img/train/wagon-mask.png") 0 0/100% 100% no-repeat;mask:url("img/train/wagon-mask.png") 0 0/100% 100% no-repeat}
