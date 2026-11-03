@@ -1939,11 +1939,14 @@ const Hero = (() => {
       }
     }
 
+    /* the all-time best ride on the train (see the train's red wagon) */
+    const fame = (top) => document.dispatchEvent(new CustomEvent('zid:fame', { detail: top.slice(0, 3) }));
     async function fetchBoard(which) {
       if (DEMO) {
         const data = exampleBoard(which);
         cache[which] = { t: Date.now(), data };
         if (which === 'week') Rivals.set(data.top);
+        if (which === 'all') fame(data.top);
         if (board === which) render(data, which);
         return data;
       }
@@ -1954,6 +1957,7 @@ const Hero = (() => {
       if (!data || !data.ok || !Array.isArray(data.top)) throw new Error('bad reply');
       cache[which] = { t: Date.now(), data };
       if (which === 'week') Rivals.set(data.top);
+      if (which === 'all') fame(data.top);
       if (board === which) render(data, which);
       return data;
     }
@@ -2071,6 +2075,8 @@ const Hero = (() => {
           delete cache.week; delete cache.all;
           load(board);
           if (board !== 'week') fetchBoard('week').catch(() => {});
+          /* a new all-time top three: the train's red wagon gets repainted with it */
+          if (board !== 'all' && data.posAll && data.posAll <= 3) fetchBoard('all').catch(() => {});
         } else {
           const why = {
             'bad-name': L('To ime ne može. Probaj drugo.', 'That name isn\u2019t allowed. Try another.'),
@@ -2134,6 +2140,9 @@ const Hero = (() => {
       Lang.on(() => { const c = cache[board]; if (c) render(c.data, board); else load(board); placeText(); exampleNote(); });
       wallBeat();
       load('week');
+      /* the all-time board, for the train's red wagon: asked for once the page has loaded, so it never slows the start */
+      const later = () => setTimeout(() => fetchBoard('all').catch(() => {}), 600);
+      if (document.readyState === 'complete') later(); else addEventListener('load', later, { once: true });
     }
     return { init };
   })();
@@ -2558,6 +2567,124 @@ document.addEventListener('click', (e) => {
   } else loaded.then(begin);
   /* a new size: a standing train keeps its place */
   if ('ResizeObserver' in window) new ResizeObserver(() => { if (state === 'stopped' && REDUCED) place(stopX()); }).observe(wall);
+})();
+
+/* ===== the all-time top three, painted on the train =====
+   The red wagon at the back of the train carries the all-time best as tags: #1 big with a crown on its left panel,
+   #2 and #3 on the right. They're painted when the all-time board answers (after the page has loaded); with no
+   scores, or no answer, the wagon stays plain. The scoreboard page lists the same names for screen readers. */
+(() => {
+  const car = $('#train .car.spare');
+  if (!car) return;
+  const NS = 'http://www.w3.org/2000/svg';
+  const add = (tag, attrs, parent, text) => {
+    const el = document.createElementNS(NS, tag);
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    if (text !== undefined) el.textContent = text;
+    parent.appendChild(el);
+    return el;
+  };
+  /* drawn in the wagon picture's own pixels (1600 × 426), so it scales with the train */
+  const svg = add('svg', { class: 'fame', viewBox: '0 0 1600 426', 'aria-hidden': 'true', focusable: 'false' }, car);
+  /* bubble letters, sprayed: fat round letters with a dark outline and a 3D shadow, a shine on each letter, drips and
+     splatter, and over it all a fine haze of overspray and the grain paint gets on old metal */
+  const defs = add('defs', {}, svg);
+  const f = add('filter', { id: 'fm-spray', x: '-5%', y: '-10%', width: '110%', height: '120%' }, defs);
+  add('feTurbulence', { type: 'fractalNoise', baseFrequency: '0.7', numOctaves: '2', seed: '7', result: 'grain' }, f);
+  add('feDisplacementMap', { in: 'SourceGraphic', in2: 'grain', scale: '2', xChannelSelector: 'R', yChannelSelector: 'G', result: 'rough' }, f);
+  add('feGaussianBlur', { in: 'rough', stdDeviation: '4', result: 'haze' }, f);
+  const ct = add('feComponentTransfer', { in: 'haze', result: 'mist' }, f);
+  add('feFuncA', { type: 'linear', slope: '0.4' }, ct);
+  const mg = add('feMerge', { result: 'paint' }, f);
+  add('feMergeNode', { in: 'mist' }, mg); add('feMergeNode', { in: 'rough' }, mg);
+  add('feTurbulence', { type: 'fractalNoise', baseFrequency: '0.5', numOctaves: '2', seed: '11', result: 'n' }, f);
+  add('feColorMatrix', { in: 'n', type: 'matrix', values: '1 0 0 0 0  1 0 0 0 0  1 0 0 0 0  0 0 0 0 1', result: 'tone' }, f);
+  add('feComposite', { in: 'paint', in2: 'tone', operator: 'arithmetic', k1: '0.35', k2: '0.83', k3: '0', k4: '0' }, f);
+  /* each colour fades from a lighter top to a deeper bottom, like a fill done in two cans */
+  const grad = (id, stops) => {
+    const g = add('linearGradient', { id, x1: '0', y1: '0', x2: '0', y2: '1' }, defs);
+    stops.forEach(([o, c]) => add('stop', { offset: o, 'stop-color': c }, g));
+  };
+  grad('fm-y', [[0, '#FFE98A'], [0.45, '#FFC83A'], [1, '#F0951C']]);
+  grad('fm-l', [[0, '#DDFF8C'], [0.45, '#A8EE34'], [1, '#69BC1C']]);
+  grad('fm-p', [[0, '#FFA6E4'], [0.45, '#FF4DC4'], [1, '#D0249C']]);
+  const layer = add('g', { filter: 'url(#fm-spray)' }, svg);
+  let top = [];
+  /* a deterministic little random from a name, so a tag always gets the same drips and splatter */
+  const rnd = (name) => {
+    let h = 7;
+    for (const ch of name) h = (h * 31 + ch.codePointAt(0)) >>> 0;
+    return () => { h = (h * 1103515245 + 12345) >>> 0; return (h >>> 8) / 16777216; };
+  };
+  /* the same word drawn in several layers (shadow, outline, fill); a name too long for its panel is squeezed in,
+     the way a writer squeezes a piece into a gap, and every layer is squeezed the same */
+  function word(g, str, small, x, y, size, attrs) {
+    const t = add('text', { class: 'fm-b', x, y, 'font-size': size, ...attrs }, g);
+    if (small) { add('tspan', { 'font-size': Math.round(size * 0.55) }, t, small); add('tspan', { dx: size * 0.1 }, t, str); } else t.textContent = str;
+    return t;
+  }
+  function squeeze(ts, max) {
+    try {
+      const w = ts[0].getComputedTextLength();
+      if (w > max) ts.forEach((t) => { t.setAttribute('textLength', max); t.setAttribute('lengthAdjust', 'spacingAndGlyphs'); });
+    } catch (_) { /* not laid out yet */ }
+  }
+  /* one piece: "#n NAME" in bubble letters, tilted up a little, with its score sprayed nearby */
+  function piece(r, i, o) {
+    const { x, y, size, fill, line, deep, max, tilt, sx, sy, ss, sc } = o;
+    const g = add('g', { transform: `rotate(${tilt} ${x} ${y})` }, layer);
+    const ow = size * 0.17, d = size * 0.05, hash = `#${i + 1}`, rand = rnd(r.name), name = r.name.toUpperCase();   /* bubble letters are capitals */
+    /* splatter round the piece, in its own colour */
+    for (let k = 0; k < 14; k++) add('circle', { cx: x + (rand() - 0.5) * max * 1.15, cy: y - size * (0.2 + rand() * 0.9), r: 1 + rand() * 3.5, fill: line, opacity: 0.7 }, g);
+    const ts = [
+      word(g, name, hash, x + d, y + d * 1.2, size, { fill: deep, stroke: deep, 'stroke-width': ow }),
+      word(g, name, hash, x, y, size, { fill: line, stroke: line, 'stroke-width': ow }),
+      word(g, name, hash, x, y, size, { fill: `url(#${fill})`, stroke: `url(#${fill})`, 'stroke-width': size * 0.05 }),
+    ];
+    squeeze(ts, max);
+    /* drips off the bottom of the letters, in the outline colour */
+    let bb;
+    try { bb = ts[1].getBBox(); } catch (_) { bb = { x: x - max / 2, width: max }; }
+    for (let k = 0; k < 4; k++) {
+      const dx = bb.x + bb.width * (0.2 + 0.75 * rand()), len = size * (0.12 + rand() * 0.38), w = size * (0.03 + rand() * 0.02);
+      add('line', { x1: dx, y1: y, x2: dx, y2: y + len, stroke: line, 'stroke-width': w, 'stroke-linecap': 'round' }, g);
+      add('circle', { cx: dx, cy: y + len, r: w * 0.85, fill: line }, g);
+    }
+    /* a shine on the top left of each letter of the name */
+    try {
+      const t = ts[2], n = t.getNumberOfChars(), skip = hash.length;
+      for (let c = skip; c < n; c++) {
+        const e = t.getExtentOfChar(c);
+        if (e.width < size * 0.15) continue;   /* spaces and thin marks */
+        add('ellipse', { cx: e.x + e.width * 0.32, cy: e.y + e.height * 0.36, rx: size * 0.055, ry: size * 0.022, fill: '#FFFFFF', opacity: 0.75, transform: `rotate(-35 ${e.x + e.width * 0.32} ${e.y + e.height * 0.36})` }, g);
+      }
+    } catch (_) { /* no glyph boxes: no shine */ }
+    /* the score, sprayed plainer and a little crooked */
+    add('text', { class: 'fm-s', x: sx, y: sy, 'font-size': ss, fill: sc, transform: `rotate(-3 ${sx} ${sy})` }, layer, String(r.total));
+  }
+  function paint() {
+    layer.textContent = '';
+    if (!top.length) return;
+    /* the label, in white tag letters with a couple of runs */
+    add('text', { class: 'fm-k', x: 300, y: 118, transform: 'rotate(-3 300 118)' }, layer, L('SVIH VREMENA', 'ALL TIME'));
+    for (const dx of [246, 304, 350]) add('line', { x1: dx, y1: 116, x2: dx, y2: 116 + 14 + (dx % 13), stroke: '#F4F0E6', 'stroke-width': 3, 'stroke-linecap': 'round' }, layer);
+    /* the crown over #1, the one from the Z logo */
+    const cr = add('g', { transform: 'rotate(-4 488 104)' }, layer);
+    const crown = 'M444 138 L434 84 L464 110 L488 70 L512 110 L542 84 L532 138 Z';
+    add('path', { d: crown, fill: '#2F5A12', stroke: '#2F5A12', 'stroke-width': 12, 'stroke-linejoin': 'round' }, cr);
+    add('path', { d: crown, fill: 'url(#fm-l)', stroke: '#B4F53A', 'stroke-width': 3, 'stroke-linejoin': 'round' }, cr);
+    for (const [cx, cy] of [[434, 84], [488, 70], [542, 84]]) add('circle', { cx, cy, r: 7, fill: '#B4F53A', stroke: '#2F5A12', 'stroke-width': 4 }, cr);
+    piece(top[0], 0, { x: 360, y: 268, size: 150, fill: 'fm-y', line: '#B3207F', deep: '#5E0F44', max: 560, tilt: -4, sx: 440, sy: 326, ss: 58, sc: '#F4F0E6' });
+    if (top[1]) piece(top[1], 1, { x: 1228, y: 166, size: 118, fill: 'fm-l', line: '#2F5A12', deep: '#16300A', max: 420, tilt: -4, sx: 1140, sy: 234, ss: 56, sc: '#4C8A1C' });
+    if (top[2]) piece(top[2], 2, { x: 1330, y: 290, size: 108, fill: 'fm-p', line: '#5A1FB0', deep: '#2C0C5C', max: 370, tilt: -4, sx: 1468, sy: 330, ss: 40, sc: '#FF4DC4' });
+  }
+  document.addEventListener('zid:fame', (e) => {
+    top = (e.detail || []).filter((r) => r && r.name);
+    /* the letters measure right only once their fonts are here */
+    const font = document.fonts && document.fonts.load ? Promise.all([document.fonts.load('800 64px "Bricolage Grotesque"')]) : Promise.resolve();
+    font.then(paint, paint);
+  });
+  Lang.on(paint);
 })();
 
 /* ===== play fullscreen (phones) =====
