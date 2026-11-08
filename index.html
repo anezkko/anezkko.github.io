@@ -652,6 +652,9 @@ button.btn{appearance:none;-webkit-appearance:none;margin:0}
 .hero > .decal{position:absolute;top:-12px;left:62%;z-index:4;margin:0}
 .foot{position:relative}
 .foot > .decal{position:absolute;right:16px;top:-24px;margin:0;z-index:4}
+/* The anez maker's mark: the parent brand behind ZID, kept small and quiet under the footer text */
+.foot .foot-anez{display:flex;align-items:center;gap:10px;margin-top:14px;letter-spacing:.04em}
+.foot .foot-anez svg{width:28px;height:28px;flex:none}
 
 .toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--panel);color:var(--text);border:1px solid var(--line-strong);border-radius:999px;font-family:var(--f-mono);font-size:.74rem;letter-spacing:.05em;padding:.8em 1.2em;display:flex;gap:12px;align-items:center;z-index:20;max-width:calc(100vw - 32px);box-shadow:0 12px 34px -10px rgba(255,77,196,.55)}
 .toast a{color:var(--lime);font-weight:600}
@@ -1631,6 +1634,7 @@ Promise.all([document.fonts?document.fonts.load('1em "Sedgwick Ave Display"'):0,
     <a class="kahva" data-tip href="https://ko-fi.com/zidbosna" target="_blank" rel="noopener"><svg viewBox="0 0 40 44" aria-hidden="true"><path d="M8 40 L12 15 H26 L30 40 Z" fill="#B8632B" stroke="#1E1A14" stroke-width="2" stroke-linejoin="round"/><path d="M10.6 24 H27.4" stroke="#F2C14E" stroke-width="2"/><path d="M26 19 L38 13" stroke="#1E1A14" stroke-width="3" stroke-linecap="round"/><path d="M15 11 q-3 -4 0 -8 M21 11 q-3 -4 0 -8" fill="none" stroke="#1E1A14" stroke-width="1.5" stroke-linecap="round"/></svg><span><b>Buy me a coffee</b><span class="sr-only">: </span><small>keeps ZID going</small><span class="sr-only"> (opens in a new tab)</span></span></a>
     <p class="small foot-links"><a href="https://www.instagram.com/anezkko/" target="_blank" rel="noopener">Instagram @anezkko<span class="sr-only"> (opens in a new tab)</span></a> · <a href="press/">Press kit</a> · <a href="#o-zidu">About ZID</a></p>
     <p class="small">This is a game; real walls have owners. <span lang="bs">Ovo je igra, pravi zidovi imaju vlasnike.</span></p>
+    <p class="small foot-anez"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 0 L54 10 L64 14 L54 18 L50 28 L46 18 L36 14 L46 10 Z" fill="#C9A24A"/><path d="M18 36 H82 V50 L42 80 H82 V94 H18 V80 L58 50 H18 Z" fill="#F5F3EE"/></svg><span data-en="Part of the anez family">Dio anez porodice</span></p>
   </div>
 </footer>
 </div>
